@@ -25,6 +25,7 @@ export interface WizardAnswers {
 interface TripWizardProps {
   onComplete: (answers: WizardAnswers) => void
   onClose: () => void
+  initialDestination?: string
 }
 
 const WHO_OPTIONS = ['Just me', 'Couple', 'Family with young kids', 'Family with older kids', 'Group of friends']
@@ -47,9 +48,9 @@ function tripDays(start: string, end: string): number {
   return Math.round(diff / (1000 * 60 * 60 * 24))
 }
 
-export function TripWizard({ onComplete, onClose }: TripWizardProps) {
+export function TripWizard({ onComplete, onClose, initialDestination }: TripWizardProps) {
   const [step, setStep] = useState(1)
-  const [destination, setDestination] = useState('')
+  const [destination, setDestination] = useState(initialDestination ?? '')
   const [dateMode, setDateMode] = useState<'specific' | 'month' | 'flexible'>('specific')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')

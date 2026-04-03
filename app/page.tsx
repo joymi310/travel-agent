@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
@@ -312,12 +312,23 @@ const LOADING_MESSAGES = [
 
 export default function HomePage() {
   const [showWizard, setShowWizard] = useState(false)
+  const [wizardInitialDest, setWizardInitialDest] = useState('')
   const [showLoading, setShowLoading] = useState(false)
   const [loadingMsg, setLoadingMsg] = useState('')
   const [loadingDest, setLoadingDest] = useState('')
   const [genError, setGenError] = useState(false)
   const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
   const router = useRouter()
+
+  // Auto-open wizard if ?destination= param is present
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const dest = params.get('destination')
+    if (dest) {
+      setWizardInitialDest(dest)
+      setShowWizard(true)
+    }
+  }, [])
 
   const handleStartPlanning = async () => {
     const supabase = createClient()
@@ -367,7 +378,13 @@ export default function HomePage() {
   return (
     <>
       {/* Wizard modal */}
-      {showWizard && <TripWizard onComplete={handleWizardComplete} onClose={() => setShowWizard(false)} />}
+      {showWizard && (
+        <TripWizard
+          onComplete={handleWizardComplete}
+          onClose={() => setShowWizard(false)}
+          initialDestination={wizardInitialDest}
+        />
+      )}
 
       {/* Loading overlay */}
       {showLoading && (
@@ -457,6 +474,10 @@ export default function HomePage() {
               </a>
             </div>
             <p className="text-sm opacity-50">Free to start · No bookings, just brilliant plans · Works anywhere</p>
+            <Link href="/cities" className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
+              style={{ color: C.dark, opacity: 0.55 }}>
+              🏙️ Explore city guides →
+            </Link>
           </div>
           {/* Right */}
           <div className="relative">

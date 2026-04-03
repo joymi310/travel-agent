@@ -1,0 +1,64 @@
+import { createAdminClient } from '@/lib/supabase/admin'
+import { CitySearchGrid } from '@/components/CitySearchGrid'
+import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const revalidate = 3600
+
+export const metadata: Metadata = {
+  title: 'City Guides — Local Tips, Neighbourhoods & Travel Advice | Wandr',
+  description: 'Explore in-depth travel guides for cities around the world. Real neighbourhood advice, local tips and AI-powered Q&A.',
+}
+
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  dark: '#1A1208',
+}
+
+export default async function CitiesPage() {
+  const admin = createAdminClient()
+  const { data: cities } = await admin
+    .from('cities')
+    .select('slug, name, country, region, hero_tagline')
+    .eq('is_published', true)
+    .order('name')
+
+  return (
+    <div className="min-h-screen" style={{ background: C.sand }}>
+      {/* Nav */}
+      <nav className="border-b px-6 py-4" style={{ background: C.dark, borderColor: 'rgba(245,236,215,0.1)' }}>
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+            wandr.
+          </Link>
+          <Link href="/login" className="text-sm transition-opacity hover:opacity-70"
+            style={{ color: C.sand, opacity: 0.6 }}>
+            Sign in
+          </Link>
+        </div>
+      </nav>
+
+      {/* Header */}
+      <div className="max-w-6xl mx-auto px-6 py-14">
+        <div className="mb-2 text-xs font-medium" style={{ color: C.terra }}>
+          <Link href="/" className="hover:opacity-70 transition-opacity">Home</Link>
+          <span className="mx-2" style={{ color: C.dark, opacity: 0.3 }}>›</span>
+          <span style={{ color: C.dark, opacity: 0.6 }}>City Guides</span>
+        </div>
+        <h1 className="text-4xl lg:text-5xl font-bold mb-3"
+          style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+          City Guides
+        </h1>
+        <p className="text-base max-w-xl" style={{ color: C.dark, opacity: 0.6 }}>
+          In-depth guides written by AI, refined by real travellers. Neighbourhoods, transport, food and a local expert you can chat to.
+        </p>
+      </div>
+
+      {/* Grid */}
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        <CitySearchGrid cities={cities ?? []} />
+      </div>
+    </div>
+  )
+}
