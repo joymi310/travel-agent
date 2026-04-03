@@ -1,6 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -298,8 +302,109 @@ function DestinationScene({ country }: { country: string }) {
 }
 
 // ─── Page ────────────────────────────────────────────────────────────────────
+const LOADING_MESSAGES = [
+  (dest: string) => `Building your trip to ${dest}...`,
+  () => 'Finding the best routes...',
+  () => 'Adding local secrets...',
+  () => 'Checking the weather patterns...',
+  () => 'Curating hidden gems...',
+]
+
 export default function HomePage() {
+  const [showWizard, setShowWizard] = useState(false)
+  const [showLoading, setShowLoading] = useState(false)
+  const [loadingMsg, setLoadingMsg] = useState('')
+  const [loadingDest, setLoadingDest] = useState('')
+  const [genError, setGenError] = useState(false)
+  const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
+  const router = useRouter()
+
+  const handleStartPlanning = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      router.push('/chat')
+    } else {
+      setShowWizard(true)
+    }
+  }
+
+  const generate = async (answers: WizardAnswers) => {
+    setShowWizard(false)
+    setShowLoading(true)
+    setGenError(false)
+    setLoadingDest(answers.destination)
+    setLoadingMsg(LOADING_MESSAGES[0](answers.destination))
+
+    let msgIdx = 0
+    const interval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length
+      setLoadingMsg(LOADING_MESSAGES[msgIdx](answers.destination))
+    }, 2200)
+
+    try {
+      const res = await fetch('/api/generate-itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
+      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
+      router.push('/preview')
+    } catch {
+      setPendingAnswers(answers)
+      setGenError(true)
+    } finally {
+      clearInterval(interval)
+      setShowLoading(false)
+    }
+  }
+
+  const handleWizardComplete = (answers: WizardAnswers) => generate(answers)
+  const retryGenerate = () => pendingAnswers && generate(pendingAnswers)
+
   return (
+    <>
+      {/* Wizard modal */}
+      {showWizard && <TripWizard onComplete={handleWizardComplete} onClose={() => setShowWizard(false)} />}
+
+      {/* Loading overlay */}
+      {showLoading && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6"
+          style={{ background: C.dark }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map(i => (
+              <span key={i} className="w-2.5 h-2.5 rounded-full animate-bounce"
+                style={{ background: C.saffron, animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+          <p className="text-base text-center px-8 max-w-xs" style={{ color: C.sand, opacity: 0.7 }}>{loadingMsg}</p>
+        </div>
+      )}
+
+      {/* Error overlay */}
+      {genError && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6"
+          style={{ background: C.dark }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
+            Something went wrong building your trip to {loadingDest}.
+          </p>
+          <button onClick={retryGenerate}
+            className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
+            style={{ background: C.terra, color: C.sand }}>
+            Try again
+          </button>
+          <button onClick={() => setGenError(false)}
+            className="text-sm transition-opacity hover:opacity-60"
+            style={{ color: C.sand, opacity: 0.4 }}>
+            Cancel
+          </button>
+        </div>
+      )}
+
     <div style={{ fontFamily: 'var(--font-dm-sans), DM Sans, sans-serif', background: C.sand, color: C.dark }}>
 
       {/* ── NAV ── */}
@@ -342,10 +447,10 @@ export default function HomePage() {
               Tell Wandr where you&apos;re dreaming of. Get a personalised itinerary built around you — your pace, your budget, your vibe.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/login" className="font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg"
+              <button onClick={handleStartPlanning} className="font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg"
                 style={{ background: C.terra, color: C.sand }}>
-                Sign in to start planning
-              </Link>
+                Start planning
+              </button>
               <a href="#how-it-works" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
                 style={{ borderColor: C.terra, color: C.terra }}>
                 See how it works
@@ -496,10 +601,10 @@ export default function HomePage() {
             Sign in free and tell us where you&apos;re dreaming of. Your personalised itinerary waits.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/login" className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90"
+            <button onClick={handleStartPlanning} className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90"
               style={{ background: C.sand, color: C.terra }}>
-              Create account
-            </Link>
+              Start planning free
+            </button>
             <Link href="/login" className="font-semibold px-8 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
               style={{ borderColor: C.sand, color: C.sand }}>
               Sign in
@@ -578,5 +683,6 @@ export default function HomePage() {
       </footer>
 
     </div>
+    </>
   )
 }

@@ -26,9 +26,47 @@ const STYLE_LABELS: Record<string, string> = {
   other: '✈️ Other',
 }
 
+function formatItineraryAsMarkdown(itinerary: {
+  destination: string; duration: string; tagline: string;
+  days: Array<{ day: number; title: string; highlights: string[]; accommodation: string; meals: string[]; transport: string; estimatedCost: string }>
+}): string {
+  const lines: string[] = [
+    `# ${itinerary.destination} — ${itinerary.duration}`,
+    `*${itinerary.tagline}*`,
+    '',
+  ]
+  for (const d of itinerary.days) {
+    lines.push(`## Day ${d.day} — ${d.title}`)
+    lines.push('')
+    lines.push('**Highlights**')
+    for (const h of d.highlights) lines.push(`- ${h}`)
+    lines.push('')
+    lines.push(`**Accommodation:** ${d.accommodation}`)
+    lines.push(`**Meals:** ${d.meals.join(' · ')}`)
+    lines.push(`**Transport:** ${d.transport}`)
+    lines.push(`**Estimated cost:** ${d.estimatedCost}`)
+    lines.push('')
+  }
+  lines.push('---')
+  lines.push('*This is your personalised itinerary. Ask me to adjust any day, add activities, change hotels, or plan anything else!*')
+  return lines.join('\n')
+}
+
+function getPendingInitialMessages() {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem('wandr_pending_trip')
+    if (!raw) return []
+    const { itinerary } = JSON.parse(raw)
+    return [{ id: 'pending-itinerary', role: 'assistant' as const, content: formatItineraryAsMarkdown(itinerary) }]
+  } catch { return [] }
+}
+
 export default function ChatPage() {
+  const [initialMessages] = useState(() => getPendingInitialMessages())
   const { messages, input, setInput, handleSubmit, isLoading, append, error } = useChat({
     api: '/api/chat',
+    initialMessages,
   })
   const [user, setUser] = useState<User | null>(null)
   const [travelStyle, setTravelStyle] = useState<string | null>(null)
@@ -48,6 +86,29 @@ export default function ChatPage() {
         const style = profile?.travel_style ?? null
         setTravelStyle(style)
         if (!style) setShowPicker(true)
+
+        // Save pending trip from wizard flow
+        try {
+          const raw = localStorage.getItem('wandr_pending_trip')
+          if (raw) {
+            const { wizardAnswers, itinerary } = JSON.parse(raw)
+            const { createClient: createAdmin } = await import('@/lib/supabase/client')
+            const adminClient = createAdmin()
+            const { data: conv } = await adminClient
+              .from('conversations')
+              .insert({ user_id: u.id, title: wizardAnswers.destination })
+              .select('id')
+              .single()
+            if (conv?.id) {
+              await adminClient.from('messages').insert({
+                conversation_id: conv.id,
+                role: 'assistant',
+                content: formatItineraryAsMarkdown(itinerary),
+              })
+            }
+            localStorage.removeItem('wandr_pending_trip')
+          }
+        } catch { /* non-critical */ }
       }
     })
 
