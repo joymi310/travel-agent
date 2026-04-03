@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
   // Rate limiting
   const identifier = user?.id ?? (req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'anonymous')
-  const { allowed, remaining } = await checkRateLimit(identifier, !!user)
+  const { allowed } = await checkRateLimit(identifier, !!user)
   if (!allowed) {
     return new Response(
       JSON.stringify({ error: 'Daily message limit reached. Please try again tomorrow.' }),
