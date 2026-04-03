@@ -10,16 +10,20 @@ const C = {
 }
 
 export interface WizardAnswers {
+  traveller: string
   destination: string
+  origin: string
   dateMode: 'specific' | 'month' | 'flexible'
   startDate: string
   endDate: string
-  dateText: string   // free text or "Flexible"
+  dateText: string
   duration: number
-  who: string
-  people: number
   budget: string
-  pace: string
+  budgetType: string
+  profileQ1: string
+  profileQ2: string
+  profileQ3: string
+  profileQ4: string
 }
 
 interface TripWizardProps {
@@ -28,18 +32,76 @@ interface TripWizardProps {
   initialDestination?: string
 }
 
-const WHO_OPTIONS = ['Just me', 'Couple', 'Family with young kids', 'Family with older kids', 'Group of friends']
+// ─── Traveller profiles ───────────────────────────────────────────────────────
+
+const TRAVELLER_PROFILES = [
+  { id: 'Solo traveller', icon: '🎒', desc: 'Travelling alone' },
+  { id: 'Solo female traveller', icon: '👩', desc: 'Solo, safety-aware planning' },
+  { id: 'Senior traveller', icon: '🌿', desc: 'Comfort-focused, relaxed pace' },
+  { id: 'Couple', icon: '❤️', desc: 'Two adults' },
+  { id: 'Family with young kids', icon: '🧸', desc: 'Children under 5' },
+  { id: 'Family with older kids', icon: '🎮', desc: 'Children aged 6–11' },
+  { id: 'Family with teens', icon: '🏄', desc: 'Teenagers in the group' },
+]
+
+// ─── Profile-specific questions ───────────────────────────────────────────────
+
+interface PQ {
+  label: string
+  type: 'text' | 'radio'
+  placeholder?: string
+  options?: string[]
+}
+
+const PROFILE_QUESTIONS: Record<string, [PQ, PQ, PQ, PQ]> = {
+  'Solo traveller': [
+    { label: 'Travel pace?', type: 'radio', options: ['Relaxed — a few things a day', 'Balanced — mix of activity and downtime', 'Packed — maximum sights, full days'] },
+    { label: 'What do you care most about?', type: 'text', placeholder: 'e.g. food, culture, nature, adventure, nightlife...' },
+    { label: 'Accommodation style?', type: 'radio', options: ['Hostel / dorm', 'Budget hotel', 'Mid-range hotel', 'Boutique guesthouse'] },
+    { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
+  ],
+  'Solo female traveller': [
+    { label: 'Any areas or situations you\'re nervous about?', type: 'text', placeholder: 'e.g. solo nights out, certain neighbourhoods, or none...' },
+    { label: 'Accommodation preference?', type: 'radio', options: ['Female-only dorm', 'Private room in hostel', 'Boutique guesthouse', 'Hotel'] },
+    { label: 'What do you care most about on this trip?', type: 'text', placeholder: 'e.g. food, culture, beaches, history...' },
+    { label: 'Independent travel or open to group activities?', type: 'radio', options: ['Fully independent', 'Mix of both', 'Prefer group activities for some things'] },
+  ],
+  'Senior traveller': [
+    { label: 'Any mobility considerations to plan around?', type: 'text', placeholder: 'e.g. limited walking, no steep stairs, or none...' },
+    { label: 'Comfortable walking per day?', type: 'radio', options: ['Light (1–2km)', 'Moderate (3–5km)', 'Active (6km+)'] },
+    { label: 'Accommodation comfort level?', type: 'radio', options: ['Mid-range minimum', 'Comfortable / 4-star', 'Luxury', 'Flexible'] },
+    { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
+  ],
+  'Couple': [
+    { label: 'Any competing interests to balance?', type: 'text', placeholder: 'e.g. one loves museums, one wants beaches, or none...' },
+    { label: 'Accommodation style?', type: 'radio', options: ['Budget', 'Mid-range hotel', 'Boutique / design hotel', 'Luxury'] },
+    { label: 'Travel pace?', type: 'radio', options: ['Relaxed', 'Balanced', 'Packed'] },
+    { label: 'Is this a special occasion?', type: 'text', placeholder: 'e.g. anniversary, honeymoon, birthday trip, or leave blank...' },
+  ],
+  'Family with young kids': [
+    { label: 'How old are the kids?', type: 'text', placeholder: 'e.g. 18 months and 3 years' },
+    { label: 'Stroller or nap schedules to work around?', type: 'radio', options: ['Stroller + naps are essential', 'Naps only', 'Pretty flexible now', 'No constraints'] },
+    { label: 'Any dietary restrictions?', type: 'text', placeholder: 'e.g. allergies, fussy eaters, or none...' },
+    { label: 'Accommodation preference?', type: 'radio', options: ['Apartment / villa with kitchen', 'Family hotel room', 'Resort with kids\' facilities', 'Flexible'] },
+  ],
+  'Family with older kids': [
+    { label: 'How old are the kids and what are they into?', type: 'text', placeholder: 'e.g. 8 and 10, love animals and swimming' },
+    { label: 'How much walking before mutiny sets in?', type: 'radio', options: ['Short bursts only', 'A few hours', 'Happy all day'] },
+    { label: 'Any dietary restrictions?', type: 'text', placeholder: 'e.g. allergies, vegetarian, or none...' },
+    { label: 'Accommodation style?', type: 'radio', options: ['Budget family room', 'Mid-range hotel', 'Resort / pool essential', 'Apartment / villa'] },
+  ],
+  'Family with teens': [
+    { label: 'How old are the teens and what are they into?', type: 'text', placeholder: 'e.g. 14 and 16, love food and adventure' },
+    { label: 'Do the teens get input into the plan?', type: 'radio', options: ['Planning together', 'Some input', 'It\'s a surprise'] },
+    { label: 'Any dietary restrictions?', type: 'text', placeholder: 'e.g. vegetarian, allergies, or none...' },
+    { label: 'Accommodation style?', type: 'radio', options: ['Budget / hostel', 'Mid-range hotel', 'Apartment / villa', 'Resort'] },
+  ],
+}
 
 const BUDGET_OPTIONS = [
   { id: 'Budget', icon: '🎒', label: 'Budget', desc: 'Hostels, street food, local transport' },
   { id: 'Mid-range', icon: '✈️', label: 'Mid-range', desc: 'Comfortable hotels, mix of dining' },
   { id: 'Luxury', icon: '🥂', label: 'Luxury', desc: 'Great hotels, experiences, no compromises' },
-]
-
-const PACE_OPTIONS = [
-  { id: 'Relaxed', icon: '🐢', label: 'Relaxed', desc: 'A few things a day, lots of wandering' },
-  { id: 'Balanced', icon: '⚖️', label: 'Balanced', desc: 'Good mix of activities and downtime' },
-  { id: 'Packed', icon: '⚡', label: 'Packed', desc: 'Maximum sights, early starts, full days' },
 ]
 
 function tripDays(start: string, end: string): number {
@@ -50,34 +112,58 @@ function tripDays(start: string, end: string): number {
 
 export function TripWizard({ onComplete, onClose, initialDestination }: TripWizardProps) {
   const [step, setStep] = useState(1)
+
+  // Step 1
+  const [traveller, setTraveller] = useState('')
+  // Step 2
   const [destination, setDestination] = useState(initialDestination ?? '')
+  const [origin, setOrigin] = useState('')
+  // Step 3
   const [dateMode, setDateMode] = useState<'specific' | 'month' | 'flexible'>('specific')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [monthText, setMonthText] = useState('')
-  const [who, setWho] = useState('')
-  const [people, setPeople] = useState(2)
+  // Step 4
   const [budget, setBudget] = useState('')
-  const [pace, setPace] = useState('')
+  const [budgetType, setBudgetType] = useState<'flights-included' | 'land-only'>('flights-included')
+  // Step 5 — profile-specific
+  const [profileQ1, setProfileQ1] = useState('')
+  const [profileQ2, setProfileQ2] = useState('')
+  const [profileQ3, setProfileQ3] = useState('')
+  const [profileQ4, setProfileQ4] = useState('')
+
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const days = tripDays(startDate, endDate)
   const TOTAL_STEPS = 5
 
+  const profileQuestions = traveller ? PROFILE_QUESTIONS[traveller] ?? [] : []
+  const profileValues = [profileQ1, profileQ2, profileQ3, profileQ4]
+  const profileSetters = [setProfileQ1, setProfileQ2, setProfileQ3, setProfileQ4]
+
   const validate = (): boolean => {
     const e: Record<string, string> = {}
-    if (step === 1 && !destination.trim()) e.destination = 'Please enter a destination'
-    if (step === 2 && dateMode === 'specific') {
+    if (step === 1 && !traveller) e.traveller = 'Please select your traveller type'
+    if (step === 2) {
+      if (!destination.trim()) e.destination = 'Please enter a destination'
+      if (!origin.trim()) e.origin = 'Please enter where you\'re flying from'
+    }
+    if (step === 3 && dateMode === 'specific') {
       if (!startDate) e.startDate = 'Please choose a departure date'
       if (!endDate) e.endDate = 'Please choose a return date'
       if (startDate && endDate && endDate <= startDate) e.endDate = 'Return must be after departure'
     }
-    if (step === 2 && dateMode === 'month' && !monthText.trim()) {
+    if (step === 3 && dateMode === 'month' && !monthText.trim()) {
       e.monthText = 'Please enter a month or time of year'
     }
-    if (step === 3 && !who) e.who = 'Please select who is coming'
     if (step === 4 && !budget) e.budget = 'Please select a budget'
-    if (step === 5 && !pace) e.pace = 'Please select a travel pace'
+    if (step === 5) {
+      profileQuestions.forEach((q, i) => {
+        if (q.type === 'radio' && !profileValues[i]) {
+          e[`q${i}`] = 'Please select an option'
+        }
+      })
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -92,9 +178,11 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
     if (!validate()) return
     if (step === TOTAL_STEPS) {
       onComplete({
-        destination, dateMode, startDate, endDate,
+        traveller, destination, origin,
+        dateMode, startDate, endDate,
         dateText: buildDateText(), duration: days,
-        who, people, budget, pace,
+        budget, budgetType,
+        profileQ1, profileQ2, profileQ3, profileQ4,
       })
     } else {
       setStep(s => s + 1)
@@ -111,6 +199,12 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
     border: `2px solid ${selected ? C.terra : `${C.saffron}33`}`,
     cursor: 'pointer',
     transition: 'all 0.15s',
+  })
+
+  const inputStyle = (hasError?: boolean) => ({
+    background: 'white',
+    border: `1.5px solid ${hasError ? C.terra : `${C.saffron}44`}`,
+    color: C.dark,
   })
 
   return (
@@ -134,41 +228,92 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-6 py-6 space-y-5">
+        {/* Scrollable content */}
+        <div className="px-6 py-6 space-y-4 overflow-y-auto" style={{ maxHeight: '65vh' }}>
 
-          {/* STEP 1 — WHERE */}
+          {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-                Where do you want to go?
+                Who&apos;s travelling?
               </h2>
-              <div>
-                <input
-                  type="text"
-                  value={destination}
-                  onChange={e => { setDestination(e.target.value); setErrors({}) }}
-                  placeholder="e.g. Vietnam, Japan, Morocco..."
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
-                  style={{ background: 'white', border: `1.5px solid ${errors.destination ? C.terra : `${C.saffron}44`}`, color: C.dark }}
-                  onFocus={e => e.target.style.borderColor = C.terra}
-                  onBlur={e => e.target.style.borderColor = errors.destination ? C.terra : `${C.saffron}44`}
-                  autoFocus
-                  onKeyDown={e => e.key === 'Enter' && next()}
-                />
-                {errors.destination && <p className="mt-1.5 text-xs" style={{ color: C.terra }}>{errors.destination}</p>}
+              <div className="space-y-2">
+                {TRAVELLER_PROFILES.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => { setTraveller(p.id); setErrors({}) }}
+                    className="w-full text-left rounded-xl p-3.5 transition-all flex items-center gap-3"
+                    style={cardStyle(traveller === p.id)}
+                  >
+                    <span className="text-xl shrink-0">{p.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm" style={{ color: C.dark }}>{p.id}</p>
+                      <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.5 }}>{p.desc}</p>
+                    </div>
+                    {traveller === p.id && (
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0"
+                        style={{ background: C.terra, color: C.sand }}>✓</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {errors.traveller && <p className="text-xs" style={{ color: C.terra }}>{errors.traveller}</p>}
+            </>
+          )}
+
+          {/* STEP 2 — DESTINATION + ORIGIN */}
+          {step === 2 && (
+            <>
+              <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                Where are you going?
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>
+                    Destination
+                  </label>
+                  <input
+                    type="text"
+                    value={destination}
+                    onChange={e => { setDestination(e.target.value); setErrors({}) }}
+                    placeholder="e.g. Vietnam, Japan, Morocco..."
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                    style={inputStyle(!!errors.destination)}
+                    onFocus={e => e.target.style.borderColor = C.terra}
+                    onBlur={e => e.target.style.borderColor = errors.destination ? C.terra : `${C.saffron}44`}
+                    autoFocus
+                    onKeyDown={e => e.key === 'Enter' && next()}
+                  />
+                  {errors.destination && <p className="mt-1.5 text-xs" style={{ color: C.terra }}>{errors.destination}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>
+                    Where are you flying from?
+                  </label>
+                  <input
+                    type="text"
+                    value={origin}
+                    onChange={e => { setOrigin(e.target.value); setErrors({}) }}
+                    placeholder="e.g. Auckland, Sydney, London..."
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                    style={inputStyle(!!errors.origin)}
+                    onFocus={e => e.target.style.borderColor = C.terra}
+                    onBlur={e => e.target.style.borderColor = errors.origin ? C.terra : `${C.saffron}44`}
+                    onKeyDown={e => e.key === 'Enter' && next()}
+                  />
+                  {errors.origin && <p className="mt-1.5 text-xs" style={{ color: C.terra }}>{errors.origin}</p>}
+                </div>
               </div>
             </>
           )}
 
-          {/* STEP 2 — WHEN */}
-          {step === 2 && (
+          {/* STEP 3 — DATES */}
+          {step === 3 && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
                 When are you travelling?
               </h2>
 
-              {/* Mode tabs */}
               <div className="flex gap-1 p-1 rounded-xl" style={{ background: `${C.dark}08` }}>
                 {(['specific', 'month', 'flexible'] as const).map(mode => (
                   <button
@@ -197,7 +342,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                         value={startDate}
                         onChange={e => { setStartDate(e.target.value); setErrors({}) }}
                         className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
-                        style={{ background: 'white', border: `1.5px solid ${errors.startDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                        style={inputStyle(!!errors.startDate)}
                         onFocus={e => e.target.style.borderColor = C.terra}
                         onBlur={e => e.target.style.borderColor = errors.startDate ? C.terra : `${C.saffron}44`}
                       />
@@ -210,7 +355,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                         value={endDate}
                         onChange={e => { setEndDate(e.target.value); setErrors({}) }}
                         className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
-                        style={{ background: 'white', border: `1.5px solid ${errors.endDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                        style={inputStyle(!!errors.endDate)}
                         onFocus={e => e.target.style.borderColor = C.terra}
                         onBlur={e => e.target.style.borderColor = errors.endDate ? C.terra : `${C.saffron}44`}
                       />
@@ -233,7 +378,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                     onChange={e => { setMonthText(e.target.value); setErrors({}) }}
                     placeholder="e.g. March 2027, next summer, Christmas..."
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
-                    style={{ background: 'white', border: `1.5px solid ${errors.monthText ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                    style={inputStyle(!!errors.monthText)}
                     onFocus={e => e.target.style.borderColor = C.terra}
                     onBlur={e => e.target.style.borderColor = errors.monthText ? C.terra : `${C.saffron}44`}
                     autoFocus
@@ -253,53 +398,11 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
 
-          {/* STEP 3 — WHO */}
-          {step === 3 && (
-            <>
-              <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-                Who&apos;s coming?
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {WHO_OPTIONS.map(opt => (
-                  <button
-                    key={opt}
-                    onClick={() => { setWho(opt); setErrors({}) }}
-                    className="px-4 py-2 rounded-full text-sm font-medium transition-all"
-                    style={{
-                      background: who === opt ? C.terra : 'white',
-                      color: who === opt ? C.sand : C.dark,
-                      border: `1.5px solid ${who === opt ? C.terra : `${C.dark}20`}`,
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-              {errors.who && <p className="text-xs" style={{ color: C.terra }}>{errors.who}</p>}
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>
-                  How many people total?
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={people}
-                  onChange={e => setPeople(Number(e.target.value))}
-                  className="w-24 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
-                  style={{ background: 'white', border: `1.5px solid ${C.saffron}44`, color: C.dark }}
-                  onFocus={e => e.target.style.borderColor = C.terra}
-                  onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
-                />
-              </div>
-            </>
-          )}
-
           {/* STEP 4 — BUDGET */}
           {step === 4 && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-                What&apos;s your budget vibe?
+                What&apos;s your budget?
               </h2>
               <div className="space-y-2">
                 {BUDGET_OPTIONS.map(opt => (
@@ -324,44 +427,84 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                 ))}
               </div>
               {errors.budget && <p className="text-xs" style={{ color: C.terra }}>{errors.budget}</p>}
+
+              <div>
+                <p className="text-xs font-medium mb-2" style={{ color: C.dark, opacity: 0.5 }}>
+                  Does that include flights?
+                </p>
+                <div className="flex gap-2">
+                  {(['flights-included', 'land-only'] as const).map(bt => (
+                    <button
+                      key={bt}
+                      onClick={() => setBudgetType(bt)}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-medium transition-all"
+                      style={{
+                        background: budgetType === bt ? `${C.terra}12` : 'white',
+                        border: `1.5px solid ${budgetType === bt ? C.terra : `${C.dark}15`}`,
+                        color: budgetType === bt ? C.terra : C.dark,
+                      }}
+                    >
+                      {bt === 'flights-included' ? 'Flights included' : 'Land only'}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </>
           )}
 
-          {/* STEP 5 — PACE */}
-          {step === 5 && (
+          {/* STEP 5 — PROFILE-SPECIFIC QUESTIONS */}
+          {step === 5 && traveller && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-                How do you like to travel?
+                A few more details
               </h2>
-              <div className="space-y-2">
-                {PACE_OPTIONS.map(opt => (
-                  <button
-                    key={opt.id}
-                    onClick={() => { setPace(opt.id); setErrors({}) }}
-                    className="w-full text-left rounded-xl p-4 transition-all"
-                    style={cardStyle(pace === opt.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{opt.icon}</span>
-                      <div>
-                        <p className="font-semibold text-sm" style={{ color: C.dark }}>{opt.label}</p>
-                        <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.5 }}>{opt.desc}</p>
+              <p className="text-sm" style={{ color: C.dark, opacity: 0.5 }}>
+                Help us tailor your itinerary as a {traveller.toLowerCase()}.
+              </p>
+              <div className="space-y-5">
+                {profileQuestions.map((q, i) => (
+                  <div key={i}>
+                    <p className="text-sm font-medium mb-2" style={{ color: C.dark }}>{q.label}</p>
+                    {q.type === 'text' ? (
+                      <input
+                        type="text"
+                        value={profileValues[i]}
+                        onChange={e => { profileSetters[i](e.target.value); setErrors({}) }}
+                        placeholder={q.placeholder}
+                        className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                        style={inputStyle()}
+                        onFocus={e => e.target.style.borderColor = C.terra}
+                        onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
+                      />
+                    ) : (
+                      <div className="space-y-1.5">
+                        {q.options!.map(opt => (
+                          <button
+                            key={opt}
+                            onClick={() => { profileSetters[i](opt); setErrors({}) }}
+                            className="w-full text-left rounded-xl px-4 py-2.5 text-sm transition-all"
+                            style={{
+                              background: profileValues[i] === opt ? `${C.terra}12` : 'white',
+                              border: `1.5px solid ${profileValues[i] === opt ? C.terra : `${C.dark}15`}`,
+                              color: C.dark,
+                            }}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                        {errors[`q${i}`] && <p className="text-xs mt-1" style={{ color: C.terra }}>{errors[`q${i}`]}</p>}
                       </div>
-                      {pace === opt.id && (
-                        <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center text-xs"
-                          style={{ background: C.terra, color: C.sand }}>✓</div>
-                      )}
-                    </div>
-                  </button>
+                    )}
+                  </div>
                 ))}
               </div>
-              {errors.pace && <p className="text-xs" style={{ color: C.terra }}>{errors.pace}</p>}
             </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6 flex items-center justify-between gap-3">
+        <div className="px-6 pb-6 pt-2 flex items-center justify-between gap-3"
+          style={{ borderTop: `1px solid ${C.sand}` }}>
           {step > 1 ? (
             <button onClick={back} className="text-sm font-medium transition-opacity hover:opacity-60"
               style={{ color: C.dark, opacity: 0.45 }}>

@@ -31,14 +31,11 @@ interface Itinerary {
 
 interface PendingTrip {
   wizardAnswers: {
+    traveller: string
     destination: string
-    duration: number
-    who: string
-    people: number
+    origin: string
     budget: string
-    pace: string
-    startDate: string
-    endDate: string
+    budgetType: string
   }
   itinerary: Itinerary
 }
@@ -203,9 +200,9 @@ export default function PreviewPage() {
         <div className="flex flex-wrap gap-2 justify-center text-sm">
           {[
             itinerary.duration,
-            wizardAnswers.who,
+            wizardAnswers.traveller,
             wizardAnswers.budget,
-            `${wizardAnswers.pace} pace`,
+            `Flying from ${wizardAnswers.origin}`,
           ].map(stat => (
             <span key={stat} className="px-3 py-1.5 rounded-full text-xs font-medium"
               style={{ background: `${C.dark}10`, color: C.dark }}>

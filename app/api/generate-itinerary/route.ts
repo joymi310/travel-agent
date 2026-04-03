@@ -5,7 +5,12 @@ export const maxDuration = 120
 
 export async function POST(req: Request) {
   try {
-    const { destination, dateText, duration, who, people, budget, pace } = await req.json()
+    const {
+      traveller, destination, origin,
+      dateText, duration,
+      budget, budgetType,
+      profileQ1, profileQ2, profileQ3, profileQ4,
+    } = await req.json()
 
     const dateClause = dateText === 'Flexible'
       ? 'Dates are flexible — assume a typical time of year for this destination.'
@@ -13,7 +18,14 @@ export async function POST(req: Request) {
 
     const durationClause = duration > 0 ? `${duration} day` : '7 day'
 
-    const userMessage = `Plan a ${durationClause} trip to ${destination} for ${who}, total ${people} people, with a ${budget} budget and a ${pace} pace. ${dateClause}`
+    const profileQuestions = [profileQ1, profileQ2, profileQ3, profileQ4].filter(Boolean)
+
+    const userMessage = [
+      `Plan a ${durationClause} trip to ${destination} for a ${traveller} flying from ${origin}.`,
+      dateClause,
+      `Budget: ${budget} (${budgetType === 'flights-included' ? 'flights included' : 'land costs only'}).`,
+      profileQuestions.length > 0 ? `Additional details: ${profileQuestions.join(' | ')}` : '',
+    ].filter(Boolean).join(' ')
 
     const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. Use exactly this structure:
 {
@@ -36,7 +48,7 @@ export async function POST(req: Request) {
     }
   ]
 }
-Include accommodation, meals, transport, and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
+Include accommodation, meals, transport, and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days. Tailor the itinerary specifically to the traveller profile and their answers.`
 
     const { text } = await generateText({
       model: anthropic('claude-haiku-4-5-20251001'),
@@ -53,7 +65,6 @@ Include accommodation, meals, transport, and estimatedCost for every day. Be spe
       const itinerary = JSON.parse(cleaned)
       return Response.json({ itinerary })
     } catch {
-      // Try to extract JSON from the response if there's surrounding text
       const match = cleaned.match(/\{[\s\S]*\}/)
       if (match) {
         const itinerary = JSON.parse(match[0])
