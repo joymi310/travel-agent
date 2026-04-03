@@ -4,11 +4,12 @@ import { generateText } from 'ai'
 export const maxDuration = 120
 
 export async function POST(req: Request) {
-  const { destination, startDate, endDate, duration, who, people, budget, pace } = await req.json()
+  try {
+    const { destination, startDate, endDate, duration, who, people, budget, pace } = await req.json()
 
-  const userMessage = `Plan a ${duration} day trip to ${destination} for ${who}, total ${people} people, with a ${budget} budget and a ${pace} pace. Dates: ${startDate} to ${endDate}.`
+    const userMessage = `Plan a ${duration} day trip to ${destination} for ${who}, total ${people} people, with a ${budget} budget and a ${pace} pace. Dates: ${startDate} to ${endDate}.`
 
-  const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. Use exactly this structure:
+    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. Use exactly this structure:
 {
   "destination": "Vietnam",
   "duration": "10 days",
@@ -31,18 +32,32 @@ export async function POST(req: Request) {
 }
 Include accommodation, meals, transport, and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration} days.`
 
-  const { text } = await generateText({
-    model: anthropic('claude-sonnet-4-20250514'),
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  })
+    const { text } = await generateText({
+      model: anthropic('claude-haiku-4-5-20251001'),
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+      maxTokens: 8000,
+    })
 
-  const cleaned = text.replace(/```json|```/g, '').trim()
+    const cleaned = text.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, m =>
+      m.replace(/```json|```/g, '')
+    ).trim()
 
-  try {
-    const itinerary = JSON.parse(cleaned)
-    return Response.json({ itinerary })
-  } catch {
-    return Response.json({ error: 'Failed to parse itinerary' }, { status: 500 })
+    try {
+      const itinerary = JSON.parse(cleaned)
+      return Response.json({ itinerary })
+    } catch {
+      // Try to extract JSON from the response if there's surrounding text
+      const match = cleaned.match(/\{[\s\S]*\}/)
+      if (match) {
+        const itinerary = JSON.parse(match[0])
+        return Response.json({ itinerary })
+      }
+      console.error('JSON parse failed. Raw text:', text.slice(0, 500))
+      return Response.json({ error: 'Failed to parse itinerary' }, { status: 500 })
+    }
+  } catch (err) {
+    console.error('generate-itinerary error:', err)
+    return Response.json({ error: String(err) }, { status: 500 })
   }
 }
