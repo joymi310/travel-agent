@@ -167,25 +167,10 @@ export default function ChatPage() {
           <Link href="/" className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
             wandr.
           </Link>
-          {travelStyle && (
-            <span className="text-xs px-2 py-0.5 rounded-full hidden sm:block"
-              style={{ background: `${C.sand}12`, color: C.sand, border: `1px solid ${C.sand}20` }}>
-              {STYLE_LABELS[travelStyle] ?? travelStyle}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-3 text-sm">
           {user ? (
             <>
-              {travelStyle && (
-                <button
-                  onClick={() => setShowPicker(true)}
-                  className="transition-opacity hover:opacity-70"
-                  style={{ color: C.saffron }}
-                >
-                  Change style
-                </button>
-              )}
               <button onClick={handleSignOut} className="transition-opacity hover:opacity-70"
                 style={{ color: C.sand, opacity: 0.6 }}>
                 Sign out
