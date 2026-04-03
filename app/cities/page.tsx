@@ -3,7 +3,7 @@ import { CitySearchGrid } from '@/components/CitySearchGrid'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'City Guides — Local Tips, Neighbourhoods & Travel Advice | Wandr',
