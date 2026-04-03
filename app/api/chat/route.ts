@@ -7,8 +7,21 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 120
 
+const MAX_MESSAGE_LEN = 4000
+const MAX_MESSAGES = 50
+
 export async function POST(req: Request) {
-  const { messages, conversationId, itinerary } = await req.json()
+  const body = await req.json()
+
+  // Input validation (NIST SI-10, OWASP A03)
+  const messages = Array.isArray(body.messages)
+    ? body.messages.slice(0, MAX_MESSAGES).map((m: { role: string; content: string }) => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: typeof m.content === 'string' ? m.content.slice(0, MAX_MESSAGE_LEN) : '',
+      }))
+    : []
+  const conversationId = typeof body.conversationId === 'string' ? body.conversationId : undefined
+  const itinerary = body.itinerary && typeof body.itinerary === 'object' ? body.itinerary : null
 
   // Get authenticated user (optional — works without auth too)
   const supabase = createClient()
