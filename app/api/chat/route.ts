@@ -26,15 +26,13 @@ export async function POST(req: Request) {
 
   // Fetch profile if logged in
   let travelStyle: string | null = null
-  let profileData: Record<string, string> | null = null
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('travel_style, profile_data')
+      .select('travel_style')
       .eq('id', user.id)
       .single()
     travelStyle = profile?.travel_style ?? null
-    profileData = profile?.profile_data ?? null
   }
 
   // If the user just completed the profile wizard, replace the trigger with a real prompt
@@ -53,7 +51,7 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     model: anthropic('claude-sonnet-4-20250514'),
-    system: buildSystemPrompt(travelStyle, profileData) + itineraryContext,
+    system: buildSystemPrompt(travelStyle) + itineraryContext,
     messages: resolvedMessages,
     providerOptions: {
       anthropic: {

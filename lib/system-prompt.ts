@@ -34,8 +34,7 @@ const PROFILE_BEHAVIOURS: Record<string, string> = {
 }
 
 export function buildSystemPrompt(
-  travelStyle?: string | null,
-  profileData?: Record<string, string> | null
+  travelStyle?: string | null
 ): string {
   const profileSection = travelStyle && PROFILE_BEHAVIOURS[travelStyle]
     ? `\n\n${PROFILE_BEHAVIOURS[travelStyle]}`

@@ -18,14 +18,6 @@ const C = {
   dark: '#1A1208',
 }
 
-const STYLE_LABELS: Record<string, string> = {
-  backpacker: '🎒 Backpacker',
-  family_young_kids: '🧸 Family (young kids)',
-  family_teens: '🏄 Family (teens)',
-  senior: '🌿 Senior',
-  off_beaten_track: '🗺️ Off the beaten track',
-  other: '✈️ Other',
-}
 
 function formatItineraryAsMarkdown(itinerary: {
   destination: string; duration: string; tagline: string;
@@ -84,7 +76,6 @@ export default function ChatPage() {
     body: { itinerary },
   })
   const [user, setUser] = useState<User | null>(null)
-  const [travelStyle, setTravelStyle] = useState<string | null>(null)
   const [showPicker, setShowPicker] = useState(false)
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const supabase = createClient()
@@ -100,7 +91,6 @@ export default function ChatPage() {
           .eq('id', u.id)
           .single()
         const style = profile?.travel_style ?? null
-        setTravelStyle(style)
         if (!style) setShowPicker(true)
 
         // Save pending trip from wizard flow
@@ -139,15 +129,13 @@ export default function ChatPage() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
-    setTravelStyle(null)
   }
 
   return (
     <div className="flex flex-col h-screen" style={{ background: C.sand }}>
       {showPicker && user && (
         <ProfileWizard
-          onSave={(style) => {
-            setTravelStyle(style)
+          onSave={() => {
             setShowPicker(false)
             append({ role: 'user', content: '__profile_complete__' })
           }}
