@@ -11,8 +11,10 @@ const C = {
 
 export interface WizardAnswers {
   destination: string
+  dateMode: 'specific' | 'month' | 'flexible'
   startDate: string
   endDate: string
+  dateText: string   // free text or "Flexible"
   duration: number
   who: string
   people: number
@@ -48,8 +50,10 @@ function tripDays(start: string, end: string): number {
 export function TripWizard({ onComplete, onClose }: TripWizardProps) {
   const [step, setStep] = useState(1)
   const [destination, setDestination] = useState('')
+  const [dateMode, setDateMode] = useState<'specific' | 'month' | 'flexible'>('specific')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [monthText, setMonthText] = useState('')
   const [who, setWho] = useState('')
   const [people, setPeople] = useState(2)
   const [budget, setBudget] = useState('')
@@ -62,10 +66,13 @@ export function TripWizard({ onComplete, onClose }: TripWizardProps) {
   const validate = (): boolean => {
     const e: Record<string, string> = {}
     if (step === 1 && !destination.trim()) e.destination = 'Please enter a destination'
-    if (step === 2) {
+    if (step === 2 && dateMode === 'specific') {
       if (!startDate) e.startDate = 'Please choose a departure date'
       if (!endDate) e.endDate = 'Please choose a return date'
       if (startDate && endDate && endDate <= startDate) e.endDate = 'Return must be after departure'
+    }
+    if (step === 2 && dateMode === 'month' && !monthText.trim()) {
+      e.monthText = 'Please enter a month or time of year'
     }
     if (step === 3 && !who) e.who = 'Please select who is coming'
     if (step === 4 && !budget) e.budget = 'Please select a budget'
@@ -74,10 +81,20 @@ export function TripWizard({ onComplete, onClose }: TripWizardProps) {
     return Object.keys(e).length === 0
   }
 
+  const buildDateText = () => {
+    if (dateMode === 'flexible') return 'Flexible'
+    if (dateMode === 'month') return monthText
+    return `${startDate} to ${endDate}`
+  }
+
   const next = () => {
     if (!validate()) return
     if (step === TOTAL_STEPS) {
-      onComplete({ destination, startDate, endDate, duration: days, who, people, budget, pace })
+      onComplete({
+        destination, dateMode, startDate, endDate,
+        dateText: buildDateText(), duration: days,
+        who, people, budget, pace,
+      })
     } else {
       setStep(s => s + 1)
     }
@@ -149,38 +166,88 @@ export function TripWizard({ onComplete, onClose }: TripWizardProps) {
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
                 When are you travelling?
               </h2>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>Departure</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={e => { setStartDate(e.target.value); setErrors({}) }}
-                    className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
-                    style={{ background: 'white', border: `1.5px solid ${errors.startDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
-                    onFocus={e => e.target.style.borderColor = C.terra}
-                    onBlur={e => e.target.style.borderColor = errors.startDate ? C.terra : `${C.saffron}44`}
-                  />
-                  {errors.startDate && <p className="mt-1 text-xs" style={{ color: C.terra }}>{errors.startDate}</p>}
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>Return</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={e => { setEndDate(e.target.value); setErrors({}) }}
-                    className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
-                    style={{ background: 'white', border: `1.5px solid ${errors.endDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
-                    onFocus={e => e.target.style.borderColor = C.terra}
-                    onBlur={e => e.target.style.borderColor = errors.endDate ? C.terra : `${C.saffron}44`}
-                  />
-                  {errors.endDate && <p className="mt-1 text-xs" style={{ color: C.terra }}>{errors.endDate}</p>}
-                </div>
+
+              {/* Mode tabs */}
+              <div className="flex gap-1 p-1 rounded-xl" style={{ background: `${C.dark}08` }}>
+                {(['specific', 'month', 'flexible'] as const).map(mode => (
+                  <button
+                    key={mode}
+                    onClick={() => { setDateMode(mode); setErrors({}) }}
+                    className="flex-1 py-2 rounded-lg text-xs font-medium transition-all"
+                    style={{
+                      background: dateMode === mode ? 'white' : 'transparent',
+                      color: dateMode === mode ? C.terra : C.dark,
+                      boxShadow: dateMode === mode ? '0 1px 4px rgba(26,18,8,0.1)' : 'none',
+                      opacity: dateMode === mode ? 1 : 0.5,
+                    }}
+                  >
+                    {mode === 'specific' ? 'Exact dates' : mode === 'month' ? 'A month' : "I'm flexible"}
+                  </button>
+                ))}
               </div>
-              {days > 0 && (
-                <p className="text-sm font-medium" style={{ color: C.terra }}>
-                  That&apos;s {days} day{days !== 1 ? 's' : ''} ✈️
-                </p>
+
+              {dateMode === 'specific' && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>Departure</label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={e => { setStartDate(e.target.value); setErrors({}) }}
+                        className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
+                        style={{ background: 'white', border: `1.5px solid ${errors.startDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                        onFocus={e => e.target.style.borderColor = C.terra}
+                        onBlur={e => e.target.style.borderColor = errors.startDate ? C.terra : `${C.saffron}44`}
+                      />
+                      {errors.startDate && <p className="mt-1 text-xs" style={{ color: C.terra }}>{errors.startDate}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>Return</label>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={e => { setEndDate(e.target.value); setErrors({}) }}
+                        className="w-full rounded-xl px-3 py-3 text-sm outline-none transition-all"
+                        style={{ background: 'white', border: `1.5px solid ${errors.endDate ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                        onFocus={e => e.target.style.borderColor = C.terra}
+                        onBlur={e => e.target.style.borderColor = errors.endDate ? C.terra : `${C.saffron}44`}
+                      />
+                      {errors.endDate && <p className="mt-1 text-xs" style={{ color: C.terra }}>{errors.endDate}</p>}
+                    </div>
+                  </div>
+                  {days > 0 && (
+                    <p className="text-sm font-medium" style={{ color: C.terra }}>
+                      That&apos;s {days} day{days !== 1 ? 's' : ''} ✈️
+                    </p>
+                  )}
+                </>
+              )}
+
+              {dateMode === 'month' && (
+                <div>
+                  <input
+                    type="text"
+                    value={monthText}
+                    onChange={e => { setMonthText(e.target.value); setErrors({}) }}
+                    placeholder="e.g. March 2027, next summer, Christmas..."
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                    style={{ background: 'white', border: `1.5px solid ${errors.monthText ? C.terra : `${C.saffron}44`}`, color: C.dark }}
+                    onFocus={e => e.target.style.borderColor = C.terra}
+                    onBlur={e => e.target.style.borderColor = errors.monthText ? C.terra : `${C.saffron}44`}
+                    autoFocus
+                  />
+                  {errors.monthText && <p className="mt-1.5 text-xs" style={{ color: C.terra }}>{errors.monthText}</p>}
+                </div>
+              )}
+
+              {dateMode === 'flexible' && (
+                <div className="py-4 text-center">
+                  <p className="text-3xl mb-2">🗓️</p>
+                  <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
+                    No worries — we&apos;ll plan your trip without locking in dates.
+                  </p>
+                </div>
               )}
             </>
           )}
