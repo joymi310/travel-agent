@@ -92,23 +92,25 @@ export default function ChatPage() {
           const raw = localStorage.getItem('wandr_pending_trip')
           if (raw) {
             const { wizardAnswers, itinerary } = JSON.parse(raw)
-            const { createClient: createAdmin } = await import('@/lib/supabase/client')
-            const adminClient = createAdmin()
-            const { data: conv } = await adminClient
+            console.log('[wandr] Saving pending trip for user', u.id, 'destination:', wizardAnswers.destination)
+            const { data: conv, error: convErr } = await supabase
               .from('conversations')
               .insert({ user_id: u.id, title: wizardAnswers.destination })
               .select('id')
               .single()
+            console.log('[wandr] Conversation insert:', conv?.id, convErr?.message)
             if (conv?.id) {
-              await adminClient.from('messages').insert({
+              const { error: msgErr } = await supabase.from('messages').insert({
                 conversation_id: conv.id,
                 role: 'assistant',
                 content: formatItineraryAsMarkdown(itinerary),
               })
+              console.log('[wandr] Message insert error:', msgErr?.message)
             }
             localStorage.removeItem('wandr_pending_trip')
+            console.log('[wandr] Pending trip cleared from localStorage')
           }
-        } catch { /* non-critical */ }
+        } catch (err) { console.error('[wandr] Pending trip save failed:', err) }
       }
     })
 
