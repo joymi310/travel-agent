@@ -236,7 +236,7 @@ export default function PreviewPage() {
           <Link href="/login"
             className="shrink-0 font-semibold px-6 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-90 whitespace-nowrap"
             style={{ background: C.terra, color: C.sand }}>
-            Unlock full itinerary
+            Sign in to edit your itinerary
           </Link>
         </div>
       </div>
