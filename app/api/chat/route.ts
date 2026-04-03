@@ -46,7 +46,20 @@ export async function POST(req: Request) {
     : messages
 
   const itineraryContext = itinerary
-    ? `\n\nThe user has an existing itinerary that is displayed to them. Treat this as the current plan — when they ask to change something, modify this itinerary specifically rather than creating a new one from scratch.\n\nCurrent itinerary:\nDestination: ${itinerary.destination}\nDuration: ${itinerary.duration}\nTagline: ${itinerary.tagline}\n${itinerary.days.map((d: { day: number; title: string; highlights: string[]; accommodation: string; meals: string[]; transport: string; estimatedCost: string }) => `Day ${d.day} — ${d.title}\nHighlights: ${d.highlights.join(', ')}\nStay: ${d.accommodation}\nMeals: ${d.meals.join(', ')}\nTransport: ${d.transport}\nEst. cost: ${d.estimatedCost}`).join('\n\n')}`
+    ? `\n\nThe user has an existing itinerary displayed in a panel next to this chat. Treat this as the current plan.
+
+Current itinerary (JSON):
+${JSON.stringify(itinerary)}
+
+IMPORTANT — when the user asks you to change, swap, add, remove, or modify anything in the itinerary:
+1. Explain the change conversationally in plain text (1–3 sentences)
+2. Then output the COMPLETE updated itinerary as valid JSON at the very end of your response, wrapped exactly like this:
+<itinerary_update>
+{"destination":"...","duration":"...","tagline":"...","days":[...]}
+</itinerary_update>
+Use the exact same JSON structure as the current itinerary. Include ALL days (not just the changed ones).
+
+If the user is only asking a question and NOT modifying the itinerary, do NOT include <itinerary_update> tags.`
     : ''
 
   const result = await streamText({

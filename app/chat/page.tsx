@@ -68,7 +68,7 @@ function getPendingInitialMessages() {
 }
 
 export default function ChatPage() {
-  const [itinerary] = useState<Itinerary | null>(() => getPendingItinerary())
+  const [itinerary, setItinerary] = useState<Itinerary | null>(() => getPendingItinerary())
   const [initialMessages] = useState(() => getPendingInitialMessages())
   const { messages, input, setInput, handleSubmit, isLoading, append, error } = useChat({
     api: '/api/chat',
@@ -79,6 +79,20 @@ export default function ChatPage() {
   const [showPicker, setShowPicker] = useState(false)
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const supabase = createClient()
+
+  // Parse itinerary updates from AI messages
+  useEffect(() => {
+    const last = messages[messages.length - 1]
+    if (last?.role !== 'assistant') return
+    const match = last.content.match(/<itinerary_update>([\s\S]*?)<\/itinerary_update>/)
+    if (!match) return
+    try {
+      const updated = JSON.parse(match[1].trim())
+      setItinerary(updated)
+    } catch {
+      console.error('[wandr] Failed to parse itinerary update')
+    }
+  }, [messages])
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -213,7 +227,15 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
-              <ChatMessages messages={messages} isLoading={isLoading} />
+              <ChatMessages
+                messages={messages.map(m => ({
+                  ...m,
+                  content: m.role === 'assistant'
+                    ? m.content.replace(/<itinerary_update>[\s\S]*?<\/itinerary_update>/g, '').trim()
+                    : m.content,
+                }))}
+                isLoading={isLoading}
+              />
             )}
           </div>
 
