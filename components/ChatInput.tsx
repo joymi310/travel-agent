@@ -3,6 +3,13 @@
 import { useRef, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  saffron: '#E8850A',
+  dark: '#1A1208',
+}
+
 interface ChatInputProps {
   input: string
   setInput: (value: string) => void
@@ -36,15 +43,23 @@ export function ChatInput({ input, setInput, handleSubmit, isLoading }: ChatInpu
         value={input}
         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask about flights, itineraries, costs…"
+        placeholder="Ask about destinations, itineraries, costs…"
         rows={1}
-        className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-sky-500 transition-colors"
+        className="flex-1 rounded-xl px-4 py-3 text-sm resize-none outline-none transition-all"
+        style={{
+          background: 'white',
+          border: `1.5px solid ${C.saffron}44`,
+          color: C.dark,
+        }}
+        onFocus={e => e.target.style.borderColor = C.terra}
+        onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
         disabled={isLoading}
       />
       <button
         type="submit"
         disabled={!input.trim() || isLoading}
-        className="bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl px-4 py-3 text-sm font-medium transition-colors shrink-0"
+        className="rounded-xl px-4 py-3 text-sm font-medium transition-opacity shrink-0 disabled:opacity-40"
+        style={{ background: C.terra, color: C.sand }}
       >
         Send
       </button>

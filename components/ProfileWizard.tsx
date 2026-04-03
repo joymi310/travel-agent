@@ -4,6 +4,14 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { PROFILE_TREE } from '@/lib/profile-tree'
 
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  saffron: '#E8850A',
+  jade: '#2A7A5B',
+  dark: '#1A1208',
+}
+
 const TRAVEL_STYLES = [
   { id: 'backpacker', label: 'Backpacker', desc: 'Budget-conscious, hostels, flexibility', icon: '🎒' },
   { id: 'family_young_kids', label: 'Family — young kids', desc: 'Toddlers and under-5s', icon: '🧸' },
@@ -91,44 +99,61 @@ export function ProfileWizard({ onSave, onSkip }: ProfileWizardProps) {
   const isTextQuestion = currentQuestion?.type === 'text'
 
   return (
-    <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+      style={{ background: `${C.dark}CC` }}>
+      <div className="max-w-lg w-full rounded-2xl p-6 space-y-5"
+        style={{ background: C.sand, boxShadow: '0 24px 64px rgba(26,18,8,0.35)' }}>
 
+        {/* Progress bar */}
         {style && questions.length > 0 && (
-          <div className="w-full bg-slate-800 rounded-full h-1">
+          <div className="w-full rounded-full h-1" style={{ background: `${C.dark}15` }}>
             <div
-              className="bg-sky-500 h-1 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
+              className="h-1 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%`, background: C.terra }}
             />
           </div>
         )}
 
         {saving ? (
-          <div className="text-center py-8 text-slate-400 text-sm">Saving your profile…</div>
+          <div className="text-center py-8 text-sm" style={{ color: C.dark, opacity: 0.5 }}>
+            Saving your profile…
+          </div>
 
         ) : step === 0 ? (
           <>
             <div className="space-y-1">
-              <h2 className="text-lg font-semibold">What kind of traveller are you?</h2>
-              <p className="text-slate-400 text-sm">This tailors every recommendation to your situation.</p>
+              <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                What kind of traveller are you?
+              </h2>
+              <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
+                This tailors every recommendation to your situation.
+              </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {TRAVEL_STYLES.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => handleStyleSelect(s.id)}
-                  className="text-left rounded-xl border border-slate-700 hover:border-sky-500 hover:bg-sky-500/10 bg-slate-800/50 p-3 transition-colors"
+                  className="text-left rounded-xl p-3 transition-all hover:scale-[1.02]"
+                  style={{
+                    background: 'white',
+                    border: `1.5px solid ${C.saffron}33`,
+                    boxShadow: '0 1px 3px rgba(26,18,8,0.06)',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = C.terra)}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = `${C.saffron}33`)}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">{s.icon}</span>
-                    <span className="font-medium text-sm">{s.label}</span>
+                    <span className="font-medium text-sm" style={{ color: C.dark }}>{s.label}</span>
                   </div>
-                  <p className="text-slate-400 text-xs leading-snug">{s.desc}</p>
+                  <p className="text-xs leading-snug" style={{ color: C.dark, opacity: 0.5 }}>{s.desc}</p>
                 </button>
               ))}
             </div>
             <div className="flex justify-end">
-              <button onClick={onSkip} className="text-slate-400 hover:text-white text-sm transition-colors">
+              <button onClick={onSkip} className="text-sm transition-opacity hover:opacity-70"
+                style={{ color: C.dark, opacity: 0.45 }}>
                 Skip for now
               </button>
             </div>
@@ -137,10 +162,12 @@ export function ProfileWizard({ onSave, onSkip }: ProfileWizardProps) {
         ) : currentQuestion ? (
           <>
             <div className="space-y-1">
-              <p className="text-xs text-slate-500 uppercase tracking-wide">
+              <p className="text-xs uppercase tracking-wide font-medium" style={{ color: C.terra }}>
                 Question {step} of {questions.length}
               </p>
-              <h2 className="text-lg font-semibold">{currentQuestion.question}</h2>
+              <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                {currentQuestion.question}
+              </h2>
             </div>
 
             {isTextQuestion ? (
@@ -150,12 +177,20 @@ export function ProfileWizard({ onSave, onSkip }: ProfileWizardProps) {
                   onChange={e => setTextInput(e.target.value)}
                   placeholder={currentQuestion.placeholder}
                   rows={3}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-sky-500 transition-colors"
+                  className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none transition-all"
+                  style={{
+                    background: 'white',
+                    border: `1.5px solid ${C.saffron}44`,
+                    color: C.dark,
+                  }}
+                  onFocus={e => e.target.style.borderColor = C.terra}
+                  onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleTextAnswer() } }}
                 />
                 <button
                   onClick={handleTextAnswer}
-                  className="w-full bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium py-3 rounded-xl transition-colors"
+                  className="w-full text-sm font-semibold py-3 rounded-xl transition-opacity hover:opacity-90"
+                  style={{ background: C.terra, color: C.sand }}
                 >
                   {textInput.trim() ? 'Save & finish' : 'Skip & finish'}
                 </button>
@@ -166,21 +201,30 @@ export function ProfileWizard({ onSave, onSkip }: ProfileWizardProps) {
                   <button
                     key={opt.id}
                     onClick={() => handleOptionAnswer(currentQuestion.id, opt.id)}
-                    className="w-full text-left rounded-xl border border-slate-700 hover:border-sky-500 hover:bg-sky-500/10 bg-slate-800/50 px-4 py-3 transition-colors"
+                    className="w-full text-left rounded-xl px-4 py-3 transition-all"
+                    style={{
+                      background: 'white',
+                      border: `1.5px solid ${C.saffron}33`,
+                      boxShadow: '0 1px 3px rgba(26,18,8,0.06)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = C.terra)}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = `${C.saffron}33`)}
                   >
-                    <span className="font-medium text-sm">{opt.label}</span>
-                    {opt.desc && <p className="text-slate-400 text-xs mt-0.5">{opt.desc}</p>}
+                    <span className="font-medium text-sm" style={{ color: C.dark }}>{opt.label}</span>
+                    {opt.desc && <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.5 }}>{opt.desc}</p>}
                   </button>
                 ))}
               </div>
             )}
 
             <div className="flex justify-between items-center pt-1">
-              <button onClick={handleBack} className="text-slate-400 hover:text-white text-sm transition-colors">
+              <button onClick={handleBack} className="text-sm transition-opacity hover:opacity-70"
+                style={{ color: C.dark, opacity: 0.5 }}>
                 ← Back
               </button>
               {!isTextQuestion && (
-                <button onClick={onSkip} className="text-slate-400 hover:text-white text-sm transition-colors">
+                <button onClick={onSkip} className="text-sm transition-opacity hover:opacity-70"
+                  style={{ color: C.dark, opacity: 0.45 }}>
                   Skip
                 </button>
               )}

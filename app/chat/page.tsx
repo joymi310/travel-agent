@@ -9,6 +9,14 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  saffron: '#E8850A',
+  jade: '#2A7A5B',
+  dark: '#1A1208',
+}
+
 const STYLE_LABELS: Record<string, string> = {
   backpacker: '🎒 Backpacker',
   family_young_kids: '🧸 Family (young kids)',
@@ -56,7 +64,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-white">
+    <div className="flex flex-col h-screen" style={{ background: C.sand }}>
       {showPicker && user && (
         <ProfileWizard
           onSave={(style) => {
@@ -69,18 +77,20 @@ export default function ChatPage() {
       )}
 
       {/* Header */}
-      <header className="border-b border-slate-800 px-4 py-3 flex items-center gap-3 shrink-0">
-        <Link href="/" className="text-slate-400 hover:text-white transition-colors text-sm">
+      <header className="border-b px-4 py-3 flex items-center gap-3 shrink-0"
+        style={{ background: C.dark, borderColor: `${C.sand}15` }}>
+        <Link href="/" className="text-sm transition-opacity hover:opacity-70"
+          style={{ color: C.sand, opacity: 0.6 }}>
           ← Back
         </Link>
-        <div className="w-px h-4 bg-slate-700" />
+        <div className="w-px h-4" style={{ background: `${C.sand}20` }} />
         <div className="flex items-center gap-2 flex-1">
-          <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center text-xs font-bold">
-            TA
-          </div>
-          <span className="font-medium text-sm">Travel Agent</span>
+          <Link href="/" className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+            wandr.
+          </Link>
           {travelStyle && (
-            <span className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full hidden sm:block">
+            <span className="text-xs px-2 py-0.5 rounded-full hidden sm:block"
+              style={{ background: `${C.sand}12`, color: C.sand, border: `1px solid ${C.sand}20` }}>
               {STYLE_LABELS[travelStyle] ?? travelStyle}
             </span>
           )}
@@ -91,18 +101,20 @@ export default function ChatPage() {
               {travelStyle && (
                 <button
                   onClick={() => setShowPicker(true)}
-                  className="text-slate-400 hover:text-white transition-colors"
-                  title="Change travel style"
+                  className="transition-opacity hover:opacity-70"
+                  style={{ color: C.saffron }}
                 >
                   Change style
                 </button>
               )}
-              <button onClick={handleSignOut} className="text-slate-400 hover:text-white transition-colors">
+              <button onClick={handleSignOut} className="transition-opacity hover:opacity-70"
+                style={{ color: C.sand, opacity: 0.6 }}>
                 Sign out
               </button>
             </>
           ) : (
-            <Link href="/login" className="text-sky-400 hover:text-sky-300 transition-colors">
+            <Link href="/login" className="font-medium transition-opacity hover:opacity-70"
+              style={{ color: C.saffron }}>
               Sign in to save chats
             </Link>
           )}
@@ -113,7 +125,14 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-slate-600 text-sm">Ask me anything about your next trip.</p>
+            <div className="text-center space-y-2">
+              <p className="text-2xl" style={{ fontFamily: 'var(--font-playfair)', color: C.dark, opacity: 0.3 }}>
+                Where to next?
+              </p>
+              <p className="text-sm" style={{ color: C.dark, opacity: 0.4 }}>
+                Ask me anything about your next adventure.
+              </p>
+            </div>
           </div>
         ) : (
           <ChatMessages messages={messages} isLoading={isLoading} />
@@ -122,20 +141,21 @@ export default function ChatPage() {
 
       {/* Rate limit error */}
       {error && (
-        <div className="bg-red-900/40 border-t border-red-800 px-4 py-2 text-center text-red-300 text-sm shrink-0">
+        <div className="px-4 py-2 text-center text-sm shrink-0 border-t"
+          style={{ background: `${C.terra}15`, color: C.terra, borderColor: `${C.terra}30` }}>
           {error.message.includes('limit') ? 'Daily message limit reached. Please try again tomorrow.' : 'Something went wrong. Please try again.'}
         </div>
       )}
 
       {/* Input area */}
-      <div className="border-t border-slate-800 p-4 shrink-0">
+      <div className="border-t p-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand }}>
         <ChatInput
           input={input}
           setInput={setInput}
           handleSubmit={handleSubmit}
           isLoading={isLoading}
         />
-        <p className="text-center text-slate-600 text-xs mt-2">
+        <p className="text-center text-xs mt-2" style={{ color: C.dark, opacity: 0.35 }}>
           Planning only — no bookings made
         </p>
       </div>

@@ -4,6 +4,14 @@ import { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { Message } from 'ai'
 
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  saffron: '#E8850A',
+  jade: '#2A7A5B',
+  dark: '#1A1208',
+}
+
 interface ChatMessagesProps {
   messages: Message[]
   isLoading: boolean
@@ -24,20 +32,27 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
           className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
         >
           {message.role === 'assistant' && (
-            <div className="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-xs font-bold shrink-0 mt-1">
-              TA
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1"
+              style={{ background: C.terra, color: C.sand, fontFamily: 'var(--font-playfair)' }}>
+              w.
             </div>
           )}
 
           <div
-            className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-              message.role === 'user'
-                ? 'bg-sky-600 text-white rounded-tr-sm'
-                : 'bg-slate-800 text-slate-100 rounded-tl-sm'
-            }`}
+            className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
+            style={message.role === 'user'
+              ? { background: C.terra, color: C.sand, borderTopRightRadius: '4px' }
+              : { background: 'white', color: C.dark, borderTopLeftRadius: '4px', boxShadow: '0 1px 3px rgba(26,18,8,0.08)' }
+            }
           >
             {message.role === 'assistant' ? (
-              <div className="prose prose-invert prose-sm max-w-none prose-p:my-2 prose-headings:text-white prose-headings:font-semibold prose-strong:text-white prose-li:my-0.5">
+              <div className="prose prose-sm max-w-none
+                prose-p:my-2
+                prose-headings:font-semibold
+                prose-strong:font-semibold
+                prose-li:my-0.5
+                prose-a:underline"
+                style={{ color: C.dark } as React.CSSProperties}>
                 <ReactMarkdown>
                   {Array.isArray(message.content)
                     ? message.content.filter((p: {type: string}) => p.type === 'text').map((p: {type: string, text: string}) => p.text).join('')
@@ -53,14 +68,15 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
 
       {isLoading && (
         <div className="flex gap-3">
-          <div className="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-xs font-bold shrink-0 mt-1">
-            TA
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1"
+            style={{ background: C.terra, color: C.sand, fontFamily: 'var(--font-playfair)' }}>
+            w.
           </div>
-          <div className="bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className="rounded-2xl px-4 py-3" style={{ background: 'white', borderTopLeftRadius: '4px', boxShadow: '0 1px 3px rgba(26,18,8,0.08)' }}>
             <div className="flex gap-1 items-center h-5">
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
+              <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s]" style={{ background: C.saffron }} />
+              <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s]" style={{ background: C.saffron }} />
+              <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: C.saffron }} />
             </div>
           </div>
         </div>
