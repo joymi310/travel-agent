@@ -81,6 +81,7 @@ export default function ChatPage() {
   const { messages, input, setInput, handleSubmit, isLoading, append, error } = useChat({
     api: '/api/chat',
     initialMessages,
+    body: { itinerary },
   })
   const [user, setUser] = useState<User | null>(null)
   const [travelStyle, setTravelStyle] = useState<string | null>(null)
