@@ -70,10 +70,11 @@ function getPendingInitialMessages() {
 export default function ChatPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(() => getPendingItinerary())
   const [initialMessages] = useState(() => getPendingInitialMessages())
-  const { messages, input, setInput, handleSubmit, isLoading, append, error } = useChat({
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const { messages, input, setInput, handleSubmit, isLoading, append, error, setMessages } = useChat({
     api: '/api/chat',
     initialMessages,
-    body: { itinerary },
+    body: { itinerary, conversationId },
   })
   const [user, setUser] = useState<User | null>(null)
   const [showPicker, setShowPicker] = useState(false)
@@ -108,29 +109,51 @@ export default function ChatPage() {
         if (!style) setShowPicker(true)
 
         // Save pending trip from wizard flow
-        try {
-          const raw = localStorage.getItem('wandr_pending_trip')
-          if (raw) {
+        const raw = localStorage.getItem('wandr_pending_trip')
+        if (raw) {
+          try {
             const { wizardAnswers, itinerary: pendingItinerary } = JSON.parse(raw)
-            console.log('[wandr] Saving pending trip for user', u.id, 'destination:', wizardAnswers.destination)
-            const { data: conv, error: convErr } = await supabase
+            const { data: conv } = await supabase
               .from('conversations')
               .insert({ user_id: u.id, title: wizardAnswers.destination })
               .select('id')
               .single()
-            console.log('[wandr] Conversation insert:', conv?.id, convErr?.message)
             if (conv?.id) {
-              const { error: msgErr } = await supabase.from('messages').insert({
+              await supabase.from('messages').insert({
                 conversation_id: conv.id,
                 role: 'assistant',
                 content: formatItineraryAsMarkdown(pendingItinerary),
               })
-              console.log('[wandr] Message insert error:', msgErr?.message)
             }
             localStorage.removeItem('wandr_pending_trip')
-            console.log('[wandr] Pending trip cleared from localStorage')
+          } catch (err) { console.error('[wandr] Pending trip save failed:', err) }
+        } else {
+          // No pending trip — restore most recent conversation
+          const { data: conv } = await supabase
+            .from('conversations')
+            .select('id')
+            .eq('user_id', u.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          if (conv?.id) {
+            setConversationId(conv.id)
+            const { data: msgs } = await supabase
+              .from('messages')
+              .select('id, role, content')
+              .eq('conversation_id', conv.id)
+              .order('created_at', { ascending: true })
+
+            if (msgs && msgs.length > 0) {
+              setMessages(msgs.map(m => ({
+                id: m.id,
+                role: m.role as 'user' | 'assistant',
+                content: m.content,
+              })))
+            }
           }
-        } catch (err) { console.error('[wandr] Pending trip save failed:', err) }
+        }
       }
     })
 
@@ -139,6 +162,12 @@ export default function ChatPage() {
     })
     return () => subscription.unsubscribe()
   }, [supabase])
+
+  const startNewTrip = () => {
+    setMessages([])
+    setConversationId(null)
+    setItinerary(null)
+  }
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -173,6 +202,12 @@ export default function ChatPage() {
         <div className="flex items-center gap-3 text-sm">
           {user ? (
             <>
+              {messages.length > 0 && (
+                <button onClick={startNewTrip} className="text-sm font-medium px-3 py-1.5 rounded-full transition-opacity hover:opacity-80"
+                  style={{ background: C.terra, color: C.sand }}>
+                  + New trip
+                </button>
+              )}
               <button onClick={handleSignOut} className="transition-opacity hover:opacity-70"
                 style={{ color: C.sand, opacity: 0.6 }}>
                 Sign out
