@@ -246,7 +246,7 @@ export default function ChatPage() {
 
         {/* Left — Chat */}
         <div
-          className={`flex flex-col overflow-hidden ${itinerary ? 'lg:w-[45%] lg:border-r' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
+          className={`flex flex-col overflow-hidden ${itinerary ? 'lg:w-[40%] lg:border-r' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
           style={{ borderColor: `${C.dark}10` }}
         >
           <div className="flex-1 overflow-y-auto">
