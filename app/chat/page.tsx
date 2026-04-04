@@ -72,7 +72,7 @@ export default function ChatPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(() => getPendingItinerary())
   const [initialMessages] = useState(() => getPendingInitialMessages())
   const [conversationId, setConversationId] = useState<string | null>(null)
-  const { messages, input, setInput, handleSubmit, isLoading, append, error, setMessages } = useChat({
+  const { messages, input, setInput, handleSubmit, isLoading, error, setMessages } = useChat({
     api: '/api/chat',
     initialMessages,
     body: { itinerary, conversationId },

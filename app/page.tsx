@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
