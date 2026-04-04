@@ -117,7 +117,7 @@ export default function ChatPage() {
             const { wizardAnswers, itinerary: pendingItinerary } = JSON.parse(raw)
             const { data: conv } = await supabase
               .from('conversations')
-              .insert({ user_id: u.id, title: wizardAnswers.destination })
+              .insert({ user_id: u.id, title: wizardAnswers.destination, itinerary: pendingItinerary })
               .select('id')
               .single()
             if (conv?.id) {
@@ -133,7 +133,7 @@ export default function ChatPage() {
           // No pending trip — restore most recent conversation
           const { data: conv } = await supabase
             .from('conversations')
-            .select('id')
+            .select('id, itinerary')
             .eq('user_id', u.id)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -141,6 +141,8 @@ export default function ChatPage() {
 
           if (conv?.id) {
             setConversationId(conv.id)
+            if (conv.itinerary) setItinerary(conv.itinerary)
+
             const { data: msgs } = await supabase
               .from('messages')
               .select('id, role, content')
