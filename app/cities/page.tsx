@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { CitySearchGrid } from '@/components/CitySearchGrid'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -17,8 +17,8 @@ const C = {
 }
 
 export default async function CitiesPage() {
-  const admin = createAdminClient()
-  const { data: cities } = await admin
+  const supabase = createClient()
+  const { data: cities } = await supabase
     .from('cities')
     .select('slug, name, country, region, hero_tagline')
     .eq('is_published', true)
