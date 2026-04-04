@@ -26,27 +26,7 @@ interface Questionnaire {
   duration: string
 }
 
-function buildGuidePrompt(city: CityData, q: Questionnaire): string {
-  const neighbourhoodList = city.neighbourhoods
-    .map(n => `- **${n.name}**: ${n.vibe} Best for: ${n.best_for}. Price range: ${n.price_range}.`)
-    .join('\n')
-
-  return `You are Wandr, an expert travel guide. Generate a personalised city guide for ${city.name}, ${city.country}.
-
-## CITY CONTEXT
-${city.overview}
-
-Neighbourhoods:
-${neighbourhoodList}
-
-Best time to visit: ${city.best_time}
-Getting around: ${city.getting_around}
-
-## THIS TRAVELLER
-- Travelling: ${q.companions}
-- Budget: ${q.budget}
-- Interests: ${q.interests.join(', ')}
-- Duration: ${q.duration}
+const GUIDE_INSTRUCTIONS = `You are Wandr, an expert travel guide. You will be given city context and a traveller profile, then generate a personalised city guide.
 
 ## YOUR TASK
 Write exactly 5 sections using these exact headings. Each section must be personalised to this specific traveller — their budget, who they're with, and their interests should shape every recommendation.
@@ -69,6 +49,26 @@ Use this exact structure:
 
 ## Where to Shop
 [Shopping recommendations that fit their budget and interests — from markets to boutiques. Specific areas and what to look for.]`
+
+function buildCityContext(city: CityData, q: Questionnaire): string {
+  const neighbourhoodList = city.neighbourhoods
+    .map(n => `- **${n.name}**: ${n.vibe} Best for: ${n.best_for}. Price range: ${n.price_range}.`)
+    .join('\n')
+
+  return `## CITY: ${city.name}, ${city.country}
+${city.overview}
+
+Neighbourhoods:
+${neighbourhoodList}
+
+Best time to visit: ${city.best_time}
+Getting around: ${city.getting_around}
+
+## THIS TRAVELLER
+- Travelling: ${q.companions}
+- Budget: ${q.budget}
+- Interests: ${q.interests.join(', ')}
+- Duration: ${q.duration}`
 }
 
 export async function POST(req: Request) {
@@ -76,13 +76,20 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     model: anthropic('claude-sonnet-4-20250514'),
-    system: buildGuidePrompt(city, questionnaire),
-    messages: [{ role: 'user', content: `Generate my personalised ${city.name} guide.` }],
-    providerOptions: {
-      anthropic: {
-        thinking: { type: 'enabled', budgetTokens: 5000 },
+    messages: [
+      {
+        role: 'system' as const,
+        content: GUIDE_INSTRUCTIONS,
+        providerOptions: {
+          anthropic: { cacheControl: { type: 'ephemeral' } },
+        },
       },
-    },
+      {
+        role: 'system' as const,
+        content: buildCityContext(city, questionnaire),
+      },
+      { role: 'user', content: `Generate my personalised ${city.name} guide.` },
+    ],
   })
 
   return result.toDataStreamResponse()

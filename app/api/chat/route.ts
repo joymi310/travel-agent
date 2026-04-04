@@ -77,13 +77,17 @@ If the user is only asking a question and NOT modifying the itinerary, do NOT in
 
   const result = await streamText({
     model: anthropic('claude-sonnet-4-20250514'),
-    system: buildSystemPrompt(travelStyle) + itineraryContext,
-    messages: resolvedMessages,
-    providerOptions: {
-      anthropic: {
-        thinking: { type: 'enabled', budgetTokens: 8000 },
+    messages: [
+      {
+        role: 'system' as const,
+        content: buildSystemPrompt(travelStyle),
+        providerOptions: {
+          anthropic: { cacheControl: { type: 'ephemeral' } },
+        },
       },
-    },
+      ...(itinerary ? [{ role: 'system' as const, content: itineraryContext.trim() }] : []),
+      ...resolvedMessages,
+    ],
     onFinish: async ({ text }) => {
       if (!user) return
 
