@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react'
 import { useCompletion } from 'ai/react'
 import ReactMarkdown from 'react-markdown'
 import { CityQuestionnaire, type QuestionnaireAnswers } from './CityQuestionnaire'
-import { CityChat } from './CityChat'
 
 const C = {
   sand: '#F5ECD7',
@@ -172,14 +171,6 @@ export function CityGuide({ city, initialAnswers }: Props) {
         </section>
       )}
 
-      {/* City chat — always visible */}
-      <div style={{ background: `${C.sand}80` }}>
-        <CityChat
-          city={city.name}
-          country={city.country}
-          suggestedQuestions={city.suggested_questions}
-        />
-      </div>
     </>
   )
 }

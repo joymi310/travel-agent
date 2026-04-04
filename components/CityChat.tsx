@@ -63,7 +63,7 @@ export function CityChat({ city, country, suggestedQuestions }: CityChatProps) {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-            Ask a local
+            Ask our AI travel expert
           </h2>
           <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
             Get specific answers about {city} — no generic advice.
