@@ -171,6 +171,7 @@ export default function ChatPage() {
     setMessages([])
     setConversationId(null)
     setItinerary(null)
+    setShowPicker(true)
   }
 
   const handleSignOut = async () => {
