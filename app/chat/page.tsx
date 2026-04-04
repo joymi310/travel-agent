@@ -81,17 +81,19 @@ export default function ChatPage() {
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const supabase = createClient()
 
-  // Parse itinerary updates from AI messages
+  // Parse itinerary updates — scan from most recent message backwards
   useEffect(() => {
-    const last = messages[messages.length - 1]
-    if (last?.role !== 'assistant') return
-    const match = last.content.match(/<itinerary_update>([\s\S]*?)<\/itinerary_update>/)
-    if (!match) return
-    try {
-      const updated = JSON.parse(match[1].trim())
-      setItinerary(updated)
-    } catch {
-      console.error('[wandr] Failed to parse itinerary update')
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m.role !== 'assistant') continue
+      const match = m.content.match(/<itinerary_update>([\s\S]*?)<\/itinerary_update>/)
+      if (!match) continue
+      try {
+        setItinerary(JSON.parse(match[1].trim()))
+      } catch {
+        console.error('[wandr] Failed to parse itinerary update')
+      }
+      return
     }
   }, [messages])
 
