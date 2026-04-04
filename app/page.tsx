@@ -320,24 +320,21 @@ export default function HomePage() {
   const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
   const router = useRouter()
 
-  // Auto-open wizard if ?destination= param is present
+  // Auto-open wizard if ?destination= or ?wizard=1 param is present
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const dest = params.get('destination')
+    const forceWizard = params.get('wizard') === '1'
     if (dest) {
       setWizardInitialDest(dest)
+      setShowWizard(true)
+    } else if (forceWizard) {
       setShowWizard(true)
     }
   }, [])
 
   const handleStartPlanning = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      router.push('/chat')
-    } else {
-      setShowWizard(true)
-    }
+    setShowWizard(true)
   }
 
   const generate = async (answers: WizardAnswers) => {

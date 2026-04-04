@@ -187,7 +187,7 @@ export default function ChatPage() {
         <ProfileWizard
           onSave={() => {
             setShowPicker(false)
-            router.push('/')
+            router.push('/?wizard=1')
           }}
           onSkip={() => setShowPicker(false)}
         />
