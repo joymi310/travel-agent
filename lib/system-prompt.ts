@@ -34,10 +34,15 @@ const PROFILE_BEHAVIOURS: Record<string, string> = {
 }
 
 export function buildSystemPrompt(
-  travelStyle?: string | null
+  travelStyle?: string | null,
+  profileData?: Record<string, string> | null
 ): string {
   const profileSection = travelStyle && PROFILE_BEHAVIOURS[travelStyle]
     ? `\n\n${PROFILE_BEHAVIOURS[travelStyle]}`
+    : ''
+
+  const profileDataSection = profileData && Object.keys(profileData).length > 0
+    ? `\n\n## ADDITIONAL PROFILE DETAILS\n${Object.entries(profileData).map(([k, v]) => `- ${k}: ${v}`).join('\n')}`
     : ''
 
   return `## IDENTITY
@@ -98,5 +103,5 @@ For each day:
 - Give overly cautious, liability-driven advice that waters down genuine recommendations
 - Produce vague, generic itineraries that could apply to anyone
 - Start responses with "Great question!" or any sycophantic filler
-- Tell someone their trip idea is a bad idea — explain what it involves and how to do it well${profileSection}`
+- Tell someone their trip idea is a bad idea — explain what it involves and how to do it well${profileSection}${profileDataSection}`
 }

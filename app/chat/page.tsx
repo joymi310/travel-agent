@@ -2,6 +2,7 @@
 
 import { useChat } from 'ai/react'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChatMessages } from '@/components/ChatMessages'
 import { ChatInput } from '@/components/ChatInput'
 import { ProfileWizard } from '@/components/ProfileWizard'
@@ -80,6 +81,7 @@ export default function ChatPage() {
   const [showPicker, setShowPicker] = useState(false)
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const supabase = createClient()
+  const router = useRouter()
 
   // Parse itinerary updates — scan from most recent message backwards
   useEffect(() => {
@@ -185,7 +187,7 @@ export default function ChatPage() {
         <ProfileWizard
           onSave={() => {
             setShowPicker(false)
-            append({ role: 'user', content: '__profile_complete__' })
+            router.push('/')
           }}
           onSkip={() => setShowPicker(false)}
         />
