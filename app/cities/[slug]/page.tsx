@@ -1,6 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CityChat } from '@/components/CityChat'
+import { CityGuide } from '@/components/CityGuide'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
@@ -29,6 +31,21 @@ const PRICE_BADGE: Record<string, { bg: string; text: string }> = {
   Budget: { bg: `${C.jade}18`, text: C.jade },
   'Mid-range': { bg: `${C.saffron}18`, text: '#9A5800' },
   Luxury: { bg: `${C.terra}18`, text: C.terra },
+}
+
+// Profile travel_style → questionnaire companions mapping
+const STYLE_TO_COMPANIONS: Record<string, string> = {
+  backpacker: 'solo',
+  off_beaten_track: 'solo',
+  senior: 'solo',
+  family_young_kids: 'family_young',
+  family_teens: 'family_teens',
+}
+
+const BUDGET_MAP: Record<string, string> = {
+  budget: 'budget',
+  mid: 'mid_range',
+  luxury: 'luxury',
 }
 
 interface Neighbourhood {
@@ -101,6 +118,28 @@ export default async function CityPage({ params }: { params: { slug: string } })
   const neighbourhoods = city.neighbourhoods ?? []
   const suggestedQuestions = city.suggested_questions ?? []
 
+  // Fetch user profile to pre-fill questionnaire
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let initialAnswers: { companions?: string; budget?: string } = {}
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('travel_style, profile_data')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.travel_style) {
+      const companions = STYLE_TO_COMPANIONS[profile.travel_style]
+      if (companions) initialAnswers.companions = companions
+    }
+    if (profile?.profile_data?.budget) {
+      const budget = BUDGET_MAP[profile.profile_data.budget]
+      if (budget) initialAnswers.budget = budget
+    }
+  }
+
   return (
     <div className="min-h-screen" style={{ background: C.sand }}>
       {/* Nav */}
@@ -119,7 +158,6 @@ export default async function CityPage({ params }: { params: { slug: string } })
       {/* ── HERO ── */}
       <div className="px-6 py-16 text-center" style={{ background: regionColor }}>
         <div className="max-w-3xl mx-auto">
-          {/* Breadcrumb */}
           <p className="text-xs mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <Link href="/" className="hover:opacity-80 transition-opacity">Home</Link>
             <span className="mx-2">›</span>
@@ -225,6 +263,21 @@ export default async function CityPage({ params }: { params: { slug: string } })
         )}
 
       </div>
+
+      {/* ── PERSONALISED GUIDE ── */}
+      <CityGuide
+        city={{
+          slug: city.slug,
+          name: city.name,
+          country: city.country,
+          overview: city.overview ?? '',
+          neighbourhoods: neighbourhoods,
+          best_time: city.best_time ?? '',
+          getting_around: city.getting_around ?? '',
+          suggested_questions: suggestedQuestions,
+        }}
+        initialAnswers={initialAnswers}
+      />
 
       {/* ── CITY CHAT ── */}
       <div style={{ background: C.sand }}>
