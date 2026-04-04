@@ -1,4 +1,3 @@
-import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CityChat } from '@/components/CityChat'
@@ -6,7 +5,7 @@ import { CityGuide } from '@/components/CityGuide'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const revalidate = 86400
+export const dynamic = 'force-dynamic'
 
 const C = {
   sand: '#F5ECD7',
@@ -71,23 +70,14 @@ interface City {
 }
 
 async function getCityBySlug(slug: string): Promise<City | null> {
-  const admin = createAdminClient()
-  const { data } = await admin
+  const supabase = createClient()
+  const { data } = await supabase
     .from('cities')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
     .single()
   return data
-}
-
-export async function generateStaticParams() {
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('cities')
-    .select('slug')
-    .eq('is_published', true)
-  return (data ?? []).map(c => ({ slug: c.slug }))
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
