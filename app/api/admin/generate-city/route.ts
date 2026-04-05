@@ -80,6 +80,7 @@ Include 3-5 neighbourhoods. Make all content specific and useful — real names,
     return Response.json({ city })
   } catch (err) {
     console.error('generate-city error:', err)
-    return Response.json({ error: String(err) }, { status: 500 })
+    const msg = err instanceof Error ? err.message : JSON.stringify(err)
+    return Response.json({ error: msg }, { status: 500 })
   }
 }
