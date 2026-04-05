@@ -43,3 +43,20 @@ body {
 .animate-float { animation: float 4s ease-in-out infinite; }
 .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
 .animate-float-fast { animation: float-fast 3s ease-in-out infinite; }
+
+/* Print styles — show only the itinerary panel */
+@media print {
+  body > * { display: none !important; }
+  .wandr-itinerary-panel {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+  .wandr-itinerary-panel [role="toolbar"] { display: none !important; }
+  .wandr-itinerary-panel [role="region"],
+  .wandr-itinerary-panel [id^="day-panel-"] { display: block !important; }
+
+  /* Force all day panels open when printing */
+  .wandr-itinerary-panel .rounded-2xl > div { display: block !important; }
+}

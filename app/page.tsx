@@ -164,142 +164,6 @@ function HeroIllustration() {
 }
 
 
-// ─── Destination SVGs ────────────────────────────────────────────────────────
-function DestinationScene({ country }: { country: string }) {
-  const scenes: Record<string, JSX.Element> = {
-    Vietnam: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#1A5040" />
-        <rect x="0" y="160" width="200" height="100" fill="#2A7A5B" />
-        <polygon points="60,160 100,80 140,160" fill="#C94A2B" />
-        <polygon points="70,160 100,95 130,160" fill="#D4613A" />
-        <polygon points="78,160 100,108 122,160" fill="#C94A2B" />
-        <rect x="88" y="145" width="24" height="15" fill="#1A1208" opacity="0.5" />
-        <rect x="40" y="185" width="6" height="40" fill="#5A3A1A" />
-        <ellipse cx="43" cy="180" rx="18" ry="8" fill="#2A7A5B" transform="rotate(-15 43 180)" />
-        <ellipse cx="43" cy="180" rx="18" ry="8" fill="#3A9A6B" transform="rotate(20 43 180)" />
-        <rect x="154" y="190" width="6" height="35" fill="#5A3A1A" />
-        <ellipse cx="157" cy="185" rx="16" ry="7" fill="#3A9A6B" transform="rotate(10 157 185)" />
-        <ellipse cx="157" cy="185" rx="16" ry="7" fill="#2A7A5B" transform="rotate(-20 157 185)" />
-        <ellipse cx="100" cy="225" rx="60" ry="8" fill="#1A5040" opacity="0.5" />
-        <rect x="20" y="145" width="30" height="8" rx="4" fill="#E8850A" opacity="0.6" />
-        <rect x="150" y="138" width="30" height="8" rx="4" fill="#E8850A" opacity="0.6" />
-      </svg>
-    ),
-    Thailand: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#E8850A" opacity="0.3" />
-        <rect width="200" height="260" fill="#1A1208" opacity="0.5" />
-        <rect x="0" y="180" width="200" height="80" fill="#2A7A5B" />
-        <rect x="70" y="100" width="60" height="90" fill="#C94A2B" />
-        <polygon points="60,100 100,50 140,100" fill="#B03A20" />
-        <polygon points="65,90 100,55 135,90" fill="#C94A2B" />
-        <polygon points="72,80 100,60 128,80" fill="#B03A20" />
-        <rect x="86" y="150" width="28" height="30" rx="14" fill="#1A1208" opacity="0.6" />
-        <circle cx="100" cy="48" r="5" fill="#F9C06A" />
-        <rect x="30" y="170" width="8" height="50" fill="#5A3A1A" />
-        <ellipse cx="34" cy="165" rx="22" ry="9" fill="#3A9A6B" transform="rotate(-10 34 165)" />
-        <ellipse cx="34" cy="165" rx="22" ry="9" fill="#2A7A5B" transform="rotate(25 34 165)" />
-        <rect x="162" y="175" width="8" height="45" fill="#5A3A1A" />
-        <ellipse cx="166" cy="170" rx="20" ry="8" fill="#2A7A5B" transform="rotate(15 166 170)" />
-        <circle cx="50" cy="60" r="12" fill="#F9C06A" opacity="0.8" />
-        <circle cx="160" cy="45" r="3" fill="white" opacity="0.7" />
-        <circle cx="30" cy="40" r="2" fill="white" opacity="0.6" />
-      </svg>
-    ),
-    Japan: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#8B1A4A" opacity="0.4" />
-        <rect width="200" height="260" fill="#1A1208" opacity="0.4" />
-        <rect x="0" y="190" width="200" height="70" fill="#1A3A2A" />
-        <rect x="75" y="130" width="50" height="70" fill="#1A1208" opacity="0.8" />
-        <polygon points="55,130 100,80 145,130" fill="#C94A2B" />
-        <polygon points="62,118 100,92 138,118" fill="#B03A20" />
-        <polygon points="70,108 100,102 130,108" fill="#C94A2B" />
-        <rect x="88" y="168" width="24" height="25" fill="#1A1208" opacity="0.9" />
-        <rect x="82" y="160" width="14" height="8" rx="2" fill="#F9C06A" opacity="0.7" />
-        <rect x="104" y="160" width="14" height="8" rx="2" fill="#F9C06A" opacity="0.7" />
-        {/* Cherry blossoms */}
-        <circle cx="40" cy="120" r="20" fill="#FFB7C5" opacity="0.8" />
-        <circle cx="28" cy="110" r="15" fill="#FFB7C5" opacity="0.7" />
-        <circle cx="52" cy="108" r="12" fill="#FF90A0" opacity="0.6" />
-        <rect x="37" y="138" width="6" height="55" fill="#5A3A1A" />
-        <circle cx="165" cy="115" r="18" fill="#FFB7C5" opacity="0.7" />
-        <circle cx="178" cy="108" r="12" fill="#FF90A0" opacity="0.6" />
-        <rect x="160" y="130" width="6" height="65" fill="#5A3A1A" />
-        <circle cx="100" cy="40" r="18" fill="#FF6B6B" opacity="0.9" />
-        <circle cx="100" cy="40" r="10" fill="#FF9999" />
-      </svg>
-    ),
-    Bali: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#E8850A" opacity="0.5" />
-        <rect width="200" height="260" fill="#1A5040" opacity="0.3" />
-        <rect x="0" y="185" width="200" height="75" fill="#2A5A8A" opacity="0.8" />
-        <rect x="0" y="200" width="200" height="60" fill="#3A7AB0" opacity="0.6" />
-        <rect x="70" y="100" width="60" height="95" fill="#C94A2B" opacity="0.9" />
-        <polygon points="58,100 100,40 142,100" fill="#B03A20" />
-        <polygon points="65,88 100,52 135,88" fill="#C94A2B" />
-        <polygon points="72,78 100,62 128,78" fill="#B03A20" />
-        <polygon points="80,70 100,72 120,70" fill="#C94A2B" />
-        <rect x="86" y="152" width="28" height="33" rx="2" fill="#1A1208" opacity="0.5" />
-        <rect x="30" y="165" width="8" height="55" fill="#5A3A1A" />
-        <ellipse cx="34" cy="158" rx="24" ry="9" fill="#3A9A6B" transform="rotate(-10 34 158)" />
-        <ellipse cx="34" cy="158" rx="24" ry="9" fill="#2A7A5B" transform="rotate(20 34 158)" />
-        <rect x="162" y="170" width="8" height="50" fill="#5A3A1A" />
-        <ellipse cx="166" cy="163" rx="22" ry="9" fill="#2A7A5B" transform="rotate(15 166 163)" />
-        <circle cx="160" cy="55" r="20" fill="#F9C06A" opacity="0.9" />
-        <circle cx="160" cy="55" r="14" fill="#FFE080" />
-      </svg>
-    ),
-    Morocco: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#E8850A" opacity="0.6" />
-        <rect width="200" height="260" fill="#C94A2B" opacity="0.2" />
-        <rect x="0" y="170" width="200" height="90" fill="#D4A055" />
-        <rect x="20" y="90" width="45" height="90" fill="#F5ECD7" opacity="0.9" />
-        <path d="M20,90 Q42,60 65,90" fill="#C94A2B" />
-        <rect x="80" y="70" width="55" height="110" fill="#F5ECD7" />
-        <path d="M80,70 Q107,35 135,70" fill="#B03A20" />
-        <rect x="150" y="100" width="35" height="80" fill="#F5ECD7" opacity="0.9" />
-        <path d="M150,100 Q167,75 185,100" fill="#C94A2B" />
-        <rect x="96" y="120" width="22" height="45" rx="11" fill="#C94A2B" opacity="0.7" />
-        <rect x="28" y="130" width="14" height="30" rx="7" fill="#E8850A" opacity="0.6" />
-        <rect x="157" y="138" width="14" height="30" rx="7" fill="#E8850A" opacity="0.6" />
-        <circle cx="107" cy="55" r="12" fill="#F9C06A" />
-        <circle cx="40" cy="70" r="4" fill="white" opacity="0.8" />
-        <circle cx="170" cy="80" r="3" fill="white" opacity="0.7" />
-        <rect x="0" y="168" width="200" height="4" fill="#C94A2B" opacity="0.4" />
-      </svg>
-    ),
-    India: (
-      <svg viewBox="0 0 200 260" fill="none" className="w-full h-full">
-        <rect width="200" height="260" fill="#E8850A" opacity="0.4" />
-        <rect width="200" height="260" fill="#8B1A4A" opacity="0.2" />
-        <rect x="0" y="180" width="200" height="80" fill="#D4A055" opacity="0.6" />
-        <rect x="55" y="100" width="90" height="90" fill="#F5ECD7" opacity="0.9" />
-        <rect x="55" y="85" width="90" height="18" fill="#E8850A" />
-        <ellipse cx="100" cy="72" rx="35" ry="22" fill="#F5ECD7" />
-        <ellipse cx="100" cy="65" rx="22" ry="20" fill="#F0E0C0" />
-        <ellipse cx="100" cy="58" rx="12" ry="14" fill="#F5ECD7" />
-        <ellipse cx="100" cy="52" rx="6" ry="8" fill="#E8850A" />
-        <circle cx="100" cy="44" r="5" fill="#C94A2B" />
-        <rect x="96" y="156" width="8" height="4" fill="#C94A2B" />
-        <rect x="80" y="155" width="40" height="3" fill="#E8850A" opacity="0.5" />
-        <rect x="64" y="130" width="16" height="22" rx="8" fill="#E8850A" opacity="0.5" />
-        <rect x="120" y="130" width="16" height="22" rx="8" fill="#E8850A" opacity="0.5" />
-        <rect x="20" y="155" width="8" height="60" fill="#5A3A1A" />
-        <ellipse cx="24" cy="148" rx="20" ry="8" fill="#3A9A6B" transform="rotate(-15 24 148)" />
-        <ellipse cx="24" cy="148" rx="20" ry="8" fill="#2A7A5B" transform="rotate(20 24 148)" />
-        <rect x="172" y="158" width="8" height="55" fill="#5A3A1A" />
-        <ellipse cx="176" cy="152" rx="18" ry="8" fill="#2A7A5B" transform="rotate(10 176 152)" />
-        <circle cx="155" cy="50" r="22" fill="#F9C06A" opacity="0.9" />
-        <circle cx="155" cy="50" r="14" fill="#FFE080" />
-      </svg>
-    ),
-  }
-  return scenes[country] ?? <rect width="200" height="260" fill="#2A7A5B" />
-}
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 const LOADING_MESSAGES = [
@@ -386,6 +250,7 @@ export default function HomePage() {
       {/* Loading overlay */}
       {showLoading && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6"
+          role="status" aria-live="polite" aria-label="Loading your itinerary"
           style={{ background: C.dark }}>
           <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
           <div className="flex gap-1.5">
@@ -401,6 +266,7 @@ export default function HomePage() {
       {/* Error overlay */}
       {genError && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6"
+          role="alert" aria-live="assertive"
           style={{ background: C.dark }}>
           <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
           <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
@@ -421,12 +287,24 @@ export default function HomePage() {
 
     <div style={{ fontFamily: 'var(--font-dm-sans), DM Sans, sans-serif', background: C.sand, color: C.dark }}>
 
+      {/* Skip to main content (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:text-sm focus:font-semibold"
+        style={{ background: C.terra, color: C.sand }}
+      >
+        Skip to main content
+      </a>
+
       {/* ── NAV ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4"
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4"
+        aria-label="Main navigation"
         style={{ background: 'rgba(245,236,215,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.saffron}22` }}>
-        <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+        <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Wandr home"
+          style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
           wandr.
-        </span>
+        </Link>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: C.dark }}>
           <a href="#how-it-works" className="hover:opacity-70 transition-opacity">How it works</a>
           <Link href="/cities" className="hover:opacity-70 transition-opacity">City Guides</Link>
@@ -444,7 +322,8 @@ export default function HomePage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className="min-h-screen flex items-center pt-24 pb-16 px-6">
+      <main id="main-content">
+      <section className="min-h-screen flex items-center pt-24 pb-16 px-6" aria-labelledby="hero-heading">
         <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
           <div className="space-y-6">
@@ -452,7 +331,7 @@ export default function HomePage() {
               style={{ background: `${C.saffron}22`, color: C.saffron, border: `1px solid ${C.saffron}44` }}>
               <span>✦</span> Your AI travel companion
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight"
+            <h1 id="hero-heading" className="text-5xl lg:text-6xl font-bold leading-tight tracking-tight"
               style={{ fontFamily: 'var(--font-playfair)' }}>
               Every trip should feel like{' '}
               <em style={{ color: C.terra, fontStyle: 'italic' }}>magic.</em>
@@ -461,14 +340,15 @@ export default function HomePage() {
               Tell Wandr where you&apos;re dreaming of. Get a personalised itinerary built around you — your pace, your budget, your vibe.
             </p>
             <div className="flex flex-wrap gap-3">
-              <button onClick={handleStartPlanning} className="font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg"
-                style={{ background: C.terra, color: C.sand }}>
+              <button onClick={handleStartPlanning}
+                className="font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                style={{ background: C.terra, color: C.sand, outlineColor: C.dark }}>
                 Start planning
               </button>
-              <a href="#how-it-works" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
+              <Link href="/cities" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
                 style={{ borderColor: C.terra, color: C.terra }}>
-                See how it works
-              </a>
+                Explore city guides
+              </Link>
             </div>
             <p className="text-sm opacity-50">Free to start · No bookings, just brilliant plans · Works anywhere</p>
             <Link href="/cities" className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
@@ -478,44 +358,25 @@ export default function HomePage() {
           </div>
           {/* Right */}
           <div className="relative">
-            <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: `radial-gradient(circle, ${C.saffron}, ${C.terra})` }} />
-            <HeroIllustration />
-          </div>
-        </div>
-      </section>
-
-      {/* ── TRUST BAR ── */}
-      <section style={{ background: C.dark, color: C.sand }}>
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { stat: '50,000+', label: 'trips planned' },
-              { stat: '120+', label: 'countries covered' },
-              { stat: 'Weeks', label: 'of research saved' },
-              { stat: 'Free', label: 'to start' },
-            ].map((item) => (
-              <div key={item.label} className="space-y-1">
-                <div className="text-2xl font-bold" style={{ color: C.saffron, fontFamily: 'var(--font-playfair)' }}>{item.stat}</div>
-                <div className="text-sm opacity-60">{item.label}</div>
-              </div>
-            ))}
+            <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: `radial-gradient(circle, ${C.saffron}, ${C.terra})` }} aria-hidden="true" />
+            <div aria-hidden="true"><HeroIllustration /></div>
           </div>
         </div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="py-24 px-6">
+      <section id="how-it-works" className="py-24 px-6" aria-labelledby="how-it-works-heading">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Simple as a conversation</p>
-            <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>How it works</h2>
+            <h2 id="how-it-works-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>How it works</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { step: '01', icon: '✈️', title: 'Sign in & tell us where', desc: 'Create a free account and share where you dream of going — or ask for ideas.' },
-              { step: '02', icon: '💬', title: 'Chat like it\'s a friend', desc: 'Talk naturally. Tell Wandr your budget, travel style, and what excites you.' },
+              { step: '02', icon: '💬', title: "Chat like it's a friend", desc: 'Talk naturally. Tell Wandr your budget, travel style, and what excites you.' },
               { step: '03', icon: '🗺️', title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary built specifically for you.' },
-              { step: '04', icon: '✨', title: 'Tweak until it&apos;s perfect', desc: 'Adjust anything. Change a day, swap a hotel, add a detour. It&apos;s your trip.' },
+              { step: '04', icon: '✨', title: "Tweak until it's perfect", desc: "Adjust anything. Change a day, swap a hotel, add a detour. It's your trip." },
             ].map((item) => (
               <div key={item.step}
                 className="relative rounded-2xl p-6 cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -533,44 +394,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── DESTINATIONS ── */}
-      <section id="destinations" className="py-24 px-6" style={{ background: C.dark }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16" style={{ color: C.sand }}>
-            <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.saffron }}>Wander further</p>
-            <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Dream destinations</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[
-              { name: 'Vietnam', sub: 'Ancient temples & misty mountains' },
-              { name: 'Thailand', sub: 'Golden spires & turquoise waters' },
-              { name: 'Japan', sub: 'Quiet rituals & cherry blossom' },
-              { name: 'Bali', sub: 'Sacred rice fields & ocean sunsets' },
-              { name: 'Morocco', sub: 'Spiced souks & desert stargazing' },
-              { name: 'India', sub: 'Colours, chaos & pure magic' },
-            ].map((dest) => (
-              <Link href="/chat" key={dest.name}
-                className="group relative overflow-hidden rounded-2xl cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
-                style={{ aspectRatio: '3/4' }}>
-                <DestinationScene country={dest.name} />
-                <div className="absolute inset-0 rounded-2xl"
-                  style={{ background: 'linear-gradient(to top, rgba(26,18,8,0.85) 0%, rgba(26,18,8,0.1) 60%, transparent 100%)' }} />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="font-bold text-lg" style={{ color: C.sand, fontFamily: 'var(--font-playfair)' }}>{dest.name}</p>
-                  <p className="text-xs opacity-70" style={{ color: C.sand }}>{dest.sub}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── FEATURES ── */}
-      <section className="py-24 px-6">
+      <section className="py-24 px-6" aria-labelledby="features-heading">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Why Wandr</p>
-            <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Built differently</h2>
+            <h2 id="features-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Built differently</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Dark card */}
@@ -590,14 +419,6 @@ export default function HomePage() {
               <div className="text-2xl">📅</div>
               <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>Day-by-day itinerary</h3>
               <p className="text-sm opacity-70 leading-relaxed">Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.</p>
-            </div>
-            {/* Full width testimonial */}
-            <div className="md:col-span-2 lg:col-span-2 rounded-2xl p-8" style={{ background: C.terra, color: C.sand }}>
-              <div className="text-3xl mb-4">👨‍👩‍👧‍👦</div>
-              <blockquote className="text-xl font-medium leading-relaxed mb-4" style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic' }}>
-                &quot;We were travelling with a toddler and had no idea where to start. Wandr planned our whole Japan trip around nap times, kid-friendly restaurants, and slow mornings. It was genuinely perfect.&quot;
-              </blockquote>
-              <p className="text-sm opacity-70">Sarah & Mike — Wellington → Osaka</p>
             </div>
             {/* Jade card */}
             <div className="rounded-2xl p-6 space-y-3" style={{ background: `${C.jade}22`, border: `1px solid ${C.jade}44` }}>
@@ -632,60 +453,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── REVIEWS ── */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Travellers love it</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                stars: 5,
-                quote: "I've used every travel planning tool out there. Wandr is the first one that actually feels like talking to someone who knows what they're doing.",
-                initials: 'JT',
-                name: 'James T.',
-                route: 'Auckland → Tokyo',
-              },
-              {
-                stars: 5,
-                quote: "The itinerary it built for Morocco was better than anything I'd have come up with in weeks of research. Specific hotels, riads, the lot.",
-                initials: 'PK',
-                name: 'Priya K.',
-                route: 'Sydney → Marrakech',
-              },
-              {
-                stars: 5,
-                quote: "Backpacking Southeast Asia solo for the first time. Wandr helped me figure out routing, budget, and which places were actually worth it.",
-                initials: 'AL',
-                name: 'Alex L.',
-                route: 'London → Hanoi',
-              },
-            ].map((review) => (
-              <div key={review.name} className="rounded-2xl p-6 space-y-4" style={{ background: 'white', border: `1px solid ${C.saffron}33` }}>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: review.stars }).map((_, i) => (
-                    <span key={i} style={{ color: C.saffron }}>★</span>
-                  ))}
-                </div>
-                <blockquote className="text-sm leading-relaxed opacity-80" style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic' }}>
-                  &quot;{review.quote}&quot;
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
-                    style={{ background: C.terra, color: C.sand }}>
-                    {review.initials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{review.name}</p>
-                    <p className="text-xs opacity-50">{review.route}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      </main>
 
       {/* ── FOOTER ── */}
       <footer className="py-10 px-6" style={{ background: C.dark, color: C.sand }}>
