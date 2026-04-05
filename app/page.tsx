@@ -17,127 +17,149 @@ const C = {
 // ─── Hero SVG illustration ───────────────────────────────────────────────────
 function HeroIllustration() {
   return (
-    <div className="relative w-full max-w-md mx-auto select-none">
-      <style>{`
-        @keyframes wandr-unfurl {
-          from { clip-path: inset(0 100% 0 0); }
-          to   { clip-path: inset(0   0% 0 0); }
-        }
-        @keyframes wandr-rise {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0);    }
-        }
-        .wandr-scroll   { animation: wandr-unfurl 2.4s cubic-bezier(0.4,0,0.2,1) 0.3s both; }
-        .wandr-palms    { animation: wandr-rise   0.4s ease-out 0.55s both; }
-        .wandr-pagoda   { animation: wandr-rise   0.4s ease-out 0.85s both; }
-        .wandr-eiffel   { animation: wandr-rise   0.4s ease-out 1.25s both; }
-        .wandr-pyramids { animation: wandr-rise   0.4s ease-out 1.85s both; }
-      `}</style>
-      <svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full drop-shadow-xl">
-        <defs>
-          <clipPath id="scrollShapeClip" clipPathUnits="userSpaceOnUse">
-            <path d="M 100,85 Q 277,73 453,85 L 453,267 Q 277,279 100,267 Z"/>
-          </clipPath>
-        </defs>
+    <svg viewBox="0 0 480 520" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-lg mx-auto">
+      {/* Sky gradient */}
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F9C06A" />
+          <stop offset="60%" stopColor="#F5A55A" />
+          <stop offset="100%" stopColor="#E8850A" stopOpacity="0.4" />
+        </linearGradient>
+        <linearGradient id="mtn1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2A7A5B" />
+          <stop offset="100%" stopColor="#1A5040" />
+        </linearGradient>
+        <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#3A9A6B" />
+          <stop offset="100%" stopColor="#2A7A5B" />
+        </linearGradient>
+      </defs>
 
-        {/* Ground shadow */}
-        <ellipse cx="278" cy="293" rx="198" ry="10" fill="#A87840" opacity="0.18"/>
+      {/* Sky */}
+      <rect width="480" height="520" fill="url(#sky)" rx="24" />
 
-        {/* Scroll paper body */}
-        <path d="M 100,85 Q 277,73 453,85 L 453,267 Q 277,279 100,267 Z" fill="#F0E4C2"/>
+      {/* Sun */}
+      <circle cx="380" cy="80" r="45" fill="#F9C06A" opacity="0.9" />
+      <circle cx="380" cy="80" r="35" fill="#FFDD88" />
 
-        {/* Scroll content — CSS unfurl reveals L → R */}
-        <g className="wandr-scroll">
-          <g clipPath="url(#scrollShapeClip)">
+      {/* Mountains */}
+      <polygon points="0,340 120,180 240,340" fill="url(#mtn1)" />
+      <polygon points="160,340 310,160 460,340" fill="url(#mtn2)" />
+      <polygon points="280,340 400,220 480,340" fill="#1A5040" />
 
-            {/* Sky */}
-            <rect x="96" y="70" width="362" height="104" fill="#E6DCBA"/>
+      {/* Ground */}
+      <rect x="0" y="330" width="480" height="190" fill="#2A7A5B" rx="0" />
+      <ellipse cx="240" cy="330" rx="240" ry="20" fill="#1A5040" />
 
-            {/* Green ground */}
-            <path d="M 96,172 Q 188,160 290,168 Q 372,174 456,166 L 456,280 L 96,280 Z" fill="#698D61"/>
-            <ellipse cx="246" cy="170" rx="118" ry="17" fill="#78A870"/>
+      {/* Temple base */}
+      <rect x="160" y="240" width="160" height="100" fill="#C94A2B" />
+      <rect x="170" y="250" width="140" height="90" fill="#D4613A" />
 
-            {/* Palm trees */}
-            <g className="wandr-palms">
-              <rect x="187" y="170" width="5" height="32" fill="#6A4828"/>
-              <ellipse cx="189" cy="167" rx="18" ry="7" fill="#517840" transform="rotate(-24 189 167)"/>
-              <ellipse cx="189" cy="167" rx="18" ry="7" fill="#619050" transform="rotate(8 189 167)"/>
-              <ellipse cx="189" cy="167" rx="16" ry="6" fill="#517840" transform="rotate(36 189 167)"/>
+      {/* Temple roof layers */}
+      <polygon points="180,240 300,240 290,210 190,210" fill="#C94A2B" />
+      <polygon points="190,210 290,210 280,185 200,185" fill="#B03A20" />
+      <polygon points="200,185 280,185 272,162 208,162" fill="#C94A2B" />
+      <polygon points="208,162 272,162 240,140 240,140" fill="#B03A20" />
 
-              <rect x="315" y="168" width="5" height="34" fill="#6A4828"/>
-              <ellipse cx="317" cy="165" rx="20" ry="8" fill="#619050" transform="rotate(17 317 165)"/>
-              <ellipse cx="317" cy="165" rx="20" ry="8" fill="#517840" transform="rotate(-15 317 165)"/>
-              <ellipse cx="317" cy="165" rx="18" ry="7" fill="#619050" transform="rotate(43 317 165)"/>
+      {/* Temple spire */}
+      <rect x="236" y="120" width="8" height="24" fill="#E8850A" />
+      <circle cx="240" cy="118" r="6" fill="#F9C06A" />
 
-              <rect x="411" y="172" width="4" height="26" fill="#6A4828"/>
-              <ellipse cx="413" cy="169" rx="16" ry="6" fill="#517840" transform="rotate(19 413 169)"/>
-              <ellipse cx="413" cy="169" rx="15" ry="6" fill="#619050" transform="rotate(-11 413 169)"/>
-            </g>
+      {/* Temple door */}
+      <rect x="220" y="290" width="40" height="50" rx="20" fill="#1A1208" opacity="0.6" />
 
-            {/* Pagoda */}
-            <g className="wandr-pagoda">
-              <rect x="146" y="156" width="36" height="22" fill="#A85838"/>
-              <rect x="148" y="158" width="32" height="20" fill="#BC6848"/>
-              <polygon points="142,156 182,156 178,145 146,145" fill="#8A3E28"/>
-              <polygon points="146,145 178,145 174,135 150,135" fill="#A85838"/>
-              <polygon points="150,135 174,135 170,126 154,126" fill="#8A3E28"/>
-              <polygon points="154,126 170,126 162,115 162,115" fill="#A85838"/>
-              <rect x="159" y="107" width="6" height="10" fill="#A85838"/>
-              <circle cx="162" cy="105" r="5" fill="#E8A820" opacity="0.9"/>
-              <rect x="154" y="166" width="14" height="12" rx="7" fill="#6A3818" opacity="0.55"/>
-            </g>
+      {/* Temple windows */}
+      <rect x="185" y="265" width="20" height="20" rx="10" fill="#F9C06A" opacity="0.7" />
+      <rect x="275" y="265" width="20" height="20" rx="10" fill="#F9C06A" opacity="0.7" />
 
-            {/* Eiffel Tower */}
-            <g className="wandr-eiffel">
-              <polygon points="224,210 230,188 234,188 228,210" fill="#C87050"/>
-              <polygon points="252,210 258,188 262,188 256,210" fill="#C87050"/>
-              <rect x="228" y="186" width="30" height="4.5" fill="#C87050" rx="0.5"/>
-              <polygon points="230,186 236,170 250,170 256,186" fill="#C87050"/>
-              <rect x="234" y="168" width="18" height="3.5" fill="#A86040" rx="0.5"/>
-              <polygon points="236,168 243,146 250,168" fill="#C87050"/>
-              <line x1="243" y1="144" x2="243" y2="136" stroke="#8A4028" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="243" cy="135" r="3" fill="#A86040"/>
-              <rect x="222" y="209" width="42" height="4" fill="#8A4028" rx="1.5"/>
-            </g>
+      {/* Palm tree left */}
+      <rect x="58" y="260" width="8" height="80" fill="#5A3A1A" />
+      <ellipse cx="62" cy="255" rx="28" ry="12" fill="#2A7A5B" transform="rotate(-20 62 255)" />
+      <ellipse cx="62" cy="255" rx="28" ry="12" fill="#3A9A6B" transform="rotate(10 62 255)" />
+      <ellipse cx="62" cy="255" rx="28" ry="12" fill="#2A7A5B" transform="rotate(40 62 255)" />
 
-            {/* Pyramids */}
-            <g className="wandr-pyramids">
-              <polygon points="354,210 378,160 402,210" fill="#C8A060"/>
-              <polygon points="354,210 378,160 378,210" fill="#B89050"/>
-              <polygon points="374,210 392,176 410,210" fill="#D4B070"/>
-              <polygon points="350,210 362,186 374,210" fill="#B89050"/>
-              <path d="M 340,210 Q 378,205 416,210 L 416,217 Q 378,213 340,217 Z" fill="#C8A060" opacity="0.45"/>
-            </g>
+      {/* Palm tree right */}
+      <rect x="410" y="250" width="8" height="90" fill="#5A3A1A" />
+      <ellipse cx="414" cy="245" rx="30" ry="12" fill="#3A9A6B" transform="rotate(15 414 245)" />
+      <ellipse cx="414" cy="245" rx="30" ry="12" fill="#2A7A5B" transform="rotate(-15 414 245)" />
+      <ellipse cx="414" cy="245" rx="28" ry="12" fill="#3A9A6B" transform="rotate(45 414 245)" />
 
-          </g>
-        </g>
+      {/* Tropical flowers */}
+      <circle cx="90" cy="340" r="8" fill="#C94A2B" />
+      <circle cx="82" cy="333" r="6" fill="#E8850A" />
+      <circle cx="98" cy="333" r="6" fill="#E8850A" />
+      <circle cx="90" cy="340" r="4" fill="#F9C06A" />
 
-        {/* Paper edges */}
-        <path d="M 100,85 Q 277,73 453,85" fill="none" stroke="#DDD0A0" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M 100,267 Q 277,279 453,267" fill="none" stroke="#B8A870" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="390" cy="345" r="8" fill="#C94A2B" />
+      <circle cx="382" cy="338" r="6" fill="#E8850A" />
+      <circle cx="398" cy="338" r="6" fill="#E8850A" />
+      <circle cx="390" cy="345" r="4" fill="#F9C06A" />
 
-        {/* Right roll */}
-        <ellipse cx="453" cy="176" rx="23" ry="91" fill="#C87050"/>
-        <ellipse cx="453" cy="176" rx="14" ry="62" fill="#A86040"/>
-        <ellipse cx="453" cy="176" rx="6"  ry="35" fill="#C87050" opacity="0.55"/>
+      {/* Traveller 1 — backpack, hat, pointing */}
+      <circle cx="130" cy="310" r="16" fill="#F5C5A3" /> {/* head */}
+      <ellipse cx="130" cy="302" rx="10" ry="6" fill="#C94A2B" /> {/* hat brim */}
+      <ellipse cx="130" cy="296" rx="7" ry="8" fill="#B03A20" /> {/* hat top */}
+      <rect x="120" y="326" width="20" height="30" rx="4" fill="#E8850A" /> {/* body */}
+      {/* backpack */}
+      <rect x="138" y="328" width="14" height="22" rx="4" fill="#2A7A5B" />
+      <rect x="140" y="332" width="10" height="6" rx="2" fill="#1A5040" />
+      {/* pointing arm */}
+      <line x1="120" y1="335" x2="96" y2="318" stroke="#F5C5A3" strokeWidth="5" strokeLinecap="round" />
+      {/* legs */}
+      <rect x="121" y="354" width="8" height="20" rx="4" fill="#4A3A2A" />
+      <rect x="131" y="354" width="8" height="20" rx="4" fill="#4A3A2A" />
 
-        {/* Sand dunes spilling out bottom-right */}
-        <path d="M 326,267 Q 360,250 396,262 Q 430,250 464,263 L 492,300 L 306,300 Z" fill="#D4A860"/>
-        <path d="M 370,268 Q 410,252 450,263 Q 472,255 494,266 L 494,300 L 350,300 Z" fill="#C49850"/>
-        <polygon points="386,267 402,248 418,267" fill="#C4A060" opacity="0.68"/>
-        <polygon points="428,265 440,251 452,265" fill="#B89050" opacity="0.6"/>
+      {/* Traveller 2 — camera, sunglasses */}
+      <circle cx="350" cy="315" r="16" fill="#D4A574" /> {/* head */}
+      {/* sunglasses */}
+      <rect x="338" y="311" width="10" height="7" rx="3" fill="#1A1208" />
+      <rect x="352" y="311" width="10" height="7" rx="3" fill="#1A1208" />
+      <line x1="348" y1="314" x2="352" y2="314" stroke="#1A1208" strokeWidth="1.5" />
+      {/* hair */}
+      <ellipse cx="350" cy="300" rx="14" ry="8" fill="#4A2A0A" />
+      <rect x="350" y="330" width="18" height="28" rx="4" fill="#2A7A5B" /> {/* body */}
+      {/* camera */}
+      <rect x="330" y="332" width="16" height="12" rx="2" fill="#1A1208" />
+      <circle cx="338" cy="338" r="4" fill="#4A4A4A" />
+      <circle cx="338" cy="338" r="2.5" fill="#8A8A8A" />
+      {/* arm holding camera */}
+      <line x1="350" y1="338" x2="346" y2="338" stroke="#D4A574" strokeWidth="5" strokeLinecap="round" />
+      {/* legs */}
+      <rect x="351" y="357" width="8" height="20" rx="4" fill="#3A2A1A" />
+      <rect x="361" y="357" width="8" height="20" rx="4" fill="#3A2A1A" />
 
-        {/* Left roll — always visible, drawn on top */}
-        <ellipse cx="100" cy="176" rx="92" ry="94" fill="#C87050"/>
-        <path d="M 60,126 Q 80,108 110,106 Q 128,105 144,118" fill="none" stroke="white" strokeWidth="5" strokeLinecap="round" opacity="0.18"/>
-        <ellipse cx="100" cy="176" rx="66" ry="68" fill="#A86040"/>
-        <ellipse cx="100" cy="176" rx="44" ry="46" fill="#C87050"/>
-        <path d="M 74,148 Q 84,140 100,138" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.12"/>
-        <ellipse cx="100" cy="176" rx="26" ry="27" fill="#A86040"/>
-        <ellipse cx="100" cy="176" rx="12" ry="12" fill="#C87050"/>
-        <circle  cx="100" cy="176" r="5"           fill="#8A3828"/>
-      </svg>
-    </div>
+      {/* Floating lanterns */}
+      <g className="animate-float">
+        <ellipse cx="200" cy="90" rx="10" ry="14" fill="#E8850A" />
+        <rect x="196" y="76" width="8" height="4" rx="2" fill="#C94A2B" />
+        <rect x="196" y="104" width="8" height="4" rx="2" fill="#C94A2B" />
+        <line x1="200" y1="108" x2="200" y2="118" stroke="#C94A2B" strokeWidth="1.5" />
+        <ellipse cx="200" cy="92" rx="6" ry="8" fill="#F9C06A" opacity="0.5" />
+      </g>
+
+      <g className="animate-float-slow" style={{ animationDelay: '1s' }}>
+        <ellipse cx="310" cy="70" rx="9" ry="13" fill="#C94A2B" />
+        <rect x="306" y="57" width="8" height="4" rx="2" fill="#B03A20" />
+        <rect x="306" y="83" width="8" height="4" rx="2" fill="#B03A20" />
+        <line x1="310" y1="87" x2="310" y2="98" stroke="#B03A20" strokeWidth="1.5" />
+        <ellipse cx="310" cy="72" rx="5" ry="7" fill="#F9C06A" opacity="0.5" />
+      </g>
+
+      <g className="animate-float-fast" style={{ animationDelay: '0.5s' }}>
+        <ellipse cx="260" cy="55" rx="8" ry="11" fill="#E8850A" opacity="0.9" />
+        <rect x="256" y="44" width="8" height="3" rx="1.5" fill="#C94A2B" />
+        <rect x="256" y="66" width="8" height="3" rx="1.5" fill="#C94A2B" />
+        <line x1="260" y1="69" x2="260" y2="78" stroke="#C94A2B" strokeWidth="1.5" />
+        <ellipse cx="260" cy="57" rx="4" ry="6" fill="#F9C06A" opacity="0.4" />
+      </g>
+
+      {/* Stars */}
+      <circle cx="60" cy="50" r="2" fill="white" opacity="0.8" />
+      <circle cx="140" cy="30" r="1.5" fill="white" opacity="0.6" />
+      <circle cx="420" cy="45" r="2" fill="white" opacity="0.7" />
+      <circle cx="450" cy="100" r="1.5" fill="white" opacity="0.5" />
+      <circle cx="30" cy="110" r="1.5" fill="white" opacity="0.6" />
+    </svg>
   )
 }
 
