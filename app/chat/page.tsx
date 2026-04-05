@@ -145,7 +145,7 @@ export default function ChatPage() {
       .single()
     if (!conv) return
     setConversationId(conv.id)
-    if (conv.itinerary) setItinerary(conv.itinerary)
+    setItinerary(conv.itinerary ?? null)
 
     const { data: msgs } = await supabase
       .from('messages')
