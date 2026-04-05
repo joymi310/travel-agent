@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { redirect } from 'next/navigation'
 import { AdminCitiesClient } from './AdminCitiesClient'
 
 export const dynamic = 'force-dynamic'
@@ -9,14 +10,8 @@ export default async function AdminCitiesPage() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user || user.email !== process.env.ADMIN_EMAIL) {
-    return (
-      <div style={{ padding: 40, fontFamily: 'monospace' }}>
-        <p>Access denied</p>
-        <p>Signed in as: <strong>{user?.email ?? 'not signed in'}</strong></p>
-        <p>ADMIN_EMAIL: <strong>{process.env.ADMIN_EMAIL ?? 'not set'}</strong></p>
-      </div>
-    )
+  if (!user || user.email !== process.env.ADMIN_EMAIL?.trim()) {
+    redirect('/')
   }
 
   const admin = createAdminClient()
