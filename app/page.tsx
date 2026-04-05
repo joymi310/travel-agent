@@ -429,7 +429,7 @@ export default function HomePage() {
         </span>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: C.dark }}>
           <a href="#how-it-works" className="hover:opacity-70 transition-opacity">How it works</a>
-          <a href="#destinations" className="hover:opacity-70 transition-opacity">Destinations</a>
+          <Link href="/cities" className="hover:opacity-70 transition-opacity">City Guides</Link>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login" className="hidden sm:block text-sm font-medium px-4 py-2 rounded-full border transition-all hover:opacity-80"
