@@ -26,6 +26,10 @@ export async function POST(req: Request) {
     const unsplashData = await unsplashRes.json()
     const photo = unsplashData?.results?.[0]
     const imageUrl = photo?.urls?.regular
+    const photographerName: string | null = photo?.user?.name ?? null
+    const photographerUrl: string | null = photo?.user?.links?.html
+      ? `${photo.user.links.html}?utm_source=wandr&utm_medium=referral`
+      : null
 
     if (!imageUrl) {
       return Response.json({ error: `No Unsplash image found for "${name}"` }, { status: 404 })
@@ -34,12 +38,16 @@ export async function POST(req: Request) {
     const admin = createAdminClient()
     const { error } = await admin
       .from('cities')
-      .update({ hero_image_url: imageUrl })
+      .update({
+        hero_image_url: imageUrl,
+        hero_photographer_name: photographerName,
+        hero_photographer_url: photographerUrl,
+      })
       .eq('id', id)
 
     if (error) throw error
 
-    return Response.json({ hero_image_url: imageUrl })
+    return Response.json({ hero_image_url: imageUrl, hero_photographer_name: photographerName, hero_photographer_url: photographerUrl })
   } catch (err) {
     const msg = err instanceof Error ? err.message : JSON.stringify(err)
     return Response.json({ error: msg }, { status: 500 })

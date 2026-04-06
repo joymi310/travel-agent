@@ -62,6 +62,8 @@ interface City {
   region: string | null
   hero_tagline: string | null
   hero_image_url: string | null
+  hero_photographer_name: string | null
+  hero_photographer_url: string | null
   overview: string | null
   neighbourhoods: Neighbourhood[] | null
   best_time: string | null
@@ -158,6 +160,21 @@ export default async function CityPage({ params }: { params: { slug: string } })
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.52)' }} />
+            {city.hero_photographer_name && city.hero_photographer_url && (
+              <p className="absolute bottom-2 right-3 text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                Photo by{' '}
+                <a href={city.hero_photographer_url} target="_blank" rel="noopener noreferrer"
+                  className="underline hover:opacity-80 transition-opacity">
+                  {city.hero_photographer_name}
+                </a>
+                {' '}on{' '}
+                <a href="https://unsplash.com?utm_source=wandr&utm_medium=referral"
+                  target="_blank" rel="noopener noreferrer"
+                  className="underline hover:opacity-80 transition-opacity">
+                  Unsplash
+                </a>
+              </p>
+            )}
           </>
         )}
         <div className="relative z-10 max-w-3xl mx-auto">
