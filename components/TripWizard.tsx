@@ -87,13 +87,13 @@ const PROFILE_QUESTIONS: Record<string, [PQ, PQ, PQ, PQ]> = {
   'Family with older kids': [
     { label: 'How old are the kids and what are they into?', type: 'text', placeholder: 'e.g. 8 and 10, love animals and swimming' },
     { label: 'How much walking before mutiny sets in?', type: 'radio', options: ['Short bursts only', 'A few hours', 'Happy all day'] },
-    { label: 'Accommodation style?', type: 'radio', options: ['Budget family room', 'Mid-range hotel', 'Resort / pool essential', 'Apartment / villa'] },
+    { label: 'Accommodation style?', type: 'radio', options: ['Budget family room', 'Mid-range hotel', 'Resort / pool essential', 'Apartment / villa', 'A mix — happy to vary it'] },
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Family with teens': [
     { label: 'How old are the teens and what are they into?', type: 'text', placeholder: 'e.g. 14 and 16, love food and adventure' },
     { label: 'What does everyone want to get out of this trip?', type: 'text', placeholder: 'e.g. adventure, relaxation, culture, trying new food...' },
-    { label: 'Accommodation style?', type: 'radio', options: ['Budget / hostel', 'Mid-range hotel', 'Apartment / villa', 'Resort'] },
+    { label: 'Accommodation style?', type: 'radio', options: ['Budget / hostel', 'Mid-range hotel', 'Apartment / villa', 'Resort', 'A mix — happy to vary it'] },
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
 }
@@ -229,7 +229,14 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         </div>
 
         {/* Scrollable content */}
-        <div className="px-6 py-6 space-y-4 overflow-y-auto" style={{ maxHeight: '65vh' }}>
+        <div className="relative">
+        <style>{`
+          .wandr-wizard-scroll::-webkit-scrollbar { width: 6px; }
+          .wandr-wizard-scroll::-webkit-scrollbar-track { background: transparent; }
+          .wandr-wizard-scroll::-webkit-scrollbar-thumb { background: rgba(201,74,43,0.35); border-radius: 99px; }
+          .wandr-wizard-scroll::-webkit-scrollbar-thumb:hover { background: rgba(201,74,43,0.6); }
+        `}</style>
+        <div className="wandr-wizard-scroll px-6 py-6 space-y-4 overflow-y-scroll" style={{ maxHeight: '65vh' }}>
 
           {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (
@@ -500,6 +507,10 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
               </div>
             </>
           )}
+        </div>
+        {/* Fade hint at bottom to indicate more content */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8"
+          style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.9))' }} />
         </div>
 
         {/* Footer */}
