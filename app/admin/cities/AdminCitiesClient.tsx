@@ -11,6 +11,11 @@ const C = {
   dark: '#1A1208',
 }
 
+const REGIONS = [
+  'East Asia', 'Southeast Asia', 'South Asia', 'Middle East',
+  'Europe', 'Africa', 'Americas', 'Oceania',
+]
+
 interface CityRow {
   id: string
   slug: string
@@ -22,6 +27,65 @@ interface CityRow {
   created_at: string
 }
 
+interface CityFull extends CityRow {
+  hero_tagline: string
+  overview: string
+  best_time: string
+  getting_around: string
+  visa_notes: string
+  neighbourhoods: unknown
+  suggested_questions: unknown
+}
+
+const inputClass = 'w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all'
+const inputStyle = (focus: boolean) => ({
+  background: C.sand,
+  border: `1.5px solid ${focus ? C.terra : `${C.saffron}44`}`,
+  color: C.dark,
+})
+
+function Field({
+  label, value, onChange, multiline = false, rows = 3, hint,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  multiline?: boolean
+  rows?: number
+  hint?: string
+}) {
+  const [focused, setFocused] = useState(false)
+  return (
+    <div className="space-y-1">
+      <label className="block text-xs font-semibold uppercase tracking-wide" style={{ color: C.dark, opacity: 0.5 }}>
+        {label}
+      </label>
+      {hint && <p className="text-xs" style={{ color: C.dark, opacity: 0.35 }}>{hint}</p>}
+      {multiline ? (
+        <textarea
+          rows={rows}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className={`${inputClass} resize-y`}
+          style={inputStyle(focused)}
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className={inputClass}
+          style={inputStyle(focused)}
+        />
+      )}
+    </div>
+  )
+}
+
 export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] }) {
   const [cities, setCities] = useState<CityRow[]>(initialCities)
   const [cityInput, setCityInput] = useState('')
@@ -29,6 +93,14 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
   const [genResult, setGenResult] = useState<{ slug: string; name: string } | null>(null)
   const [genError, setGenError] = useState('')
   const [toggling, setToggling] = useState<string | null>(null)
+
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editData, setEditData] = useState<Partial<CityFull>>({})
+  const [loadingEdit, setLoadingEdit] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   const generate = async () => {
     if (!cityInput.trim()) return
@@ -45,19 +117,18 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
       if (!res.ok) throw new Error(data.error ?? 'Failed')
       setGenResult(data.city)
       setCityInput('')
-      // Add to list
       setCities(prev => [{
         id: data.city.id ?? '',
         slug: data.city.slug,
         name: data.city.name,
-        country: '',
-        region: null,
+        country: data.city.country ?? '',
+        region: data.city.region ?? null,
         is_published: false,
         reviewed: false,
         created_at: new Date().toISOString(),
       }, ...prev])
     } catch (err) {
-      setGenError(String(err))
+      setGenError(err instanceof Error ? err.message : String(err))
     } finally {
       setGenerating(false)
     }
@@ -79,6 +150,66 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
       setToggling(null)
     }
   }
+
+  const openEdit = async (city: CityRow) => {
+    if (editingId === city.id) {
+      setEditingId(null)
+      return
+    }
+    setEditingId(city.id)
+    setSaveError('')
+    setSaveSuccess(false)
+    setLoadingEdit(true)
+    try {
+      // Fetch full city data from Supabase via a quick API call
+      const res = await fetch(`/api/admin/get-city?id=${city.id}`)
+      const data = await res.json()
+      if (data.city) {
+        setEditData({
+          ...data.city,
+          neighbourhoods: JSON.stringify(data.city.neighbourhoods ?? [], null, 2),
+          suggested_questions: JSON.stringify(data.city.suggested_questions ?? [], null, 2),
+        })
+      }
+    } catch {
+      setEditData({
+        ...city,
+        neighbourhoods: '[]',
+        suggested_questions: '[]',
+      })
+    } finally {
+      setLoadingEdit(false)
+    }
+  }
+
+  const saveEdit = async () => {
+    if (!editingId) return
+    setSaving(true)
+    setSaveError('')
+    setSaveSuccess(false)
+    try {
+      const res = await fetch('/api/admin/update-city', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingId, ...editData }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      setSaveSuccess(true)
+      // Update name in list if changed
+      if (editData.name) {
+        setCities(prev => prev.map(c => c.id === editingId ? { ...c, name: editData.name! } : c))
+      }
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const set = (key: keyof CityFull) => (value: string) =>
+    setEditData(prev => ({ ...prev, [key]: value }))
 
   return (
     <div className="min-h-screen p-6" style={{ background: C.sand }}>
@@ -105,8 +236,6 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
               placeholder="e.g. Hanoi, Lisbon, Mexico City…"
               className="flex-1 rounded-xl px-4 py-3 text-sm outline-none transition-all"
               style={{ background: C.sand, border: `1.5px solid ${C.saffron}44`, color: C.dark }}
-              onFocus={e => e.target.style.borderColor = C.terra}
-              onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
             />
             <button
               onClick={generate}
@@ -148,40 +277,128 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
           ) : (
             <div className="divide-y" style={{ borderColor: C.sand }}>
               {cities.map(city => (
-                <div key={city.id} className="px-6 py-4 flex items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Link href={`/cities/${city.slug}`} target="_blank"
-                        className="font-medium text-sm hover:opacity-70 transition-opacity"
-                        style={{ color: C.dark }}>
-                        {city.name}
-                      </Link>
-                      {city.country && (
-                        <span className="text-xs" style={{ color: C.dark, opacity: 0.4 }}>
-                          {city.country}
-                        </span>
+                <div key={city.id}>
+                  {/* Row */}
+                  <div className="px-6 py-4 flex items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Link href={`/cities/${city.slug}`} target="_blank"
+                          className="font-medium text-sm hover:opacity-70 transition-opacity"
+                          style={{ color: C.dark }}>
+                          {city.name}
+                        </Link>
+                        {city.country && (
+                          <span className="text-xs" style={{ color: C.dark, opacity: 0.4 }}>
+                            {city.country}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.35 }}>
+                        /{city.slug} · {new Date(city.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => openEdit(city)}
+                        className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80"
+                        style={{
+                          background: editingId === city.id ? `${C.dark}10` : 'transparent',
+                          color: C.dark,
+                          border: `1px solid ${C.dark}20`,
+                        }}
+                      >
+                        {editingId === city.id ? 'Close' : 'Edit'}
+                      </button>
+                      <ToggleButton
+                        label="Published"
+                        active={city.is_published}
+                        loading={toggling === `${city.id}-is_published`}
+                        onClick={() => toggle(city.id, 'is_published', city.is_published)}
+                        activeColor={C.jade}
+                      />
+                      <ToggleButton
+                        label="Reviewed"
+                        active={city.reviewed}
+                        loading={toggling === `${city.id}-reviewed`}
+                        onClick={() => toggle(city.id, 'reviewed', city.reviewed)}
+                        activeColor={C.saffron}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Edit panel */}
+                  {editingId === city.id && (
+                    <div className="px-6 pb-6 border-t space-y-5" style={{ borderColor: C.sand, background: '#FDFAF4' }}>
+                      {loadingEdit ? (
+                        <p className="py-6 text-sm text-center" style={{ color: C.dark, opacity: 0.4 }}>Loading…</p>
+                      ) : (
+                        <>
+                          <div className="pt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Field label="Name" value={editData.name ?? ''} onChange={set('name')} />
+                            <Field label="Country" value={editData.country ?? ''} onChange={set('country')} />
+                            <div className="space-y-1">
+                              <label className="block text-xs font-semibold uppercase tracking-wide" style={{ color: C.dark, opacity: 0.5 }}>
+                                Region
+                              </label>
+                              <select
+                                value={editData.region ?? ''}
+                                onChange={e => set('region')(e.target.value)}
+                                className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                                style={{ background: C.sand, border: `1.5px solid ${C.saffron}44`, color: C.dark }}
+                              >
+                                <option value="">— select —</option>
+                                {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                              </select>
+                            </div>
+                            <Field label="Hero tagline" value={editData.hero_tagline ?? ''} onChange={set('hero_tagline')} />
+                          </div>
+
+                          <Field label="Overview" value={editData.overview ?? ''} onChange={set('overview')} multiline rows={4} />
+                          <Field label="Best time to visit" value={editData.best_time ?? ''} onChange={set('best_time')} multiline rows={3} />
+                          <Field label="Getting around" value={editData.getting_around ?? ''} onChange={set('getting_around')} multiline rows={3} />
+                          <Field label="Visa notes" value={editData.visa_notes ?? ''} onChange={set('visa_notes')} multiline rows={2} />
+                          <Field
+                            label="Neighbourhoods (JSON)"
+                            value={typeof editData.neighbourhoods === 'string' ? editData.neighbourhoods : JSON.stringify(editData.neighbourhoods ?? [], null, 2)}
+                            onChange={set('neighbourhoods')}
+                            multiline rows={8}
+                            hint='Array of { name, vibe, best_for, price_range }'
+                          />
+                          <Field
+                            label="Suggested questions (JSON)"
+                            value={typeof editData.suggested_questions === 'string' ? editData.suggested_questions : JSON.stringify(editData.suggested_questions ?? [], null, 2)}
+                            onChange={set('suggested_questions')}
+                            multiline rows={5}
+                            hint="Array of question strings"
+                          />
+
+                          <div className="flex items-center gap-3 pt-2">
+                            <button
+                              onClick={saveEdit}
+                              disabled={saving}
+                              className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+                              style={{ background: C.terra, color: C.sand }}
+                            >
+                              {saving ? 'Saving…' : 'Save changes'}
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="px-5 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-70"
+                              style={{ color: C.dark, opacity: 0.5 }}
+                            >
+                              Cancel
+                            </button>
+                            {saveSuccess && (
+                              <span className="text-sm" style={{ color: C.jade }}>✓ Saved</span>
+                            )}
+                            {saveError && (
+                              <span className="text-sm" style={{ color: C.terra }}>{saveError}</span>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
-                    <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.35 }}>
-                      /{city.slug} · {new Date(city.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <ToggleButton
-                      label="Published"
-                      active={city.is_published}
-                      loading={toggling === `${city.id}-is_published`}
-                      onClick={() => toggle(city.id, 'is_published', city.is_published)}
-                      activeColor={C.jade}
-                    />
-                    <ToggleButton
-                      label="Reviewed"
-                      active={city.reviewed}
-                      loading={toggling === `${city.id}-reviewed`}
-                      onClick={() => toggle(city.id, 'reviewed', city.reviewed)}
-                      activeColor={C.saffron}
-                    />
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
