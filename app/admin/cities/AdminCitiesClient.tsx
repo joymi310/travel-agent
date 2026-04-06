@@ -45,6 +45,7 @@ interface CityRow {
   is_published: boolean
   reviewed: boolean
   created_at: string
+  hero_image_url?: string | null
 }
 
 interface CityFull extends CityRow {
@@ -114,6 +115,11 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
   const [genResult, setGenResult] = useState<{ slug: string; name: string } | null>(null)
   const [genError, setGenError] = useState('')
   const [toggling, setToggling] = useState<string | null>(null)
+
+  // Photo fetch state
+  const [fetchingPhotoId, setFetchingPhotoId] = useState<string | null>(null)
+  const [backfilling, setBackfilling] = useState(false)
+  const [backfillResult, setBackfillResult] = useState('')
 
   // Fact-check state
   const [checkingId, setCheckingId] = useState<string | null>(null)
@@ -254,6 +260,56 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
     }
   }
 
+  const fetchPhoto = async (id: string, name: string) => {
+    setFetchingPhotoId(id)
+    try {
+      const res = await fetch('/api/admin/fetch-city-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      setCities(prev => prev.map(c => c.id === id ? { ...c, hero_image_url: data.hero_image_url } : c))
+    } catch (err) {
+      alert(`Photo fetch failed: ${err instanceof Error ? err.message : String(err)}`)
+    } finally {
+      setFetchingPhotoId(null)
+    }
+  }
+
+  const backfillAll = async () => {
+    const missing = cities.filter(c => !c.hero_image_url)
+    if (missing.length === 0) {
+      setBackfillResult('All cities already have photos.')
+      return
+    }
+    setBackfilling(true)
+    setBackfillResult(`Fetching photos for ${missing.length} cities…`)
+    let success = 0
+    let failed = 0
+    for (const city of missing) {
+      try {
+        const res = await fetch('/api/admin/fetch-city-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: city.id, name: city.name }),
+        })
+        const data = await res.json()
+        if (res.ok) {
+          setCities(prev => prev.map(c => c.id === city.id ? { ...c, hero_image_url: data.hero_image_url } : c))
+          success++
+        } else {
+          failed++
+        }
+      } catch {
+        failed++
+      }
+    }
+    setBackfilling(false)
+    setBackfillResult(`Done — ${success} photos added${failed > 0 ? `, ${failed} failed` : ''}.`)
+  }
+
   const set = (key: keyof CityFull) => (value: string) =>
     setEditData(prev => ({ ...prev, [key]: value }))
 
@@ -339,10 +395,25 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
 
         {/* Cities list */}
         <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 2px 12px rgba(26,18,8,0.08)' }}>
-          <div className="px-6 py-4 border-b" style={{ borderColor: C.sand }}>
+          <div className="px-6 py-4 border-b flex items-center justify-between gap-4" style={{ borderColor: C.sand }}>
             <h2 className="font-semibold text-sm" style={{ color: C.dark }}>
               All cities ({cities.length})
             </h2>
+            <div className="flex items-center gap-3">
+              {backfillResult && (
+                <span className="text-xs" style={{ color: backfillResult.includes('failed') ? C.terra : C.jade }}>
+                  {backfillResult}
+                </span>
+              )}
+              <button
+                onClick={backfillAll}
+                disabled={backfilling}
+                className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80 disabled:opacity-40"
+                style={{ background: `${C.jade}15`, color: C.jade, border: `1px solid ${C.jade}40` }}
+              >
+                {backfilling ? 'Fetching…' : 'Backfill photos'}
+              </button>
+            </div>
           </div>
           {cities.length === 0 ? (
             <p className="px-6 py-8 text-sm text-center" style={{ color: C.dark, opacity: 0.4 }}>
@@ -372,6 +443,18 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => fetchPhoto(city.id, city.name)}
+                        disabled={fetchingPhotoId === city.id}
+                        className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80 disabled:opacity-40"
+                        style={{
+                          background: city.hero_image_url ? `${C.jade}15` : 'transparent',
+                          color: city.hero_image_url ? C.jade : `${C.dark}60`,
+                          border: `1px solid ${city.hero_image_url ? `${C.jade}40` : `${C.dark}20`}`,
+                        }}
+                      >
+                        {fetchingPhotoId === city.id ? '…' : city.hero_image_url ? '📷' : 'Get photo'}
+                      </button>
                       <button
                         onClick={() => factCheck(city.id)}
                         disabled={checkingId === city.id}

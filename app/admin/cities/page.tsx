@@ -18,7 +18,7 @@ export default async function AdminCitiesPage() {
   const [{ data: cities }, { data: requests }] = await Promise.all([
     admin
       .from('cities')
-      .select('id, slug, name, country, region, is_published, reviewed, created_at')
+      .select('id, slug, name, country, region, is_published, reviewed, created_at, hero_image_url')
       .order('created_at', { ascending: false }),
     admin
       .from('city_requests')
