@@ -61,6 +61,7 @@ interface City {
   country: string
   region: string | null
   hero_tagline: string | null
+  hero_image_url: string | null
   overview: string | null
   neighbourhoods: Neighbourhood[] | null
   best_time: string | null
@@ -146,8 +147,20 @@ export default async function CityPage({ params }: { params: { slug: string } })
       </nav>
 
       {/* ── HERO ── */}
-      <div className="px-6 py-16 text-center" style={{ background: regionColor }}>
-        <div className="max-w-3xl mx-auto">
+      <div className="relative px-6 py-24 text-center overflow-hidden" style={{ background: regionColor, minHeight: '320px' }}>
+        {city.hero_image_url && (
+          <>
+            <img
+              src={city.hero_image_url}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.52)' }} />
+          </>
+        )}
+        <div className="relative z-10 max-w-3xl mx-auto">
           <p className="text-xs mb-6" style={{ color: 'rgba(255,255,255,0.5)' }}>
             <Link href="/" className="hover:opacity-80 transition-opacity">Home</Link>
             <span className="mx-2">›</span>

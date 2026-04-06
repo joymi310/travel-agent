@@ -27,6 +27,7 @@ interface City {
   country: string
   region: string | null
   hero_tagline: string | null
+  hero_image_url?: string | null
 }
 
 export function CitySearchGrid({ cities }: { cities: City[] }) {
@@ -67,25 +68,40 @@ export function CitySearchGrid({ cities }: { cities: City[] }) {
               <Link key={city.slug} href={`/cities/${city.slug}`}
                 className="group block rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]"
                 style={{ boxShadow: '0 4px 20px rgba(26,18,8,0.12)' }}>
-                <div className="p-6 h-44 flex flex-col justify-between" style={{ background: bg }}>
-                  <div>
-                    <p className="text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                {/* Photo header */}
+                <div className="relative overflow-hidden" style={{ aspectRatio: '3/2' }}>
+                  {city.hero_image_url ? (
+                    <img
+                      src={city.hero_image_url}
+                      alt={`${city.name}, ${city.country}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full" style={{ background: bg }} />
+                  )}
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
+                  {/* City name on photo */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <p className="text-xs font-medium mb-0.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
                       {city.country}{city.region ? ` · ${city.region}` : ''}
                     </p>
-                    <h3 className="text-2xl font-bold leading-tight" style={{ fontFamily: 'var(--font-playfair)', color: 'white' }}>
+                    <h3 className="text-xl font-bold leading-tight" style={{ fontFamily: 'var(--font-playfair)', color: 'white' }}>
                       {city.name}
                     </h3>
                   </div>
-                  {city.hero_tagline && (
-                    <p className="text-sm italic leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                </div>
+                {/* Card footer */}
+                <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'white' }}>
+                  {city.hero_tagline ? (
+                    <p className="text-xs italic truncate mr-2" style={{ color: C.dark, opacity: 0.55 }}>
                       &ldquo;{city.hero_tagline}&rdquo;
                     </p>
+                  ) : (
+                    <span className="text-xs font-medium" style={{ color: C.dark, opacity: 0.5 }}>View guide</span>
                   )}
-                </div>
-                <div className="px-5 py-3 flex items-center justify-between"
-                  style={{ background: 'white' }}>
-                  <span className="text-xs font-medium" style={{ color: C.dark, opacity: 0.5 }}>View guide</span>
-                  <span className="text-sm" style={{ color: C.terra }}>→</span>
+                  <span className="text-sm shrink-0" style={{ color: C.terra }}>→</span>
                 </div>
               </Link>
             )

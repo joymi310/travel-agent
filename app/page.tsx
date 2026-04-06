@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
+import { createClient } from '@/lib/supabase/client'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -182,7 +183,28 @@ export default function HomePage() {
   const [loadingDest, setLoadingDest] = useState('')
   const [genError, setGenError] = useState(false)
   const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
+  const [cityPhotos, setCityPhotos] = useState<{ name: string; url: string }[]>([])
   const router = useRouter()
+
+  // Fetch city photos for hero collage
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('cities')
+      .select('name, hero_image_url')
+      .eq('is_published', true)
+      .not('hero_image_url', 'is', null)
+      .limit(4)
+      .then(({ data }) => {
+        if (data) {
+          setCityPhotos(
+            data
+              .filter((c): c is { name: string; hero_image_url: string } => !!c.hero_image_url)
+              .map(c => ({ name: c.name, url: c.hero_image_url }))
+          )
+        }
+      })
+  }, [])
 
   // Auto-open wizard if ?destination= or ?wizard=1 param is present
   useEffect(() => {
@@ -356,11 +378,30 @@ export default function HomePage() {
               🏙️ Explore city guides →
             </Link>
           </div>
-          {/* Right */}
-          <div className="relative">
-            <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: `radial-gradient(circle, ${C.saffron}, ${C.terra})` }} aria-hidden="true" />
-            <div aria-hidden="true"><HeroIllustration /></div>
-          </div>
+          {/* Right — photo collage or SVG fallback */}
+          <div className="relative" aria-hidden="true">
+            <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30" style={{ background: `radial-gradient(circle, ${C.saffron}, ${C.terra})` }} />
+            {cityPhotos.length >= 2 ? (
+              <div className="grid grid-cols-2 gap-3 p-2">
+                {cityPhotos.slice(0, 4).map((photo, i) => (
+                  <div key={photo.name} className="relative overflow-hidden rounded-2xl"
+                    style={{ aspectRatio: '4/3', transform: i % 2 === 1 ? 'translateY(16px)' : undefined }}>
+                    <img
+                      src={photo.url}
+                      alt={photo.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
+                    <span className="absolute bottom-2 left-3 text-xs font-semibold" style={{ color: 'white', fontFamily: 'var(--font-playfair)', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                      {photo.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <HeroIllustration />
+            )}</div>
         </div>
       </section>
 

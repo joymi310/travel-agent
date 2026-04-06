@@ -21,7 +21,7 @@ export default async function CitiesPage() {
   const supabase = createClient()
   const { data: cities } = await supabase
     .from('cities')
-    .select('slug, name, country, region, hero_tagline')
+    .select('slug, name, country, region, hero_tagline, hero_image_url')
     .eq('is_published', true)
     .order('name')
 

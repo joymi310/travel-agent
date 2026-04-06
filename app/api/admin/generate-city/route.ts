@@ -68,10 +68,25 @@ Include 3-5 neighbourhoods. Make all content specific and useful — real names,
       cityData = JSON.parse(match[0])
     }
 
+    // Fetch a hero image from Wikipedia (best-effort, non-blocking)
+    let heroImageUrl: string | null = null
+    try {
+      const wikiRes = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(cityData.name)}&prop=pageimages&format=json&pithumbsize=1200`,
+        { headers: { 'User-Agent': 'Wandr Travel App' } }
+      )
+      const wikiData = await wikiRes.json()
+      const pages = Object.values(wikiData?.query?.pages ?? {}) as Record<string, unknown>[]
+      const thumb = (pages[0] as { thumbnail?: { source?: string } })?.thumbnail?.source
+      if (thumb) heroImageUrl = thumb
+    } catch {
+      // Wikipedia failed — city still saves without image
+    }
+
     const admin = createAdminClient()
     const { data: city, error } = await admin
       .from('cities')
-      .insert({ ...cityData, is_published: false, reviewed: false })
+      .insert({ ...cityData, hero_image_url: heroImageUrl, is_published: false, reviewed: false })
       .select('id, slug, name')
       .single()
 
