@@ -16,6 +16,14 @@ const REGIONS = [
   'Europe', 'Africa', 'Americas', 'Oceania',
 ]
 
+interface CityRequest {
+  id: string
+  city_name: string
+  note: string | null
+  email: string | null
+  created_at: string
+}
+
 interface CityRow {
   id: string
   slug: string
@@ -86,8 +94,9 @@ function Field({
   )
 }
 
-export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] }) {
+export function AdminCitiesClient({ initialCities, initialRequests }: { initialCities: CityRow[], initialRequests: CityRequest[] }) {
   const [cities, setCities] = useState<CityRow[]>(initialCities)
+  const [requests] = useState<CityRequest[]>(initialRequests)
   const [cityInput, setCityInput] = useState('')
   const [generating, setGenerating] = useState(false)
   const [genResult, setGenResult] = useState<{ slug: string; name: string } | null>(null)
@@ -262,6 +271,34 @@ export function AdminCitiesClient({ initialCities }: { initialCities: CityRow[] 
             </p>
           )}
         </div>
+
+        {/* City requests */}
+        {requests.length > 0 && (
+          <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 2px 12px rgba(26,18,8,0.08)' }}>
+            <div className="px-6 py-4 border-b flex items-center gap-2" style={{ borderColor: C.sand }}>
+              <h2 className="font-semibold text-sm" style={{ color: C.dark }}>
+                City requests
+              </h2>
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${C.terra}15`, color: C.terra }}>
+                {requests.length}
+              </span>
+            </div>
+            <div className="divide-y" style={{ borderColor: C.sand }}>
+              {requests.map(r => (
+                <div key={r.id} className="px-6 py-4 flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm" style={{ color: C.dark }}>{r.city_name}</p>
+                    {r.note && <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.55 }}>{r.note}</p>}
+                    {r.email && <p className="text-xs mt-0.5" style={{ color: C.jade }}>{r.email}</p>}
+                  </div>
+                  <p className="text-xs shrink-0" style={{ color: C.dark, opacity: 0.35 }}>
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Cities list */}
         <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 2px 12px rgba(26,18,8,0.08)' }}>

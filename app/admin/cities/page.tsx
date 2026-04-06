@@ -15,10 +15,16 @@ export default async function AdminCitiesPage() {
   }
 
   const admin = createAdminClient()
-  const { data: cities } = await admin
-    .from('cities')
-    .select('id, slug, name, country, region, is_published, reviewed, created_at')
-    .order('created_at', { ascending: false })
+  const [{ data: cities }, { data: requests }] = await Promise.all([
+    admin
+      .from('cities')
+      .select('id, slug, name, country, region, is_published, reviewed, created_at')
+      .order('created_at', { ascending: false }),
+    admin
+      .from('city_requests')
+      .select('id, city_name, note, email, created_at')
+      .order('created_at', { ascending: false }),
+  ])
 
-  return <AdminCitiesClient initialCities={cities ?? []} />
+  return <AdminCitiesClient initialCities={cities ?? []} initialRequests={requests ?? []} />
 }
