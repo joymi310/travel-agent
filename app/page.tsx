@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WandrMap from '@/components/WandrMap'
-import { Navigation, MessageCircle, Map, SlidersHorizontal } from 'lucide-react'
+import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw } from 'lucide-react'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -361,31 +361,25 @@ export default function HomePage() {
             <h2 id="features-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Built differently</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Dark card */}
-            <div className="rounded-2xl p-6 space-y-3" style={{ background: C.dark, color: C.sand }}>
-              <div className="text-2xl">🧠</div>
-              <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>Remembers you</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Your travel style, budget, and preferences are saved. Every conversation gets smarter.</p>
-            </div>
-            {/* Amber card */}
-            <div className="rounded-2xl p-6 space-y-3" style={{ background: `${C.saffron}22`, border: `1px solid ${C.saffron}44` }}>
-              <div className="text-2xl">💰</div>
-              <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>Honest costs</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Real estimates for flights, hotels, food, and activities — no vague ranges that tell you nothing.</p>
-            </div>
-            {/* Day by day card */}
-            <div className="rounded-2xl p-6 space-y-3" style={{ background: 'white', border: `1px solid ${C.saffron}33` }}>
-              <div className="text-2xl">📅</div>
-              <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>Day-by-day itinerary</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.</p>
-            </div>
-            {/* Jade card */}
-            <div className="rounded-2xl p-6 space-y-3" style={{ background: `${C.jade}22`, border: `1px solid ${C.jade}44` }}>
-              <div className="text-2xl">🔄</div>
-              <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>Endlessly editable</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wandr adapts instantly.</p>
-            </div>
-          </div>
+            {([
+              { Icon: Sparkles,     title: 'Remembers you',        desc: 'Your travel style, budget, and preferences are saved. Every conversation gets smarter.',                           dark: true  },
+              { Icon: DollarSign,   title: 'Honest costs',         desc: 'Real estimates for flights, hotels, food, and activities — no vague ranges that tell you nothing.',              dark: false },
+              { Icon: CalendarDays, title: 'Day-by-day itinerary', desc: 'Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.',                            dark: false },
+              { Icon: RefreshCw,    title: 'Endlessly editable',   desc: "Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wandr adapts instantly.",              dark: false },
+            ] as const).map(({ Icon, title, desc, dark }) => (
+              <div key={title}
+                className="rounded-2xl p-7 flex flex-col gap-3"
+                style={{
+                  minHeight: 220,
+                  background: dark ? C.dark : 'white',
+                  border: dark ? 'none' : `1px solid ${C.saffron}33`,
+                  color: dark ? C.sand : C.dark,
+                }}>
+                <Icon size={24} style={{ color: dark ? C.sand : C.terra, opacity: dark ? 0.85 : 1 }} />
+                <h3 className="font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>{title}</h3>
+                <p className="text-sm leading-relaxed" style={{ opacity: 0.65 }}>{desc}</p>
+              </div>
+            ))}
         </div>
       </section>
 
