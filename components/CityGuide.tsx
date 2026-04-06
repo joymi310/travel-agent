@@ -93,6 +93,7 @@ function SectionCard({ title, emoji, color, content, isStreaming }: {
 
 export function CityGuide({ city, initialAnswers }: Props) {
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireAnswers | null>(null)
+  const [dismissed, setDismissed] = useState(false)
 
   const { completion, complete, isLoading } = useCompletion({
     api: '/api/city-guide',
@@ -119,13 +120,27 @@ export function CityGuide({ city, initialAnswers }: Props) {
 
   return (
     <>
-      {/* Questionnaire modal — shown until answered */}
-      {!questionnaire && (
+      {/* Questionnaire modal — shown until answered or dismissed */}
+      {!questionnaire && !dismissed && (
         <CityQuestionnaire
           cityName={city.name}
           initialAnswers={initialAnswers}
           onSubmit={handleQuestionnaireSubmit}
+          onClose={() => setDismissed(true)}
         />
+      )}
+
+      {/* Dismissed — show a button to reopen the questionnaire */}
+      {!questionnaire && dismissed && (
+        <div className="py-10 px-4 text-center">
+          <button
+            onClick={() => setDismissed(false)}
+            className="text-sm font-semibold px-6 py-3 rounded-full transition-all hover:opacity-90"
+            style={{ background: C.terra, color: C.sand }}
+          >
+            Get your personalised {city.name} guide →
+          </button>
+        </div>
       )}
 
       {/* Guide content */}

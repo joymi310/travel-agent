@@ -21,6 +21,7 @@ interface Props {
   cityName: string
   initialAnswers?: Partial<QuestionnaireAnswers>
   onSubmit: (answers: QuestionnaireAnswers) => void
+  onClose?: () => void
 }
 
 const COMPANIONS = [
@@ -53,7 +54,7 @@ const DURATIONS = [
   { id: 'two_weeks', label: 'Two weeks+', desc: '14+ days' },
 ]
 
-export function CityQuestionnaire({ cityName, initialAnswers = {}, onSubmit }: Props) {
+export function CityQuestionnaire({ cityName, initialAnswers = {}, onSubmit, onClose }: Props) {
   const [companions, setCompanions] = useState(initialAnswers.companions ?? '')
   const [budget, setBudget] = useState(initialAnswers.budget ?? '')
   const [interests, setInterests] = useState<string[]>(initialAnswers.interests ?? [])
@@ -79,7 +80,17 @@ export function CityQuestionnaire({ cityName, initialAnswers = {}, onSubmit }: P
         style={{ background: C.sand }}>
 
         {/* Header */}
-        <div className="px-8 pt-8 pb-6" style={{ borderBottom: `1px solid ${C.dark}15` }}>
+        <div className="px-8 pt-8 pb-6 relative" style={{ borderBottom: `1px solid ${C.dark}15` }}>
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full transition-opacity hover:opacity-60"
+              style={{ background: `${C.dark}10`, color: C.dark }}
+            >
+              ✕
+            </button>
+          )}
           <p className="text-xs font-medium uppercase tracking-widest mb-1" style={{ color: C.terra }}>
             Personalise your guide
           </p>
