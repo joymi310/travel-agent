@@ -241,6 +241,104 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── CHAT PREVIEW ── */}
+      <section className="py-24 px-6" aria-labelledby="chat-preview-heading">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* Left — copy */}
+          <div className="space-y-5">
+            <p className="text-sm font-medium uppercase tracking-widest" style={{ color: C.terra }}>See how it feels</p>
+            <h2 id="chat-preview-heading" className="text-4xl font-bold leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+              Just talk.<br />Wandr figures out the rest.
+            </h2>
+            <p className="text-base leading-relaxed opacity-70 max-w-sm">
+              No forms. No dropdowns. Tell Wandr what kind of trip you want — in your own words — and it builds the plan around you.
+            </p>
+            <button onClick={handleStartPlanning}
+              className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-full text-sm transition-all hover:opacity-90"
+              style={{ background: C.terra, color: C.sand }}>
+              Try it now →
+            </button>
+          </div>
+
+          {/* Right — chat mockup */}
+          <div className="rounded-3xl overflow-hidden shadow-2xl" style={{ background: '#FDFAF4', border: `1px solid ${C.saffron}22` }}>
+
+            {/* Chrome bar */}
+            <div className="px-5 py-3.5 flex items-center gap-3 border-b" style={{ borderColor: `${C.dark}0D`, background: 'white' }}>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                style={{ background: C.terra, color: C.sand, fontFamily: 'var(--font-playfair)' }}>w</div>
+              <span className="text-sm font-semibold" style={{ color: C.dark }}>wandr.</span>
+              <span className="ml-auto text-xs px-2.5 py-1 rounded-full font-medium"
+                style={{ background: `${C.jade}20`, color: C.jade }}>● Online</span>
+            </div>
+
+            {/* Messages */}
+            <div className="px-5 py-6 space-y-5">
+
+              {/* User bubble */}
+              <div className="flex justify-end">
+                <div className="max-w-[78%] rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed"
+                  style={{ background: C.terra, color: C.sand }}>
+                  I want 10 days in Southeast Asia. Mid-range budget. I hate tourist traps and all-inclusive resorts.
+                </div>
+              </div>
+
+              {/* Wandr response */}
+              <div className="flex gap-3 items-start">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+                  style={{ background: C.dark, color: C.sand, fontFamily: 'var(--font-playfair)' }}>w</div>
+                <div className="max-w-[84%] rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed space-y-2"
+                  style={{ background: 'white', color: C.dark, boxShadow: '0 1px 6px rgba(26,18,8,0.07)' }}>
+                  <p>Good instincts — Southeast Asia rewards people who go slightly off-script.</p>
+                  <p>I&apos;d start you in <strong>Hanoi for 3 days</strong> — stay in the Old Quarter, not near Hoan Kiem Lake where prices double and the vibe is purely tourist. Then a night in <strong>Ninh Binh</strong> (boats through the limestone karsts, almost nobody there mid-week). Fly down to <strong>Hoi An for 4 days</strong> — skip the lantern festival crowds, the town is better when it&apos;s quieter. Close out with <strong>2 days in Da Nang</strong> for the beach.</p>
+                  <p style={{ color: C.terra }} className="font-medium">Want me to build out the day-by-day?</p>
+                </div>
+              </div>
+
+              {/* User follow-up */}
+              <div className="flex justify-end">
+                <div className="max-w-[78%] rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed"
+                  style={{ background: C.terra, color: C.sand }}>
+                  Yes — and can you find me a cooking class in Hoi An?
+                </div>
+              </div>
+
+              {/* Typing indicator */}
+              <div className="flex gap-3 items-start">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                  style={{ background: C.dark, color: C.sand, fontFamily: 'var(--font-playfair)' }}>w</div>
+                <div className="rounded-2xl rounded-tl-sm px-4 py-3"
+                  style={{ background: 'white', boxShadow: '0 1px 6px rgba(26,18,8,0.07)' }}>
+                  <div className="flex gap-1 items-center h-4">
+                    {[0, 1, 2].map(i => (
+                      <span key={i} className="w-1.5 h-1.5 rounded-full animate-bounce"
+                        style={{ background: C.dark, opacity: 0.3, animationDelay: `${i * 0.15}s` }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Input bar */}
+            <div className="px-4 pb-4">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm"
+                style={{ borderColor: `${C.dark}18`, background: 'white', color: `${C.dark}55` }}>
+                <span className="flex-1">Message wandr...</span>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center"
+                  style={{ background: C.terra }}>
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M6.5 11V2M2 6.5l4.5-4.5 4.5 4.5" stroke={C.sand} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ── SAMPLE ITINERARY ── */}
       <section className="py-24 px-6" aria-labelledby="sample-heading">
         <div className="max-w-2xl mx-auto">
