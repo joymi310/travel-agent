@@ -235,18 +235,22 @@ export default async function CityPage({ params }: { params: { slug: string } })
             )}
           </div>
 
-          {city.visa_notes && (
-            <div className="flex gap-3 items-start rounded-xl p-4"
-              style={{ background: `${C.saffron}12`, border: `1px solid ${C.saffron}33` }}>
-              <span className="text-base shrink-0 mt-0.5">ℹ️</span>
-              <div>
-                <p className="text-xs font-semibold mb-0.5" style={{ color: '#9A5800' }}>Visa notes</p>
-                <p className="text-sm leading-relaxed" style={{ color: C.dark, opacity: 0.8 }}>
-                  {city.visa_notes}
-                </p>
-              </div>
+          <div className="flex gap-3 items-start rounded-xl p-4"
+            style={{ background: `${C.saffron}12`, border: `1px solid ${C.saffron}33` }}>
+            <span className="text-base shrink-0 mt-0.5">ℹ️</span>
+            <div>
+              <p className="text-xs font-semibold mb-0.5" style={{ color: '#9A5800' }}>Visa & entry requirements</p>
+              <p className="text-sm leading-relaxed mb-2" style={{ color: C.dark, opacity: 0.8 }}>
+                Entry requirements change — ETIAS, eVisa schemes, and travel advisories are updated regularly.
+                Ask Wandr for a current answer based on your passport.
+              </p>
+              <Link href={`/?destination=${city.slug}`}
+                className="text-xs font-semibold transition-opacity hover:opacity-70"
+                style={{ color: '#9A5800' }}>
+                Ask Wandr about visas for {city.name} →
+              </Link>
             </div>
-          )}
+          </div>
         </section>
 
         {/* ── NEIGHBOURHOODS ── */}

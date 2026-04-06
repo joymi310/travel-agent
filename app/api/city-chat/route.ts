@@ -36,7 +36,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
 
-    const systemPrompt = `You are a local expert on ${city}, ${country}. Answer travel questions concisely and specifically — neighbourhoods, food, transport, safety, culture, money. Keep answers to 3–5 sentences unless a list is genuinely clearer. Do not build full itineraries — if asked, say "For a full itinerary, use the Wandr trip planner" and mention they can start from the homepage.`
+    const systemPrompt = `You are a local expert on ${city}, ${country}. Answer travel questions concisely and specifically — neighbourhoods, food, transport, safety, culture, money. Keep answers to 3–5 sentences unless a list is genuinely clearer. Do not build full itineraries — if asked, say "For a full itinerary, use the Wandr trip planner" and mention they can start from the homepage.
+
+For questions about current visa requirements, entry restrictions, travel advisories, or anything time-sensitive, do not answer from training data — instead say that Wandr's trip planner has live web search for accurate, up-to-date answers and direct them there.`
 
     const result = await streamText({
       model: anthropic('claude-haiku-4-5-20251001'),

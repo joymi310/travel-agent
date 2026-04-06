@@ -1,5 +1,6 @@
-import { anthropic } from '@ai-sdk/anthropic'
-import { streamText, generateText } from 'ai'
+import Anthropic from '@anthropic-ai/sdk'
+import { anthropic as vercelAnthropic } from '@ai-sdk/anthropic'
+import { generateText } from 'ai'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { buildSystemPrompt } from '@/lib/system-prompt'
@@ -9,6 +10,8 @@ export const maxDuration = 120
 
 const MAX_MESSAGE_LEN = 4000
 const MAX_MESSAGES = 50
+
+const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -59,7 +62,7 @@ export async function POST(req: Request) {
     : messages
 
   const itineraryContext = itinerary
-    ? `\n\nThe user has an existing itinerary displayed in a panel next to this chat. Treat this as the current plan.
+    ? `The user has an existing itinerary displayed in a panel next to this chat. Treat this as the current plan.
 
 Current itinerary (JSON):
 ${JSON.stringify(itinerary)}
@@ -73,62 +76,109 @@ IMPORTANT — when the user asks you to change, swap, add, remove, or modify any
 Use the exact same JSON structure as the current itinerary. Include ALL days (not just the changed ones).
 
 If the user is only asking a question and NOT modifying the itinerary, do NOT include <itinerary_update> tags.`
-    : ''
+    : null
 
-  const result = await streamText({
-    model: anthropic('claude-sonnet-4-20250514'),
-    messages: [
-      {
-        role: 'system' as const,
-        content: buildSystemPrompt(travelStyle),
-        providerOptions: {
-          anthropic: { cacheControl: { type: 'ephemeral' } },
-        },
-      },
-      ...(itinerary ? [{ role: 'system' as const, content: itineraryContext.trim() }] : []),
-      ...resolvedMessages,
-    ],
-    onFinish: async ({ text }) => {
-      if (!user) return
+  // Build system blocks (supports prompt caching on the base prompt)
+  const systemBlocks: Anthropic.TextBlockParam[] = [
+    {
+      type: 'text',
+      text: buildSystemPrompt(travelStyle),
+      cache_control: { type: 'ephemeral' } as { type: 'ephemeral' },
+    },
+  ]
+  if (itineraryContext) {
+    systemBlocks.push({ type: 'text', text: itineraryContext })
+  }
 
-      const admin = createAdminClient()
-      let activeConversationId = conversationId
+  const encoder = new TextEncoder()
+  let fullText = ''
 
-      // Create conversation if this is the first message
-      if (!activeConversationId) {
-        const firstUserMessage = messages.find((m: { role: string }) => m.role === 'user')
-        let title = 'New conversation'
+  const anthropicStream = anthropicClient.messages.stream(
+    {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8096,
+      system: systemBlocks as Anthropic.TextBlockParam[],
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }] as unknown as Anthropic.Tool[],
+      messages: resolvedMessages as Anthropic.MessageParam[],
+    },
+    { headers: { 'anthropic-beta': 'web-search-2025-03-05' } }
+  )
 
-        if (firstUserMessage) {
-          try {
-            const { text: generatedTitle } = await generateText({
-              model: anthropic('claude-haiku-4-5-20251001'),
-              prompt: `Generate a short (4–6 words) title for a travel planning conversation that starts with this message. Reply with only the title, no quotes:\n\n${firstUserMessage.content}`,
-            })
-            title = generatedTitle.trim()
-          } catch {
-            title = firstUserMessage.content.slice(0, 50)
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const event of anthropicStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            'delta' in event &&
+            event.delta.type === 'text_delta'
+          ) {
+            const text = event.delta.text
+            fullText += text
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(text)}\n`))
           }
         }
 
-        const { data: conversation } = await admin
-          .from('conversations')
-          .insert({ user_id: user.id, title })
-          .select('id')
-          .single()
+        const finalMessage = await anthropicStream.finalMessage()
 
-        activeConversationId = conversation?.id
+        // Save to DB if authenticated
+        if (user) {
+          const admin = createAdminClient()
+          let activeConversationId = conversationId
+
+          if (!activeConversationId) {
+            const firstUserMessage = messages.find((m: { role: string }) => m.role === 'user')
+            let title = 'New conversation'
+            if (firstUserMessage) {
+              try {
+                const { text: generatedTitle } = await generateText({
+                  model: vercelAnthropic('claude-haiku-4-5-20251001'),
+                  prompt: `Generate a short (4–6 words) title for a travel planning conversation that starts with this message. Reply with only the title, no quotes:\n\n${firstUserMessage.content}`,
+                })
+                title = generatedTitle.trim()
+              } catch {
+                title = firstUserMessage.content.slice(0, 50)
+              }
+            }
+
+            const { data: conversation } = await admin
+              .from('conversations')
+              .insert({ user_id: user.id, title })
+              .select('id')
+              .single()
+            activeConversationId = conversation?.id
+          }
+
+          if (activeConversationId) {
+            const lastUserMessage = messages[messages.length - 1]
+            await admin.from('messages').insert([
+              { conversation_id: activeConversationId, role: lastUserMessage.role, content: lastUserMessage.content },
+              { conversation_id: activeConversationId, role: 'assistant', content: fullText },
+            ])
+          }
+        }
+
+        controller.enqueue(encoder.encode(
+          `d:${JSON.stringify({
+            finishReason: 'stop',
+            usage: {
+              promptTokens: finalMessage.usage.input_tokens,
+              completionTokens: finalMessage.usage.output_tokens,
+            },
+          })}\n`
+        ))
+      } catch (err) {
+        controller.error(err)
+      } finally {
+        controller.close()
       }
-
-      if (!activeConversationId) return
-
-      const lastUserMessage = messages[messages.length - 1]
-      await admin.from('messages').insert([
-        { conversation_id: activeConversationId, role: lastUserMessage.role, content: lastUserMessage.content },
-        { conversation_id: activeConversationId, role: 'assistant', content: text },
-      ])
     },
   })
 
-  return result.toDataStreamResponse()
+  return new Response(readableStream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Vercel-AI-Data-Stream': 'v1',
+    },
+  })
 }
