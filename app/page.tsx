@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WandrMap from '@/components/WandrMap'
+import { Navigation, MessageCircle, Map, SlidersHorizontal } from 'lucide-react'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -218,12 +219,12 @@ export default function HomePage() {
             <h2 id="how-it-works-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>How it works</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { step: '01', icon: '✈️', title: 'Sign in & tell us where', desc: 'Create a free account and share where you dream of going — or ask for ideas.' },
-              { step: '02', icon: '💬', title: "Chat like it's a friend", desc: 'Talk naturally. Tell Wandr your budget, travel style, and what excites you.' },
-              { step: '03', icon: '🗺️', title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary built specifically for you.' },
-              { step: '04', icon: '✨', title: "Tweak until it's perfect", desc: "Adjust anything. Change a day, swap a hotel, add a detour. It's your trip." },
-            ].map((item) => (
+            {([
+              { step: '01', Icon: Navigation, title: 'Sign in & tell us where', desc: 'Create a free account and share where you dream of going — or ask for ideas.' },
+              { step: '02', Icon: MessageCircle, title: "Chat like it's a friend", desc: 'Talk naturally. Tell Wandr your budget, travel style, and what excites you.' },
+              { step: '03', Icon: Map, title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary built specifically for you.' },
+              { step: '04', Icon: SlidersHorizontal, title: "Tweak until it's perfect", desc: "Adjust anything. Change a day, swap a hotel, add a detour. It's your trip." },
+            ] as const).map((item) => (
               <div key={item.step}
                 className="relative rounded-2xl p-6 cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 style={{ background: 'white', border: `1px solid ${C.saffron}33` }}>
@@ -231,7 +232,7 @@ export default function HomePage() {
                   style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
                   {item.step}
                 </div>
-                <div className="text-3xl mb-4">{item.icon}</div>
+                <item.Icon size={24} className="mb-4" style={{ color: C.terra }} />
                 <h3 className="font-bold text-base mb-2">{item.title}</h3>
                 <p className="text-sm leading-relaxed opacity-70">{item.desc}</p>
               </div>
