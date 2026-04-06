@@ -208,7 +208,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   })
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4"
       style={{ background: 'rgba(26,18,8,0.7)', backdropFilter: 'blur(4px)' }}>
       <div className="w-full max-w-lg rounded-2xl overflow-hidden"
         style={{ background: 'white', boxShadow: '0 32px 80px rgba(26,18,8,0.3)' }}>
@@ -430,7 +430,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
 
               <div>
                 <p className="text-xs font-medium mb-2" style={{ color: C.dark, opacity: 0.5 }}>
-                  Does that include flights?
+                  Does your budget include flights?
                 </p>
                 <div className="flex gap-2">
                   {(['flights-included', 'land-only'] as const).map(bt => (
@@ -444,7 +444,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                         color: budgetType === bt ? C.terra : C.dark,
                       }}
                     >
-                      {bt === 'flights-included' ? 'Flights included' : 'Land only'}
+                      {bt === 'flights-included' ? 'Yes, flights included' : 'No, just accommodation & activities'}
                     </button>
                   ))}
                 </div>
