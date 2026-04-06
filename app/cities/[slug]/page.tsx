@@ -188,6 +188,7 @@ export default async function CityPage({ params }: { params: { slug: string } })
 
         {/* ── OVERVIEW ── */}
         <section className="py-12 border-b" style={{ borderColor: `${C.dark}12` }}>
+          <p className="text-xs mb-5" style={{ color: C.dark, opacity: 0.35 }}>Updated April 2026 · Powered by Claude</p>
           {city.overview && (
             <p className="text-base leading-relaxed mb-8 max-w-2xl" style={{ color: C.dark, opacity: 0.85 }}>
               {city.overview}

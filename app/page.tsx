@@ -152,10 +152,16 @@ export default function HomePage() {
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4"
         aria-label="Main navigation"
         style={{ background: 'rgba(245,236,215,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.saffron}22` }}>
-        <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Wandr home"
-          style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-          wandr.
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Wandr home"
+            style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+            wandr.
+          </Link>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+            style={{ background: `${C.saffron}25`, color: C.saffron, border: `1px solid ${C.saffron}50` }}>
+            Beta
+          </span>
+        </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: C.dark }}>
           <a href="#how-it-works" className="hover:opacity-70 transition-opacity">How it works</a>
           <Link href="/cities" className="hover:opacity-70 transition-opacity">City Guides</Link>
@@ -210,6 +216,22 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── STAT STRIP ── */}
+      <div className="border-y px-6 py-5" style={{ borderColor: `${C.dark}10`, background: 'white' }}>
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
+          {[
+            { value: '13', label: 'cities covered' },
+            { value: 'Free', label: 'to start' },
+            { value: 'Claude', label: 'powered AI' },
+          ].map(({ value, label }) => (
+            <div key={label} className="flex items-center gap-2 text-sm">
+              <span className="font-bold text-base" style={{ color: C.terra, fontFamily: 'var(--font-playfair)' }}>{value}</span>
+              <span style={{ color: C.dark, opacity: 0.45 }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" className="pt-12 pb-24 px-6" aria-labelledby="how-it-works-heading">
@@ -512,7 +534,10 @@ export default function HomePage() {
       <footer className="py-10 px-6" style={{ background: C.dark, color: C.sand }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</span>
-          <p className="text-xs opacity-40 text-center">© 2026 Wandr · No bookings made. Just brilliant plans.</p>
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="text-xs opacity-40 text-center">© 2026 Wandr · No bookings made. Just brilliant plans.</p>
+            <p className="text-xs opacity-30 text-center">Powered by Claude · Anthropic</p>
+          </div>
           <div className="flex gap-6 text-xs opacity-50">
             <a href="#" className="hover:opacity-100 transition-opacity">Privacy</a>
             <a href="#" className="hover:opacity-100 transition-opacity">Terms</a>
