@@ -59,13 +59,26 @@ function getPendingInitialMessages() {
     const raw = localStorage.getItem('wandr_pending_trip')
     if (!raw) return []
     const { itinerary } = JSON.parse(raw)
+    const questions: string[] = itinerary.follow_up_questions ?? []
+    const followUpBlock = questions.length > 0
+      ? `\n\n${questions.map((q: string) => `- ${q}`).join('\n')}`
+      : ''
     return [{
       id: 'pending-itinerary',
       role: 'assistant' as const,
-      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the right.\n\nAsk me to adjust any day, swap accommodation, change the pace, add activities — anything you like.`,
+      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the right.${followUpBlock}`,
     }]
   } catch { return [] }
 }
+
+const STATIC_CHIPS = [
+  'Make it more relaxed',
+  'Add a foodie focus',
+  'Swap a hotel',
+  'Add a day trip',
+  "What should I pack?",
+  'Show me the budget breakdown',
+]
 
 interface SavedConversation {
   id: string
@@ -77,7 +90,11 @@ export default function ChatPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(() => getPendingItinerary())
   const [initialMessages] = useState(() => getPendingInitialMessages())
   const [conversationId, setConversationId] = useState<string | null>(null)
-  const { messages, input, setInput, handleSubmit, isLoading, error, setMessages } = useChat({
+  const [showChips, setShowChips] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return !!localStorage.getItem('wandr_pending_trip')
+  })
+  const { messages, input, setInput, handleSubmit, isLoading, error, setMessages, append } = useChat({
     api: '/api/chat',
     initialMessages,
     body: { itinerary, conversationId },
@@ -106,6 +123,16 @@ export default function ChatPage() {
       return
     }
   }, [messages])
+
+  // Hide chips once user sends their first message
+  useEffect(() => {
+    if (messages.some(m => m.role === 'user')) setShowChips(false)
+  }, [messages])
+
+  const handleChipClick = (chip: string) => {
+    setShowChips(false)
+    append({ role: 'user', content: chip })
+  }
 
   // Persist itinerary to DB whenever it changes
   useEffect(() => {
@@ -440,6 +467,28 @@ export default function ChatPage() {
               />
             )}
           </div>
+
+          {/* Quick-reply chips — shown only after itinerary generation, disappear on first send */}
+          {showChips && itinerary && !isLoading && (
+            <div className="px-4 pt-2 pb-3 shrink-0 border-t" style={{ borderColor: `${C.dark}10`, background: C.sand }}>
+              <p className="text-xs mb-2 font-medium" style={{ color: `${C.dark}50` }}>Quick replies</p>
+              <div
+                className="flex gap-2 overflow-x-auto pb-1"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {[...(itinerary.follow_up_questions ?? []), ...STATIC_CHIPS].map(chip => (
+                  <button
+                    key={chip}
+                    onClick={() => handleChipClick(chip)}
+                    className="shrink-0 text-xs font-medium px-3.5 py-2 rounded-full border transition-all hover:opacity-80 active:scale-95"
+                    style={{ borderColor: C.terra, color: C.terra, background: `${C.terra}08`, whiteSpace: 'nowrap' }}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && (
             <div

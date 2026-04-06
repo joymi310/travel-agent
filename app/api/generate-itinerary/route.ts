@@ -69,6 +69,10 @@ export async function POST(req: Request) {
   "destination": "Vietnam",
   "duration": "10 days",
   "tagline": "Street food, ancient towns & turquoise bays",
+  "follow_up_questions": [
+    "I've given you 4 days in Hoi An — do you want that more beach-focused or centred on the old town?",
+    "Day 3 in Hanoi is quite packed — want me to build in more breathing room?"
+  ],
   "days": [
     {
       "day": 1,
@@ -88,6 +92,8 @@ export async function POST(req: Request) {
     }
   ]
 }
+IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
+
 IMPORTANT: Every highlight must have a "reason" field that references something specific the traveller told you — their budget level, pace preference, interests, travel party, or what they want to do or avoid. Accommodation must have a "reason". Named restaurants should have a "reason". The reason must feel personal, not generic. Keep reasons short (one sentence). Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
 
     const { text } = await generateText({

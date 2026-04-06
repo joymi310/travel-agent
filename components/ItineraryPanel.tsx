@@ -63,6 +63,7 @@ export interface Itinerary {
   destination: string
   duration: string
   tagline: string
+  follow_up_questions?: string[]
   days: ItineraryDay[]
 }
 
