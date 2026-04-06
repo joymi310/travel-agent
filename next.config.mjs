@@ -36,7 +36,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net",
       "frame-ancestors 'none'",
       "form-action 'self'",
       "base-uri 'self'",
@@ -47,6 +47,7 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  transpilePackages: ['react-simple-maps'],
   async headers() {
     return [
       {
