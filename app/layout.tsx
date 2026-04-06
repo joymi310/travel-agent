@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${playfair.variable} ${dmSans.variable} antialiased`}>
+        <NextTopLoader color="#C94A2B" shadow="0 0 10px #C94A2B" showSpinner={false} />
         {children}
       </body>
     </html>
