@@ -63,7 +63,7 @@ export function CitySearchGrid({ cities }: { cities: City[] }) {
       map.get(r)!.push(city)
     }
     const knownOrder = REGION_ORDER.filter(r => map.has(r))
-    const rest = [...map.keys()].filter(r => !REGION_ORDER.includes(r)).sort()
+    const rest = Array.from(map.keys()).filter(r => !REGION_ORDER.includes(r)).sort()
     for (const r of [...knownOrder, ...rest]) {
       grouped.push({ region: r, cities: map.get(r)! })
     }
