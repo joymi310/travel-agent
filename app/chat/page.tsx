@@ -484,7 +484,7 @@ export default function ChatPage() {
                 className="flex gap-2 overflow-x-auto pb-1"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {[...(itinerary.follow_up_questions ?? []), ...STATIC_CHIPS].map(chip => (
+                {STATIC_CHIPS.map(chip => (
                   <button
                     key={chip}
                     onClick={() => handleChipClick(chip)}
