@@ -173,7 +173,7 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <main id="main-content">
-      <section className="min-h-screen flex items-center pt-24 pb-16 px-6" aria-labelledby="hero-heading">
+      <section className="flex items-center pt-28 pb-16 px-6" aria-labelledby="hero-heading">
         <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
           <div className="space-y-6">
@@ -211,7 +211,7 @@ export default function HomePage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="py-24 px-6" aria-labelledby="how-it-works-heading">
+      <section id="how-it-works" className="pt-12 pb-24 px-6" aria-labelledby="how-it-works-heading">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Simple as a conversation</p>
