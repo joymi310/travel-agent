@@ -15,9 +15,9 @@ const C = {
 interface ItineraryDay {
   day: number
   title: string
-  highlights: string[]
-  accommodation: string
-  meals: string[]
+  highlights: (string | { text: string; reason?: string })[]
+  accommodation: string | { name: string; reason?: string }
+  meals: (string | { name: string; reason?: string })[]
   transport: string
   estimatedCost: string
 }
@@ -72,7 +72,7 @@ function DayCard({ day, index, totalDays }: { day: ItineraryDay; index: number; 
             {day.highlights.map((h, i) => (
               <li key={i} className="flex items-start gap-2 text-sm" style={{ color: C.dark }}>
                 <span className="mt-1 shrink-0" style={{ color: C.terra }}>•</span>
-                {h}
+                {typeof h === 'string' ? h : h.text}
               </li>
             ))}
           </ul>
