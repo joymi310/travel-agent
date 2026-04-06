@@ -240,6 +240,118 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── SAMPLE ITINERARY ── */}
+      <section className="py-24 px-6" aria-labelledby="sample-heading">
+        <div className="max-w-2xl mx-auto">
+
+          {/* Header */}
+          <div className="text-center mb-10">
+            <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>See it in action</p>
+            <h2 id="sample-heading" className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+              Here&apos;s what a Wandr plan looks like
+            </h2>
+            <p className="text-base opacity-60">A 3-day Tokyo itinerary, built in under a minute.</p>
+          </div>
+
+          {/* Itinerary panel mock */}
+          <div className="rounded-3xl overflow-hidden shadow-xl" style={{ background: '#FDFAF4' }}>
+
+            {/* Panel header */}
+            <div className="px-6 py-5 border-b" style={{ borderColor: `${C.dark}10` }}>
+              <h3 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>Tokyo</h3>
+              <p className="text-sm mt-0.5 italic" style={{ color: '#555' }}>
+                Three days of temples, street food, and neon — at your own pace.
+              </p>
+              <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-medium"
+                style={{ background: `${C.terra}15`, color: C.terra }}>
+                3 days · 2 adults · Mid-range budget
+              </span>
+            </div>
+
+            {/* Days */}
+            <div className="px-4 py-4 space-y-3 pb-6">
+
+              {/* Day 1 — expanded */}
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 1px 8px rgba(26,18,8,0.06)' }}>
+                <div className="px-5 py-4 flex items-center gap-3" style={{ borderBottom: `1px solid ${C.sand}` }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    style={{ background: C.terra, color: C.sand }}>1</div>
+                  <span className="font-semibold text-sm flex-1" style={{ color: C.dark }}>Day 1: Arrival &amp; Shinjuku Nights</span>
+                </div>
+                <div className="px-5 py-4 space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: C.saffron }}>Highlights</p>
+                    <ul className="space-y-1.5">
+                      {[
+                        'Check in and explore your Shinjuku neighbourhood',
+                        'Late afternoon at Shinjuku Gyoen — cherry blossoms in season',
+                        'Dinner at Omoide Yokocho (Memory Lane) — yakitori and cold beer',
+                        'Evening drinks at a rooftop bar with views of the city lights',
+                      ].map(h => (
+                        <li key={h} className="flex items-start gap-2 text-sm" style={{ color: C.dark }}>
+                          <span className="mt-1 shrink-0" style={{ color: C.terra, fontSize: 10 }}>●</span>
+                          {h}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <dl className="space-y-2.5">
+                    {[
+                      { icon: '🏨', label: 'Stay', value: 'Keio Plaza Hotel, Shinjuku' },
+                      { icon: '🍴', label: 'Meals', value: 'Hotel breakfast · Soba lunch · Yakitori at Omoide Yokocho' },
+                      { icon: '🚌', label: 'Getting around', value: 'Narita Express from airport · IC card for metro' },
+                    ].map(({ icon, label, value }) => (
+                      <div key={label} className="flex items-start gap-2.5">
+                        <span className="shrink-0 text-base">{icon}</span>
+                        <div>
+                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>{label}</dt>
+                          <dd className="text-sm" style={{ color: C.dark }}>{value}</dd>
+                        </div>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: `${C.dark}08` }}>
+                    <span className="text-xs" style={{ color: '#555' }}>Est. daily cost</span>
+                    <span className="text-sm font-semibold" style={{ color: '#2A7A5B' }}>¥18,000 (~$120 USD)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Day 2 — collapsed */}
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 1px 8px rgba(26,18,8,0.06)' }}>
+                <div className="px-5 py-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    style={{ background: C.terra, color: C.sand }}>2</div>
+                  <span className="font-semibold text-sm flex-1" style={{ color: C.dark }}>Day 2: Temples, Markets &amp; Harajuku</span>
+                  <span className="text-xs" style={{ color: C.dark, opacity: 0.3 }}>▼</span>
+                </div>
+              </div>
+
+              {/* Day 3 — collapsed */}
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'white', boxShadow: '0 1px 8px rgba(26,18,8,0.06)' }}>
+                <div className="px-5 py-4 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    style={{ background: '#2A7A5B', color: C.sand }}>3</div>
+                  <span className="font-semibold text-sm flex-1" style={{ color: C.dark }}>Day 3: Tsukiji, TeamLab &amp; Departure</span>
+                  <span className="text-xs" style={{ color: C.dark, opacity: 0.3 }}>▼</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-8">
+            <button onClick={handleStartPlanning}
+              className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg"
+              style={{ background: C.terra, color: C.sand }}>
+              Get yours in minutes → Start planning
+            </button>
+          </div>
+
+        </div>
+      </section>
+
       {/* ── FEATURES ── */}
       <section className="py-24 px-6" aria-labelledby="features-heading">
         <div className="max-w-6xl mx-auto">
@@ -298,6 +410,7 @@ export default function HomePage() {
           <p className="text-xs opacity-50">No credit card required. No bookings made.</p>
         </div>
       </section>
+
 
       </main>
 
