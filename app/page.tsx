@@ -362,10 +362,10 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {([
-              { Icon: Sparkles,     title: 'Remembers you',        desc: 'Your travel style, budget, and preferences are saved. Every conversation gets smarter.',                           dark: true  },
-              { Icon: DollarSign,   title: 'Honest costs',         desc: 'Real estimates for flights, hotels, food, and activities — no vague ranges that tell you nothing.',              dark: false },
-              { Icon: CalendarDays, title: 'Day-by-day itinerary', desc: 'Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.',                            dark: false },
-              { Icon: RefreshCw,    title: 'Endlessly editable',   desc: "Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wandr adapts instantly.",              dark: false },
+              { Icon: Sparkles,     title: 'Remembers you',        desc: 'Your travel style, budget, and preferences are saved. Every conversation gets smarter.',                           dark: true },
+              { Icon: DollarSign,   title: 'Honest costs',         desc: 'Real estimates for flights, hotels, food, and activities — no vague ranges that tell you nothing.',              dark: true },
+              { Icon: CalendarDays, title: 'Day-by-day itinerary', desc: 'Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.',                            dark: true },
+              { Icon: RefreshCw,    title: 'Endlessly editable',   desc: "Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wandr adapts instantly.",              dark: true },
             ] as const).map(({ Icon, title, desc, dark }) => (
               <div key={title}
                 className="rounded-2xl p-7 flex flex-col gap-3"
