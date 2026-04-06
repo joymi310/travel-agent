@@ -28,6 +28,8 @@ export async function POST(req: Request) {
     const profileQ2 = sanitize(body.profileQ2)
     const profileQ3 = sanitize(body.profileQ3)
     const profileQ4 = sanitize(body.profileQ4)
+    const explorationStyle = ['classics', 'mixed', 'off_beaten_track'].includes(body.explorationStyle)
+      ? (body.explorationStyle as string) : 'mixed'
 
     if (!destination) {
       return Response.json({ error: 'Destination is required.' }, { status: 400 })
@@ -64,7 +66,13 @@ export async function POST(req: Request) {
       ? 'IMPORTANT: This traveller has been to this destination before. Do NOT include standard first-timer highlights (major tourist sites everyone does on their first visit). Go deeper — lesser-known neighbourhoods, off-the-beaten-track experiences, local spots that returning visitors discover. Make this feel like a completely different trip.'
       : 'This is a first-time visitor. Include the essential experiences, but with specific recommendations and a local angle — not the generic tourist circuit.'
 
-    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. ${returningVisitorNote} Use exactly this structure:
+    const explorationNote = explorationStyle === 'classics'
+      ? 'EXPLORATION STYLE — CLASSICS: This traveller explicitly wants the iconic sights. Lead with the most celebrated attractions, landmark restaurants, and well-known experiences. Do not be contrarian. Famous is famous for a reason — lean into it.'
+      : explorationStyle === 'off_beaten_track'
+      ? 'EXPLORATION STYLE — OFF THE BEATEN TRACK: This traveller actively avoids mainstream tourist attractions. NEVER headline a day with a famous sight. Every day must include at least one recommendation that a casual tourist would never find. Use local guesthouses, street stalls with no tourist menus, and non-tourist neighbourhoods. If an attraction is truly unmissable, mention it once with crowd-avoidance timing only — never as a highlight.'
+      : 'EXPLORATION STYLE — MIXED: Balance 1–2 headline sights per city with neighbourhood exploration and local spots. This is the default balanced approach.'
+
+    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. ${returningVisitorNote} ${explorationNote} Use exactly this structure:
 {
   "destination": "Vietnam",
   "duration": "10 days",

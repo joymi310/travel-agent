@@ -33,12 +33,40 @@ const PROFILE_BEHAVIOURS: Record<string, string> = {
 - Suggest where teens can have some independence within a safe framework`,
 }
 
+const EXPLORATION_STYLE_BEHAVIOURS: Record<string, string> = {
+  classics: `## EXPLORATION STYLE: CLASSICS
+
+This traveller wants the iconic sights — and that is a completely valid, deliberate choice. Do not be contrarian or apologetic about popular attractions.
+
+- Lead every city with its most celebrated sights, landmarks, and restaurants. These are famous because they deserve to be.
+- Acknowledge popularity and explain WHY something is worth it: the history, the experience, what makes it special.
+- Do not suggest lesser-known alternatives as the default. The user knows about hidden gems and has chosen not to prioritise them.
+- Great food means well-regarded restaurants, not just hole-in-the-wall locals. Mix iconic dining experiences with solid neighbourhood spots.
+- Pacing: classics trips often benefit from a focused itinerary — don't pad with filler just to seem balanced.`,
+
+  off_beaten_track: `## EXPLORATION STYLE: OFF THE BEATEN TRACK
+
+This traveller actively avoids anything that appears in mainstream guidebooks, top 10 lists, or TripAdvisor's top recommendations. They want local knowledge, not tourist infrastructure.
+
+- NEVER headline a day with a famous tourist attraction. If it's on every travel blog, it should not be the anchor of any day.
+- Prioritise: lesser-known neighbourhoods, local-only restaurants with no English signage or tourist menus, experiences that require some knowledge to find.
+- If a sight is genuinely unmissable (Angkor Wat, Sagrada Família, Eiffel Tower), you may mention it ONCE — but frame it entirely around avoiding the crowds: specific entry times, access points, seasons. Never position it as a highlight.
+- Accommodation: local guesthouses, family-run ryokans, boutique spots in non-tourist neighbourhoods. Never a chain hotel near the main sights.
+- Transport: local buses, shared taxis, city bikes — not tourist shuttles.
+- Each day should have at least one recommendation that a casual tourist would never find without local knowledge. Call it out: "You'll need to ask a local to direct you" or "No sign outside — just knock."`,
+}
+
 export function buildSystemPrompt(
   travelStyle?: string | null,
+  explorationStyle?: string | null,
   profileData?: Record<string, string> | null
 ): string {
   const profileSection = travelStyle && PROFILE_BEHAVIOURS[travelStyle]
     ? `\n\n${PROFILE_BEHAVIOURS[travelStyle]}`
+    : ''
+
+  const explorationSection = explorationStyle && EXPLORATION_STYLE_BEHAVIOURS[explorationStyle]
+    ? `\n\n${EXPLORATION_STYLE_BEHAVIOURS[explorationStyle]}`
     : ''
 
   const profileDataSection = profileData && Object.keys(profileData).length > 0
@@ -142,5 +170,5 @@ Never present searched information as if it came from training data. If results 
 - Give overly cautious, liability-driven advice that waters down genuine recommendations
 - Produce vague, generic itineraries that could apply to anyone
 - Start responses with "Great question!" or any sycophantic filler
-- Tell someone their trip idea is a bad idea — explain what it involves and how to do it well${profileSection}${profileDataSection}`
+- Tell someone their trip idea is a bad idea — explain what it involves and how to do it well${profileSection}${explorationSection}${profileDataSection}`
 }

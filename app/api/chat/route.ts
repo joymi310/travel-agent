@@ -42,13 +42,15 @@ export async function POST(req: Request) {
 
   // Fetch profile if logged in
   let travelStyle: string | null = null
+  let explorationStyle: string | null = null
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('travel_style')
+      .select('travel_style, exploration_style')
       .eq('id', user.id)
       .single()
     travelStyle = profile?.travel_style ?? null
+    explorationStyle = profile?.exploration_style ?? null
   }
 
   // If the user just completed the profile wizard, replace the trigger with a real prompt
@@ -82,7 +84,7 @@ If the user is only asking a question and NOT modifying the itinerary, do NOT in
   const systemBlocks: Anthropic.TextBlockParam[] = [
     {
       type: 'text',
-      text: buildSystemPrompt(travelStyle),
+      text: buildSystemPrompt(travelStyle, explorationStyle),
       cache_control: { type: 'ephemeral' } as { type: 'ephemeral' },
     },
   ]

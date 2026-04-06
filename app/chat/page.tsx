@@ -220,6 +220,14 @@ export default function ChatPage() {
         if (raw) {
           try {
             const { wizardAnswers, itinerary: pendingItinerary } = JSON.parse(raw)
+            // Save exploration style to profile for future trips
+            if (wizardAnswers.explorationStyle) {
+              supabase.from('profiles')
+                .update({ exploration_style: wizardAnswers.explorationStyle })
+                .eq('id', u.id)
+                .then(() => {})
+            }
+
             const { data: conv } = await supabase
               .from('conversations')
               .insert({ user_id: u.id, title: wizardAnswers.destination, itinerary: pendingItinerary })

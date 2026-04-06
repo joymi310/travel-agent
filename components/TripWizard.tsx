@@ -9,10 +9,13 @@ const C = {
   dark: '#1A1208',
 }
 
+export type ExplorationStyle = 'classics' | 'mixed' | 'off_beaten_track'
+
 export interface WizardAnswers {
   traveller: string
   destination: string
   origin: string
+  explorationStyle: ExplorationStyle
   dateMode: 'specific' | 'month' | 'flexible'
   startDate: string
   endDate: string
@@ -110,6 +113,24 @@ function tripDays(start: string, end: string): number {
   return Math.round(diff / (1000 * 60 * 60 * 24))
 }
 
+const EXPLORATION_OPTIONS: { id: ExplorationStyle; label: string; desc: string }[] = [
+  {
+    id: 'classics',
+    label: 'I want the classics',
+    desc: 'The iconic sights are iconic for a reason',
+  },
+  {
+    id: 'mixed',
+    label: 'A bit of both',
+    desc: 'Some highlights, some hidden gems',
+  },
+  {
+    id: 'off_beaten_track',
+    label: 'Off the beaten track',
+    desc: "If it's in every guidebook, I'm probably not interested",
+  },
+]
+
 export function TripWizard({ onComplete, onClose, initialDestination }: TripWizardProps) {
   const [step, setStep] = useState(1)
 
@@ -118,15 +139,17 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   // Step 2
   const [destination, setDestination] = useState(initialDestination ?? '')
   const [origin, setOrigin] = useState('')
-  // Step 3
+  // Step 3 — exploration style
+  const [explorationStyle, setExplorationStyle] = useState<ExplorationStyle | ''>('')
+  // Step 4
   const [dateMode, setDateMode] = useState<'specific' | 'month' | 'flexible'>('specific')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [monthText, setMonthText] = useState('')
-  // Step 4
+  // Step 5
   const [budget, setBudget] = useState('')
   const [budgetType, setBudgetType] = useState<'flights-included' | 'land-only'>('flights-included')
-  // Step 5 — profile-specific
+  // Step 6 — profile-specific
   const [profileQ1, setProfileQ1] = useState('')
   const [profileQ2, setProfileQ2] = useState('')
   const [profileQ3, setProfileQ3] = useState('')
@@ -135,7 +158,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const days = tripDays(startDate, endDate)
-  const TOTAL_STEPS = 5
+  const TOTAL_STEPS = 6
 
   const profileQuestions = traveller ? PROFILE_QUESTIONS[traveller] ?? [] : []
   const profileValues = [profileQ1, profileQ2, profileQ3, profileQ4]
@@ -148,16 +171,17 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
       if (!destination.trim()) e.destination = 'Please enter a destination'
       if (!origin.trim()) e.origin = 'Please enter where you\'re flying from'
     }
-    if (step === 3 && dateMode === 'specific') {
+    if (step === 3 && !explorationStyle) e.explorationStyle = 'Please choose how you like to explore'
+    if (step === 4 && dateMode === 'specific') {
       if (!startDate) e.startDate = 'Please choose a departure date'
       if (!endDate) e.endDate = 'Please choose a return date'
       if (startDate && endDate && endDate <= startDate) e.endDate = 'Return must be after departure'
     }
-    if (step === 3 && dateMode === 'month' && !monthText.trim()) {
+    if (step === 4 && dateMode === 'month' && !monthText.trim()) {
       e.monthText = 'Please enter a month or time of year'
     }
-    if (step === 4 && !budget) e.budget = 'Please select a budget'
-    if (step === 5) {
+    if (step === 5 && !budget) e.budget = 'Please select a budget'
+    if (step === 6) {
       profileQuestions.forEach((q, i) => {
         if (q.type === 'radio' && !profileValues[i]) {
           e[`q${i}`] = 'Please select an option'
@@ -179,6 +203,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
     if (step === TOTAL_STEPS) {
       onComplete({
         traveller, destination, origin,
+        explorationStyle: explorationStyle as ExplorationStyle,
         dateMode, startDate, endDate,
         dateText: buildDateText(), duration: days,
         budget, budgetType,
@@ -314,8 +339,39 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
 
-          {/* STEP 3 — DATES */}
+          {/* STEP 3 — EXPLORATION STYLE */}
           {step === 3 && (
+            <>
+              <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                How do you like to explore?
+              </h2>
+              <div className="space-y-2">
+                {EXPLORATION_OPTIONS.map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => { setExplorationStyle(opt.id); setErrors({}) }}
+                    className="w-full text-left rounded-xl p-4 transition-all"
+                    style={cardStyle(explorationStyle === opt.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm" style={{ color: C.dark }}>{opt.label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.5 }}>{opt.desc}</p>
+                      </div>
+                      {explorationStyle === opt.id && (
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0"
+                          style={{ background: C.terra, color: C.sand }}>✓</div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {errors.explorationStyle && <p className="text-xs" style={{ color: C.terra }}>{errors.explorationStyle}</p>}
+            </>
+          )}
+
+          {/* STEP 4 — DATES */}
+          {step === 4 && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
                 When are you travelling?
@@ -405,8 +461,8 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
 
-          {/* STEP 4 — BUDGET */}
-          {step === 4 && (
+          {/* STEP 5 — BUDGET */}
+          {step === 5 && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
                 What&apos;s your budget?
@@ -459,8 +515,8 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
 
-          {/* STEP 5 — PROFILE-SPECIFIC QUESTIONS */}
-          {step === 5 && traveller && (
+          {/* STEP 6 — PROFILE-SPECIFIC QUESTIONS */}
+          {step === 6 && traveller && (
             <>
               <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
                 A few more details
