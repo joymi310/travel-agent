@@ -46,11 +46,24 @@ const SECTIONS = [
 
 function parseSections(text: string): Record<string, string> {
   const result: Record<string, string> = {}
-  for (const { key } of SECTIONS) {
-    const regex = new RegExp(`## ${key}\\n([\\s\\S]*?)(?=\\n## |$)`)
+  const sectionKeys = SECTIONS.map(s => s.key)
+
+  // Extract completed sections (those followed by another ## heading)
+  for (const key of sectionKeys) {
+    const regex = new RegExp(`## ${key}\\n([\\s\\S]*?)(?=\\n## )`)
     const match = text.match(regex)
     if (match) result[key] = match[1].trim()
   }
+
+  // The last heading in the stream is still being written — show its partial content
+  const lastHeaderMatch = text.match(/## ([^\n]+)\n([\s\S]*)$/)
+  if (lastHeaderMatch) {
+    const title = lastHeaderMatch[1].trim()
+    if (sectionKeys.includes(title) && !result[title]) {
+      result[title] = lastHeaderMatch[2]
+    }
+  }
+
   return result
 }
 
@@ -82,7 +95,7 @@ function SectionCard({ title, emoji, color, content, isStreaming }: {
           ))}
         </div>
       ) : content ? (
-        <div className="prose prose-sm max-w-none"
+        <div className="prose prose-sm max-w-none transition-opacity duration-300"
           style={{ '--tw-prose-body': C.dark, '--tw-prose-headings': C.dark } as React.CSSProperties}>
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
