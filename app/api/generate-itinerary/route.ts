@@ -57,7 +57,14 @@ export async function POST(req: Request) {
       profileQuestions.length > 0 ? `Additional details: ${profileQuestions.join(' | ')}` : '',
     ].filter(Boolean).join(' ')
 
-    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. Use exactly this structure:
+    const isReturningVisitor = profileQuestions.some(q =>
+      typeof q === 'string' && q.toLowerCase().includes('been before')
+    )
+    const returningVisitorNote = isReturningVisitor
+      ? 'IMPORTANT: This traveller has been to this destination before. Do NOT include standard first-timer highlights (major tourist sites everyone does on their first visit). Go deeper — lesser-known neighbourhoods, off-the-beaten-track experiences, local spots that returning visitors discover. Make this feel like a completely different trip.'
+      : 'This is a first-time visitor. Include the essential experiences, but with specific recommendations and a local angle — not the generic tourist circuit.'
+
+    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. ${returningVisitorNote} Use exactly this structure:
 {
   "destination": "Vietnam",
   "duration": "10 days",
