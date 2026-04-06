@@ -380,6 +380,7 @@ export default function HomePage() {
                 <p className="text-sm leading-relaxed" style={{ opacity: 0.65 }}>{desc}</p>
               </div>
             ))}
+          </div>
         </div>
       </section>
 
