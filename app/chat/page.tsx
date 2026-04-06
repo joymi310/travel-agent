@@ -430,7 +430,10 @@ export default function ChatPage() {
                 messages={messages.map(m => ({
                   ...m,
                   content: m.role === 'assistant'
-                    ? m.content.replace(/<itinerary_update>[\s\S]*?<\/itinerary_update>/g, '').trim()
+                    ? m.content
+                        .replace(/<itinerary_update>[\s\S]*?<\/itinerary_update>/g, '') // complete block
+                        .replace(/<itinerary_update>[\s\S]*/g, '')                      // partial block while streaming
+                        .trim()
                     : m.content,
                 }))}
                 isLoading={isLoading}
