@@ -16,6 +16,18 @@ const REGIONS = [
   'Europe', 'Africa', 'Americas', 'Oceania',
 ]
 
+interface FactCheckIssue {
+  severity: 'HIGH' | 'MEDIUM' | 'LOW'
+  field: string
+  claim: string
+  concern: string
+}
+
+interface FactCheckResult {
+  summary: string
+  issues: FactCheckIssue[]
+}
+
 interface CityRequest {
   id: string
   city_name: string
@@ -102,6 +114,10 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
   const [genResult, setGenResult] = useState<{ slug: string; name: string } | null>(null)
   const [genError, setGenError] = useState('')
   const [toggling, setToggling] = useState<string | null>(null)
+
+  // Fact-check state
+  const [checkingId, setCheckingId] = useState<string | null>(null)
+  const [checkResults, setCheckResults] = useState<Record<string, FactCheckResult>>({})
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -214,6 +230,27 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
       setSaveError(err instanceof Error ? err.message : String(err))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const factCheck = async (id: string) => {
+    setCheckingId(id)
+    try {
+      const res = await fetch('/api/admin/fact-check-city', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      setCheckResults(prev => ({ ...prev, [id]: data.result }))
+    } catch (err) {
+      setCheckResults(prev => ({
+        ...prev,
+        [id]: { summary: `Error: ${err instanceof Error ? err.message : String(err)}`, issues: [] },
+      }))
+    } finally {
+      setCheckingId(null)
     }
   }
 
@@ -336,6 +373,18 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button
+                        onClick={() => factCheck(city.id)}
+                        disabled={checkingId === city.id}
+                        className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80 disabled:opacity-40"
+                        style={{
+                          background: checkResults[city.id] ? `${C.saffron}15` : 'transparent',
+                          color: C.saffron,
+                          border: `1px solid ${C.saffron}40`,
+                        }}
+                      >
+                        {checkingId === city.id ? 'Checking…' : checkResults[city.id] ? 'Re-check' : 'Fact-check'}
+                      </button>
+                      <button
                         onClick={() => openEdit(city)}
                         className="text-xs px-3 py-1.5 rounded-full font-medium transition-all hover:opacity-80"
                         style={{
@@ -362,6 +411,46 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
                       />
                     </div>
                   </div>
+
+                  {/* Fact-check results */}
+                  {checkResults[city.id] && (
+                    <div className="px-6 py-5 border-t space-y-3" style={{ borderColor: C.sand, background: '#FFFDF7' }}>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: C.saffron }}>
+                          GPT-4o Fact-check
+                        </p>
+                        <button
+                          onClick={() => setCheckResults(prev => { const n = { ...prev }; delete n[city.id]; return n })}
+                          className="text-xs opacity-40 hover:opacity-70 transition-opacity"
+                          style={{ color: C.dark }}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                      <p className="text-sm" style={{ color: C.dark }}>{checkResults[city.id].summary}</p>
+                      {checkResults[city.id].issues.length > 0 && (
+                        <div className="space-y-2">
+                          {checkResults[city.id].issues.map((issue, i) => (
+                            <div key={i} className="rounded-xl p-3 space-y-1" style={{
+                              background: issue.severity === 'HIGH' ? `${C.terra}10` : issue.severity === 'MEDIUM' ? `${C.saffron}12` : `${C.dark}06`,
+                              border: `1px solid ${issue.severity === 'HIGH' ? `${C.terra}30` : issue.severity === 'MEDIUM' ? `${C.saffron}30` : `${C.dark}10`}`,
+                            }}>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold" style={{
+                                  color: issue.severity === 'HIGH' ? C.terra : issue.severity === 'MEDIUM' ? C.saffron : C.dark,
+                                }}>
+                                  {issue.severity}
+                                </span>
+                                <span className="text-xs opacity-50" style={{ color: C.dark }}>{issue.field}</span>
+                              </div>
+                              <p className="text-xs font-medium" style={{ color: C.dark }}>"{issue.claim}"</p>
+                              <p className="text-xs" style={{ color: C.dark, opacity: 0.65 }}>{issue.concern}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Edit panel */}
                   {editingId === city.id && (
