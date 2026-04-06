@@ -10,14 +10,53 @@ const C = {
   dark: '#1A1208',
 }
 
+interface Highlight {
+  text: string
+  reason?: string
+}
+
+interface Meal {
+  name: string
+  reason?: string
+}
+
+interface Accommodation {
+  name: string
+  reason?: string
+}
+
 interface ItineraryDay {
   day: number
   title: string
-  highlights: string[]
-  accommodation: string
-  meals: string[]
+  highlights: (string | Highlight)[]
+  accommodation: string | Accommodation
+  meals: (string | Meal)[]
   transport: string
   estimatedCost: string
+}
+
+function highlightText(h: string | Highlight): string {
+  return typeof h === 'string' ? h : h.text
+}
+
+function highlightReason(h: string | Highlight): string | undefined {
+  return typeof h === 'string' ? undefined : h.reason
+}
+
+function mealName(m: string | Meal): string {
+  return typeof m === 'string' ? m : m.name
+}
+
+function mealReason(m: string | Meal): string | undefined {
+  return typeof m === 'string' ? undefined : m.reason
+}
+
+function accommodationName(a: string | Accommodation): string {
+  return typeof a === 'string' ? a : a.name
+}
+
+function accommodationReason(a: string | Accommodation): string | undefined {
+  return typeof a === 'string' ? undefined : a.reason
 }
 
 export interface Itinerary {
@@ -36,11 +75,11 @@ function formatItineraryAsMarkdown(itinerary: Itinerary): string {
   for (const d of itinerary.days) {
     lines.push(`## Day ${d.day} — ${d.title}`, '')
     lines.push('**Highlights**')
-    for (const h of d.highlights) lines.push(`- ${h}`)
+    for (const h of d.highlights) lines.push(`- ${highlightText(h)}`)
     lines.push('')
     lines.push(
-      `**Stay:** ${d.accommodation}`,
-      `**Meals:** ${d.meals.join(' · ')}`,
+      `**Stay:** ${accommodationName(d.accommodation)}`,
+      `**Meals:** ${d.meals.map(mealName).join(' · ')}`,
       `**Transport:** ${d.transport}`,
       `**Est. cost:** ${d.estimatedCost}`,
       '',
@@ -53,9 +92,9 @@ function formatItineraryAsHtml(itinerary: Itinerary): string {
   const days = itinerary.days.map(d => `
     <h2>Day ${d.day} — ${d.title}</h2>
     <h3>Highlights</h3>
-    <ul>${d.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
-    <p><strong>Stay:</strong> ${d.accommodation}</p>
-    <p><strong>Meals:</strong> ${d.meals.join(' · ')}</p>
+    <ul>${d.highlights.map(h => `<li>${highlightText(h)}</li>`).join('')}</ul>
+    <p><strong>Stay:</strong> ${accommodationName(d.accommodation)}</p>
+    <p><strong>Meals:</strong> ${d.meals.map(mealName).join(' · ')}</p>
     <p><strong>Transport:</strong> ${d.transport}</p>
     <p><strong>Estimated daily cost:</strong> ${d.estimatedCost}</p>
     <hr>
@@ -100,9 +139,9 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
     const rows = itinerary.days.map(d => [
       String(d.day),
       d.title,
-      d.highlights.join('; '),
-      d.accommodation,
-      d.meals.join('; '),
+      d.highlights.map(highlightText).join('; '),
+      accommodationName(d.accommodation),
+      d.meals.map(mealName).join('; '),
       d.transport,
       d.estimatedCost,
     ])
@@ -229,13 +268,21 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                     <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: C.saffron }}>
                       Highlights
                     </p>
-                    <ul className="space-y-1.5">
-                      {day.highlights.map((h, j) => (
-                        <li key={j} className="flex items-start gap-2 text-sm" style={{ color: C.dark }}>
-                          <span className="mt-1 shrink-0" aria-hidden="true" style={{ color: C.terra, fontSize: '10px' }}>●</span>
-                          {h}
-                        </li>
-                      ))}
+                    <ul className="space-y-2.5">
+                      {day.highlights.map((h, j) => {
+                        const reason = highlightReason(h)
+                        return (
+                          <li key={j} className="flex items-start gap-2" style={{ color: C.dark }}>
+                            <span className="mt-1.5 shrink-0" aria-hidden="true" style={{ color: C.terra, fontSize: '10px' }}>●</span>
+                            <div>
+                              <span className="text-sm">{highlightText(h)}</span>
+                              {reason && (
+                                <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
+                              )}
+                            </div>
+                          </li>
+                        )
+                      })}
                     </ul>
                   </div>
 
@@ -245,14 +292,29 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                       <span className="shrink-0 text-base" aria-hidden="true">🏨</span>
                       <div>
                         <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>Stay</dt>
-                        <dd className="text-sm" style={{ color: C.dark }}>{day.accommodation}</dd>
+                        <dd className="text-sm" style={{ color: C.dark }}>{accommodationName(day.accommodation)}</dd>
+                        {accommodationReason(day.accommodation) && (
+                          <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{accommodationReason(day.accommodation)}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <span className="shrink-0 text-base" aria-hidden="true">🍴</span>
                       <div>
                         <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>Meals</dt>
-                        <dd className="text-sm" style={{ color: C.dark }}>{day.meals.join(' · ')}</dd>
+                        <dd className="space-y-1">
+                          {day.meals.map((m, j) => {
+                            const reason = mealReason(m)
+                            return (
+                              <div key={j}>
+                                <span className="text-sm" style={{ color: C.dark }}>{mealName(m)}</span>
+                                {reason && (
+                                  <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </dd>
                       </div>
                     </div>
                     <div className="flex items-start gap-2.5">

@@ -73,7 +73,7 @@ IMPORTANT — when the user asks you to change, swap, add, remove, or modify any
 <itinerary_update>
 {"destination":"...","duration":"...","tagline":"...","days":[...]}
 </itinerary_update>
-Use the exact same JSON structure as the current itinerary. Include ALL days (not just the changed ones).
+Use the exact same JSON structure as the current itinerary. Include ALL days (not just the changed ones). Preserve all existing "reason" fields on highlights, accommodation, and meals — update them only if the change directly affects why that item was chosen.
 
 If the user is only asking a question and NOT modifying the itinerary, do NOT include <itinerary_update> tags.`
     : null

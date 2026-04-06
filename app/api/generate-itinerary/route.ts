@@ -74,18 +74,21 @@ export async function POST(req: Request) {
       "day": 1,
       "title": "Arrive in Hanoi & explore the Old Quarter",
       "highlights": [
-        "Check in near Hoan Kiem Lake",
-        "Street food tour of the Old Quarter",
-        "Evening wander at Ta Hien beer street"
+        { "text": "Street food tour of the Old Quarter", "reason": "You said food is your top priority — this is the best way to hit the ground running" },
+        { "text": "Check in near Hoan Kiem Lake", "reason": "Central location keeps walking distances short, suits your relaxed pace" },
+        { "text": "Evening wander at Ta Hien beer street", "reason": "Lively but unhurried — good first-night energy without committing to a packed schedule" }
       ],
-      "accommodation": "Boutique hotel in the Old Quarter",
-      "meals": ["Bun Cha lunch spot near Hang Manh St", "Banh Mi from Banh Mi 25"],
+      "accommodation": { "name": "Boutique hotel in the Old Quarter", "reason": "Mid-range budget, walkable to everything on Day 1" },
+      "meals": [
+        { "name": "Bun Cha lunch at Dac Kim, Hang Manh St", "reason": "The place Obama made famous — essential for a first-timer" },
+        { "name": "Banh Mi from Banh Mi 25" }
+      ],
       "transport": "Grab taxi from airport ~45 min",
       "estimatedCost": "~$80 NZD per person"
     }
   ]
 }
-Include accommodation, meals, transport, and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days. Tailor the itinerary specifically to the traveller profile and their answers.`
+IMPORTANT: Every highlight must have a "reason" field that references something specific the traveller told you — their budget level, pace preference, interests, travel party, or what they want to do or avoid. Accommodation must have a "reason". Named restaurants should have a "reason". The reason must feel personal, not generic. Keep reasons short (one sentence). Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
 
     const { text } = await generateText({
       model: anthropic('claude-haiku-4-5-20251001'),
