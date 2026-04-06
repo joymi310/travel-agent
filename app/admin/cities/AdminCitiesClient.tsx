@@ -443,7 +443,7 @@ export function AdminCitiesClient({ initialCities, initialRequests }: { initialC
                                 </span>
                                 <span className="text-xs opacity-50" style={{ color: C.dark }}>{issue.field}</span>
                               </div>
-                              <p className="text-xs font-medium" style={{ color: C.dark }}>"{issue.claim}"</p>
+                              <p className="text-xs font-medium" style={{ color: C.dark }}>&ldquo;{issue.claim}&rdquo;</p>
                               <p className="text-xs" style={{ color: C.dark, opacity: 0.65 }}>{issue.concern}</p>
                             </div>
                           ))}
