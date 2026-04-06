@@ -399,12 +399,12 @@ export default function HomePage() {
             Sign in free and tell us where you&apos;re dreaming of. Your personalised itinerary waits.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={handleStartPlanning} className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90"
-              style={{ background: C.sand, color: C.terra }}>
+            <button onClick={handleStartPlanning} className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-md"
+              style={{ background: '#FFFFFF', color: C.terra }}>
               Start planning free
             </button>
-            <Link href="/login" className="font-semibold px-8 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
-              style={{ borderColor: C.sand, color: C.sand }}>
+            <Link href="/login" className="font-semibold px-8 py-3.5 rounded-full text-base border-2 transition-all hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.5)', color: 'rgba(255,255,255,0.85)' }}>
               Sign in
             </Link>
           </div>
