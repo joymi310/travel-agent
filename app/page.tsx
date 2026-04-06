@@ -360,7 +360,7 @@ export default function HomePage() {
             <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Why Wandr</p>
             <h2 id="features-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Built differently</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Dark card */}
             <div className="rounded-2xl p-6 space-y-3" style={{ background: C.dark, color: C.sand }}>
               <div className="text-2xl">🧠</div>
