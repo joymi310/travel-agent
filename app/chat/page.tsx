@@ -84,6 +84,9 @@ interface SavedConversation {
   id: string
   title: string
   created_at: string
+  destination?: string
+  duration?: string
+  tagline?: string
 }
 
 export default function ChatPage() {
@@ -104,6 +107,9 @@ export default function ChatPage() {
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const [showMyTrips, setShowMyTrips] = useState(false)
   const [savedConversations, setSavedConversations] = useState<SavedConversation[]>([])
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
   const myTripsRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const router = useRouter()
@@ -158,10 +164,17 @@ export default function ChatPage() {
   const loadSavedConversations = async (userId: string) => {
     const { data } = await supabase
       .from('conversations')
-      .select('id, title, created_at')
+      .select('id, title, created_at, itinerary')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-    if (data) setSavedConversations(data)
+    if (data) setSavedConversations(data.map(c => ({
+      id: c.id,
+      title: c.title,
+      created_at: c.created_at,
+      destination: c.itinerary?.destination,
+      duration: c.itinerary?.duration,
+      tagline: c.itinerary?.tagline,
+    })))
   }
 
   const loadConversation = async (convId: string) => {
@@ -195,11 +208,20 @@ export default function ChatPage() {
   const deleteConversation = async (convId: string) => {
     await supabase.from('conversations').delete().eq('id', convId)
     setSavedConversations(prev => prev.filter(c => c.id !== convId))
+    setConfirmDeleteId(null)
     if (convId === conversationId) {
       setMessages([])
       setConversationId(null)
       setItinerary(null)
     }
+  }
+
+  const renameConversation = async (convId: string, newTitle: string) => {
+    const trimmed = newTitle.trim()
+    if (!trimmed) return
+    await supabase.from('conversations').update({ title: trimmed }).eq('id', convId)
+    setSavedConversations(prev => prev.map(c => c.id === convId ? { ...c, title: trimmed } : c))
+    setEditingId(null)
   }
 
   useEffect(() => {
@@ -371,29 +393,91 @@ export default function ChatPage() {
                         No saved trips yet.
                       </p>
                     ) : (
-                      <ul role="list" className="max-h-72 overflow-y-auto divide-y"
+                      <ul role="list" className="max-h-96 overflow-y-auto divide-y"
                         style={{ borderColor: `${C.dark}08` }}>
                         {savedConversations.map(conv => (
-                          <li key={conv.id} className="flex items-center gap-2 px-4 py-3 hover:bg-white transition-colors">
-                            <button
-                              onClick={() => loadConversation(conv.id)}
-                              className="flex-1 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded"
-                              style={{ outlineColor: C.terra }}
-                              aria-label={`Open trip: ${conv.title}`}>
-                              <span className="block text-sm font-medium" style={{ color: C.dark }}>
-                                {conv.title}
-                              </span>
-                              <span className="block text-xs" style={{ color: C.dark, opacity: 0.4 }}>
-                                {new Date(conv.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                              </span>
-                            </button>
-                            <button
-                              onClick={() => deleteConversation(conv.id)}
-                              aria-label={`Delete trip to ${conv.title}`}
-                              className="text-xs px-2 py-1 rounded-full transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 shrink-0"
-                              style={{ color: C.terra, outlineColor: C.terra }}>
-                              ✕
-                            </button>
+                          <li key={conv.id} className="px-4 py-3 hover:bg-white transition-colors"
+                            style={{ background: confirmDeleteId === conv.id ? '#fff5f3' : undefined }}>
+
+                            {confirmDeleteId === conv.id ? (
+                              /* Delete confirmation */
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-xs" style={{ color: C.dark, opacity: 0.7 }}>Delete this trip?</p>
+                                <div className="flex gap-2 shrink-0">
+                                  <button
+                                    onClick={() => deleteConversation(conv.id)}
+                                    className="text-xs px-2.5 py-1 rounded-full font-medium"
+                                    style={{ background: C.terra, color: C.sand }}>
+                                    Delete
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDeleteId(null)}
+                                    className="text-xs px-2.5 py-1 rounded-full border"
+                                    style={{ borderColor: `${C.dark}20`, color: C.dark }}>
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : editingId === conv.id ? (
+                              /* Inline rename */
+                              <input
+                                autoFocus
+                                value={editTitle}
+                                onChange={e => setEditTitle(e.target.value)}
+                                onBlur={() => renameConversation(conv.id, editTitle)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') renameConversation(conv.id, editTitle)
+                                  if (e.key === 'Escape') setEditingId(null)
+                                }}
+                                className="w-full text-sm rounded-lg px-2 py-1 outline-none"
+                                style={{ border: `1.5px solid ${C.terra}`, color: C.dark, background: 'white' }}
+                              />
+                            ) : (
+                              /* Normal view */
+                              <div className="flex items-start gap-2">
+                                {/* Avatar */}
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
+                                  style={{ background: `${C.terra}18`, color: C.terra, fontFamily: 'var(--font-playfair)' }}>
+                                  {(conv.destination ?? conv.title).charAt(0).toUpperCase()}
+                                </div>
+
+                                <button
+                                  onClick={() => loadConversation(conv.id)}
+                                  className="flex-1 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded min-w-0"
+                                  style={{ outlineColor: C.terra }}
+                                  aria-label={`Open trip: ${conv.title}`}>
+                                  <span className="block text-sm font-medium truncate" style={{ color: C.dark }}>
+                                    {conv.title}
+                                  </span>
+                                  {conv.tagline && (
+                                    <span className="block text-xs truncate italic" style={{ color: C.dark, opacity: 0.5 }}>
+                                      {conv.tagline}
+                                    </span>
+                                  )}
+                                  <span className="block text-xs mt-0.5" style={{ color: C.dark, opacity: 0.35 }}>
+                                    {conv.duration && `${conv.duration} · `}
+                                    {new Date(conv.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                  </span>
+                                </button>
+
+                                <div className="flex flex-col gap-1 shrink-0">
+                                  <button
+                                    onClick={() => { setEditingId(conv.id); setEditTitle(conv.title) }}
+                                    aria-label="Rename trip"
+                                    className="text-xs transition-opacity hover:opacity-80"
+                                    style={{ color: C.dark, opacity: 0.3 }}>
+                                    ✎
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDeleteId(conv.id)}
+                                    aria-label="Delete trip"
+                                    className="text-xs transition-opacity hover:opacity-80"
+                                    style={{ color: C.terra, opacity: 0.5 }}>
+                                    ✕
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </li>
                         ))}
                       </ul>
