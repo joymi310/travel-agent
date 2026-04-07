@@ -84,7 +84,7 @@ export async function POST(req: Request) {
   "budget_summary": {
     "total_low": 2200,
     "total_high": 2800,
-    "currency": "NZD",
+    "currency": "USD",
     "includes": ["accommodation", "activities", "local transport", "food"],
     "excludes": ["international flights"],
     "per_day_avg": 250,
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     }
   ]
 }
-IMPORTANT: The "budget_summary" must reflect the user's actual stated budget level (${budget || 'mid-range'}) and the specific accommodation/activities chosen. total_low and total_high should be realistic ranges in NZD (or match the traveller's home currency if stated). breakdown figures should sum to roughly (total_low + total_high) / 2. excludes should always include "international flights" unless flights are explicitly included in the budget.
+IMPORTANT: The "budget_summary" must reflect the user's actual stated budget level (${budget || 'mid-range'}) and the specific accommodation/activities chosen. Use the currency that matches the traveller's origin city (e.g. Auckland/Wellington/Christchurch → NZD, Sydney/Melbourne/Brisbane → AUD, London/Edinburgh → GBP, US cities → USD, European cities → EUR). total_low and total_high should be realistic ranges in that currency. breakdown figures should sum to roughly (total_low + total_high) / 2. excludes should always include "international flights" unless the budget is explicitly flights-included.
 
 IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
 
