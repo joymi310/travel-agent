@@ -47,9 +47,10 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
       const map = L.map(containerRef.current!, { zoomControl: true, attributionControl: true })
       mapRef.current = map
 
-      // OpenStreetMap tiles — free, no key needed
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      // Carto Voyager — clean, modern styling, free, no key needed
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 19,
       }).addTo(map)
 

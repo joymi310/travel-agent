@@ -207,14 +207,10 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   ]
 
   return (
-    <div
-      className={`h-full wandr-itinerary-panel ${view === 'map' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}
-      style={{ background: '#FDFAF4' }}
-    >
+    <div className="h-full flex flex-col overflow-hidden wandr-itinerary-panel" style={{ background: '#FDFAF4' }}>
 
       {/* Header */}
-      <div className="px-6 py-5 border-b sticky top-0 z-10"
-        style={{ background: '#FDFAF4', borderColor: `${C.dark}10` }}>
+      <div className="shrink-0 px-6 py-5 border-b" style={{ background: '#FDFAF4', borderColor: `${C.dark}10` }}>
         <h2 className="text-2xl font-bold leading-tight"
           style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
           {itinerary.destination}
@@ -250,8 +246,8 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         </div>
       </div>
 
-      {/* Budget summary */}
-      {itinerary.budget_summary && (() => {
+      {/* Budget summary — list view only */}
+      {view === 'list' && itinerary.budget_summary && (() => {
         const b = itinerary.budget_summary!
         const low = formatMoney(b.total_low, b.currency)
         const high = formatMoney(b.total_high, b.currency)
@@ -319,9 +315,9 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         )
       })()}
 
-      {/* Export / share toolbar */}
-      <div
-        className="px-4 py-3 border-b flex flex-wrap gap-2"
+      {/* Export / share toolbar — list view only */}
+      {view === 'list' && <div
+        className="shrink-0 px-4 py-3 border-b flex flex-wrap gap-2"
         style={{ borderColor: `${C.dark}08`, background: '#FDFAF4' }}
         role="toolbar"
         aria-label="Itinerary actions"
@@ -337,11 +333,11 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
             {label}
           </button>
         ))}
-      </div>
+      </div>}
 
       {/* Map view */}
       {view === 'map' && hasMap && (
-        <div className="flex-1 relative">
+        <div className="flex-1 min-h-0 relative">
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center" style={{ background: '#e8e0d4' }}>
               <div className="text-sm" style={{ color: '#888' }}>Loading map…</div>
@@ -378,7 +374,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
       )}
 
       {/* Days accordion */}
-      {view === 'list' && <div className="px-4 py-4 space-y-3 pb-8">
+      {view === 'list' && <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 pb-8">
         {itinerary.days.map((day, i) => {
           const isExpanded = expandedDay === i
           const isLast = i === itinerary.days.length - 1
