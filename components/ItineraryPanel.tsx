@@ -169,7 +169,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   const toggleMeal = (key: string) => {
     setExpandedMeals(prev => {
       const next = new Set(prev)
-      next.has(key) ? next.delete(key) : next.add(key)
+      if (next.has(key)) { next.delete(key) } else { next.add(key) }
       return next
     })
   }
