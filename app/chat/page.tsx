@@ -19,10 +19,18 @@ const C = {
   dark: '#1A1208',
 }
 
-function formatItineraryAsMarkdown(itinerary: {
-  destination: string; duration: string; tagline: string;
-  days: Array<{ day: number; title: string; highlights: string[]; accommodation: string; meals: string[]; transport: string; estimatedCost: string }>
-}): string {
+function toStr(v: unknown): string {
+  if (typeof v === 'string') return v
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>
+    return typeof o.text === 'string' ? o.text
+      : typeof o.name === 'string' ? o.name
+      : ''
+  }
+  return ''
+}
+
+function formatItineraryAsMarkdown(itinerary: Itinerary): string {
   const lines: string[] = [
     `# ${itinerary.destination} — ${itinerary.duration}`,
     `*${itinerary.tagline}*`,
@@ -32,10 +40,10 @@ function formatItineraryAsMarkdown(itinerary: {
     lines.push(`## Day ${d.day} — ${d.title}`)
     lines.push('')
     lines.push('**Highlights**')
-    for (const h of d.highlights) lines.push(`- ${h}`)
+    for (const h of d.highlights) lines.push(`- ${toStr(h)}`)
     lines.push('')
-    lines.push(`**Stay:** ${d.accommodation}`)
-    lines.push(`**Meals:** ${d.meals.join(' · ')}`)
+    lines.push(`**Stay:** ${toStr(d.accommodation)}`)
+    lines.push(`**Meals:** ${d.meals.map(toStr).join(' · ')}`)
     lines.push(`**Transport:** ${d.transport}`)
     lines.push(`**Est. cost:** ${d.estimatedCost}`)
     lines.push('')
