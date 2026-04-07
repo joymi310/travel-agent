@@ -135,7 +135,6 @@ IMPORTANT: Every meal must be a specific named restaurant or stall (never a gene
       model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
-      providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } },
       maxTokens,
     })
 
