@@ -1,6 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
+import type { TripLocation } from './TripMap'
+
+const TripMap = lazy(() => import('./TripMap').then(m => ({ default: m.TripMap })))
 
 const C = {
   sand: '#F5ECD7',
@@ -80,6 +83,7 @@ export interface Itinerary {
   tagline: string
   follow_up_questions?: string[]
   budget_summary?: BudgetSummary
+  locations?: TripLocation[]
   days: ItineraryDay[]
 }
 
@@ -152,6 +156,9 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   const [expandedDay, setExpandedDay] = useState<number | null>(0)
   const [shareLabel, setShareLabel] = useState('Share')
   const [budgetOpen, setBudgetOpen] = useState(false)
+  const [view, setView] = useState<'list' | 'map'>('list')
+
+  const hasMap = (itinerary.locations?.length ?? 0) > 0
 
   const safeName = itinerary.destination.replace(/\s+/g, '-').toLowerCase()
 
@@ -200,7 +207,10 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   ]
 
   return (
-    <div className="h-full overflow-y-auto wandr-itinerary-panel" style={{ background: '#FDFAF4' }}>
+    <div
+      className={`h-full wandr-itinerary-panel ${view === 'map' ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}
+      style={{ background: '#FDFAF4' }}
+    >
 
       {/* Header */}
       <div className="px-6 py-5 border-b sticky top-0 z-10"
@@ -214,10 +224,30 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
             {itinerary.tagline}
           </p>
         )}
-        <span className="inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-medium"
-          style={{ background: `${C.terra}15`, color: C.terra }}>
-          {itinerary.duration}
-        </span>
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          <span className="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+            style={{ background: `${C.terra}15`, color: C.terra }}>
+            {itinerary.duration}
+          </span>
+          {hasMap && (
+            <div className="flex rounded-full overflow-hidden border text-xs font-medium"
+              style={{ borderColor: `${C.dark}20` }}>
+              {(['list', 'map'] as const).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className="px-3 py-1 transition-colors capitalize"
+                  style={{
+                    background: view === v ? C.terra : 'transparent',
+                    color: view === v ? C.sand : `${C.dark}60`,
+                  }}
+                >
+                  {v === 'map' ? '🗺 Map' : '☰ List'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Budget summary */}
@@ -309,8 +339,46 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         ))}
       </div>
 
+      {/* Map view */}
+      {view === 'map' && hasMap && (
+        <div className="flex-1 relative">
+          <Suspense fallback={
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: '#e8e0d4' }}>
+              <div className="text-sm" style={{ color: '#888' }}>Loading map…</div>
+            </div>
+          }>
+            <TripMap locations={itinerary.locations!} className="absolute inset-0 w-full h-full" />
+          </Suspense>
+          {/* Location legend */}
+          <div
+            className="absolute bottom-3 left-3 right-3 z-[1000] rounded-xl px-3 py-2.5 overflow-x-auto"
+            style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+          >
+            <div className="flex gap-3 items-start" style={{ minWidth: 'max-content' }}>
+              {itinerary.locations!.map((loc, i) => {
+                const isLast = i === itinerary.locations!.length - 1
+                return (
+                  <div key={i} className="flex items-center gap-1.5 text-xs shrink-0">
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                      style={{ background: isLast ? C.jade : C.terra, color: C.sand, fontSize: '9px' }}
+                    >
+                      {loc.day}
+                    </div>
+                    <span style={{ color: C.dark }}>{loc.city}</span>
+                    {i < itinerary.locations!.length - 1 && (
+                      <span style={{ color: `${C.dark}30` }}>→</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Days accordion */}
-      <div className="px-4 py-4 space-y-3 pb-8">
+      {view === 'list' && <div className="px-4 py-4 space-y-3 pb-8">
         {itinerary.days.map((day, i) => {
           const isExpanded = expandedDay === i
           const isLast = i === itinerary.days.length - 1
@@ -429,7 +497,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
             </div>
           )
         })}
-      </div>
+      </div>}
     </div>
   )
 }

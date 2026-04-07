@@ -81,6 +81,11 @@ export async function POST(req: Request) {
     "I've given you 4 days in Hoi An — do you want that more beach-focused or centred on the old town?",
     "Day 3 in Hanoi is quite packed — want me to build in more breathing room?"
   ],
+  "locations": [
+    { "day": 1, "city": "Hanoi", "lat": 21.0278, "lng": 105.8342, "label": "Hanoi (Days 1–3)" },
+    { "day": 4, "city": "Hoi An", "lat": 15.8801, "lng": 108.3380, "label": "Hoi An (Days 4–6)" },
+    { "day": 7, "city": "Ho Chi Minh City", "lat": 10.8231, "lng": 106.6297, "label": "Ho Chi Minh City (Days 7–10)" }
+  ],
   "budget_summary": {
     "total_low": 2200,
     "total_high": 2800,
@@ -114,6 +119,8 @@ export async function POST(req: Request) {
     }
   ]
 }
+IMPORTANT: The "locations" array defines the map pins. For multi-city trips, include one entry per city/destination change — use the day the traveller arrives there. For single-city trips, include one entry per day with neighbourhood-level specificity (e.g. Shinjuku, Asakusa). Each entry needs accurate lat/lng coordinates. The label should say the city and day range (e.g. "Hanoi (Days 1–3)").
+
 IMPORTANT: The "budget_summary" must reflect the user's actual stated budget level (${budget || 'mid-range'}) and the specific accommodation/activities chosen. Use the currency that matches the traveller's origin city (e.g. Auckland/Wellington/Christchurch → NZD, Sydney/Melbourne/Brisbane → AUD, London/Edinburgh → GBP, US cities → USD, European cities → EUR). total_low and total_high should be realistic ranges in that currency. breakdown figures should sum to roughly (total_low + total_high) / 2. excludes should always include "international flights" unless the budget is explicitly flights-included.
 
 IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
