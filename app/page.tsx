@@ -33,6 +33,7 @@ export default function HomePage() {
   const [loadingMsg, setLoadingMsg] = useState('')
   const [loadingDest, setLoadingDest] = useState('')
   const [genError, setGenError] = useState(false)
+  const [rateLimited, setRateLimited] = useState(false)
   const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
   const router = useRouter()
 
@@ -57,6 +58,7 @@ export default function HomePage() {
     setShowWizard(false)
     setShowLoading(true)
     setGenError(false)
+    setRateLimited(false)
     setLoadingDest(answers.destination)
     setLoadingMsg(LOADING_MESSAGES[0](answers.destination))
 
@@ -73,6 +75,7 @@ export default function HomePage() {
         body: JSON.stringify(answers),
       })
       const data = await res.json()
+      if (res.status === 429) { setRateLimited(true); return }
       if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
       localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
       router.push('/preview')
@@ -112,6 +115,29 @@ export default function HomePage() {
             ))}
           </div>
           <p className="text-base text-center px-8 max-w-xs" style={{ color: C.sand, opacity: 0.7 }}>{loadingMsg}</p>
+        </div>
+      )}
+
+      {/* Rate limit overlay */}
+      {rateLimited && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6 text-center"
+          role="alert" aria-live="assertive"
+          style={{ background: C.dark }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <p className="text-lg font-semibold" style={{ color: C.sand }}>You&apos;ve reached today&apos;s limit</p>
+          <p className="text-sm max-w-xs" style={{ color: C.sand, opacity: 0.6 }}>
+            Sign in for a higher daily limit, or come back tomorrow.
+          </p>
+          <Link href="/login"
+            className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
+            style={{ background: C.terra, color: C.sand }}>
+            Sign in free
+          </Link>
+          <button onClick={() => setRateLimited(false)}
+            className="text-sm transition-opacity hover:opacity-60"
+            style={{ color: C.sand, opacity: 0.4 }}>
+            Dismiss
+          </button>
         </div>
       )}
 
