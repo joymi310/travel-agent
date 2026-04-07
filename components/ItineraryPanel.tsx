@@ -158,6 +158,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   const [shareLabel, setShareLabel] = useState('Share')
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [view, setView] = useState<'list' | 'map'>('list')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const hasMap = (itinerary.locations?.length ?? 0) > 0
 
@@ -212,15 +213,55 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
 
       {/* Header */}
       <div className="shrink-0 px-6 py-5 border-b" style={{ background: '#FDFAF4', borderColor: `${C.dark}10` }}>
-        <h2 className="text-2xl font-bold leading-tight"
-          style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
-          {itinerary.destination}
-        </h2>
-        {itinerary.tagline && (
-          <p className="text-sm mt-0.5" style={{ color: '#555', fontStyle: 'italic' }}>
-            {itinerary.tagline}
-          </p>
-        )}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-2xl font-bold leading-tight"
+              style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+              {itinerary.destination}
+            </h2>
+            {itinerary.tagline && (
+              <p className="text-sm mt-0.5" style={{ color: '#555', fontStyle: 'italic' }}>
+                {itinerary.tagline}
+              </p>
+            )}
+          </div>
+
+          {/* Actions menu */}
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              className="w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
+              style={{ color: C.dark }}
+              aria-label="Itinerary actions"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <circle cx="8" cy="2.5" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/>
+              </svg>
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div
+                  className="absolute right-0 top-10 z-50 rounded-2xl overflow-hidden py-1.5 min-w-[160px]"
+                  style={{ background: 'white', boxShadow: '0 4px 20px rgba(26,18,8,0.14)', border: `1px solid ${C.dark}10` }}
+                >
+                  {actions.map(({ label, icon, onClick }) => (
+                    <button
+                      key={label}
+                      onClick={() => { onClick(); setMenuOpen(false) }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-black/[0.04] transition-colors"
+                      style={{ color: C.dark }}
+                    >
+                      <span>{icon}</span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           <span className="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
             style={{ background: `${C.terra}15`, color: C.terra }}>
@@ -316,25 +357,6 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         )
       })()}
 
-      {/* Export / share toolbar — list view only */}
-      {view === 'list' && <div
-        className="shrink-0 px-4 py-3 border-b flex flex-wrap gap-2"
-        style={{ borderColor: `${C.dark}08`, background: '#FDFAF4' }}
-        role="toolbar"
-        aria-label="Itinerary actions"
-      >
-        {actions.map(({ label, icon, onClick }) => (
-          <button
-            key={label}
-            onClick={onClick}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            style={{ borderColor: `${C.dark}25`, color: C.dark, background: 'white', outlineColor: C.terra }}
-          >
-            <span aria-hidden="true">{icon}</span>
-            {label}
-          </button>
-        ))}
-      </div>}
 
       {/* Map view */}
       {view === 'map' && hasMap && (
