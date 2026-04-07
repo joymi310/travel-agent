@@ -126,7 +126,7 @@ export default function HomePage() {
           <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
           <p className="text-lg font-semibold" style={{ color: C.sand }}>You&apos;ve reached today&apos;s limit</p>
           <p className="text-sm max-w-xs" style={{ color: C.sand, opacity: 0.6 }}>
-            Sign in for a higher daily limit, or come back tomorrow.
+            Create a free account to get 5× more daily itineraries — or come back tomorrow.
           </p>
           <Link href="/login"
             className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
