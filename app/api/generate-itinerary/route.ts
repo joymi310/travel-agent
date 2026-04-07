@@ -81,6 +81,20 @@ export async function POST(req: Request) {
     "I've given you 4 days in Hoi An — do you want that more beach-focused or centred on the old town?",
     "Day 3 in Hanoi is quite packed — want me to build in more breathing room?"
   ],
+  "budget_summary": {
+    "total_low": 2200,
+    "total_high": 2800,
+    "currency": "NZD",
+    "includes": ["accommodation", "activities", "local transport", "food"],
+    "excludes": ["international flights"],
+    "per_day_avg": 250,
+    "breakdown": {
+      "accommodation": 900,
+      "food": 600,
+      "activities": 500,
+      "local_transport": 200
+    }
+  },
   "days": [
     {
       "day": 1,
@@ -100,6 +114,8 @@ export async function POST(req: Request) {
     }
   ]
 }
+IMPORTANT: The "budget_summary" must reflect the user's actual stated budget level (${budget || 'mid-range'}) and the specific accommodation/activities chosen. total_low and total_high should be realistic ranges in NZD (or match the traveller's home currency if stated). breakdown figures should sum to roughly (total_low + total_high) / 2. excludes should always include "international flights" unless flights are explicitly included in the budget.
+
 IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
 
 IMPORTANT: Every highlight must have a "reason" field that references something specific the traveller told you — their budget level, pace preference, interests, travel party, or what they want to do or avoid. Accommodation must have a "reason". Named restaurants should have a "reason". The reason must feel personal, not generic. Keep reasons short (one sentence). Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
