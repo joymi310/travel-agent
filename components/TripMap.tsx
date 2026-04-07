@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import type { Map as LeafletMap } from 'leaflet'
+import { useRef, useCallback } from 'react'
+import Map, { Marker, Source, Layer, type MapRef } from 'react-map-gl/maplibre'
+import 'maplibre-gl/dist/maplibre-gl.css'
 
 export interface TripLocation {
   day: number
@@ -20,119 +21,107 @@ const TERRA = '#C94A2B'
 const JADE  = '#2A7A5B'
 const SAND  = '#F5ECD7'
 
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
+const MAP_STYLE = `https://api.maptiler.com/maps/streets-v2-light/style.json?key=${MAPTILER_KEY}`
+
+type Bounds = [[number, number], [number, number]]
+
+function getBounds(locations: TripLocation[]): Bounds | null {
+  if (locations.length < 2) return null
+  const lngs = locations.map(l => l.lng)
+  const lats = locations.map(l => l.lat)
+  return [
+    [Math.min(...lngs), Math.min(...lats)],
+    [Math.max(...lngs), Math.max(...lats)],
+  ]
+}
+
 export function TripMap({ locations, className = '' }: TripMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef       = useRef<LeafletMap | null>(null)
+  const mapRef = useRef<MapRef>(null)
 
-  useEffect(() => {
-    if (!containerRef.current || locations.length === 0) return
-
-    // Leaflet must be imported client-side only
-    import('leaflet').then(L => {
-      // Prevent double-init on hot-reload
-      if (mapRef.current) {
-        mapRef.current.remove()
-        mapRef.current = null
-      }
-
-      // Import CSS once
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link')
-        link.id   = 'leaflet-css'
-        link.rel  = 'stylesheet'
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-        document.head.appendChild(link)
-      }
-
-      const map = L.map(containerRef.current!, { zoomControl: true, attributionControl: true })
-      mapRef.current = map
-
-      // Carto Light — minimal, clean, no API key required
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20,
-      }).addTo(map)
-
-      const latlngs = locations.map(l => [l.lat, l.lng] as [number, number])
-
-      // Route polyline
-      if (latlngs.length > 1) {
-        L.polyline(latlngs, {
-          color: TERRA,
-          weight: 2.5,
-          opacity: 0.7,
-          dashArray: '6 4',
-        }).addTo(map)
-      }
-
-      // Numbered pins
-      locations.forEach((loc, i) => {
-        const isLast = i === locations.length - 1
-        const bg = isLast ? JADE : TERRA
-        const icon = L.divIcon({
-          html: `<div style="
-            background:${bg};
-            color:${SAND};
-            border-radius:50%;
-            width:28px;height:28px;
-            display:flex;align-items:center;justify-content:center;
-            font-size:11px;font-weight:700;
-            border:2.5px solid white;
-            box-shadow:0 2px 6px rgba(0,0,0,0.25);
-            font-family:sans-serif;
-          ">${loc.day}</div>`,
-          className: '',
-          iconSize:   [28, 28],
-          iconAnchor: [14, 14],
-          popupAnchor: [0, -16],
-        })
-
-        L.marker([loc.lat, loc.lng], { icon })
-          .addTo(map)
-          .bindPopup(`<strong style="font-size:13px">${loc.label}</strong>`, {
-            closeButton: false,
-            className: 'wandr-popup',
-          })
-      })
-
-      // Fit all pins — defer so the flex layout has finished sizing the container
-      const fitMap = () => {
-        map.invalidateSize()
-        if (latlngs.length === 1) {
-          map.setView(latlngs[0], 12)
-        } else {
-          map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40] })
-        }
-      }
-      // Two passes: immediate + 300ms fallback covers most browser paint cycles
-      requestAnimationFrame(() => { fitMap(); setTimeout(fitMap, 300) })
-
-      // Also re-fit whenever the container is resized (e.g. panel resize)
-      const ro = new ResizeObserver(() => map.invalidateSize())
-      ro.observe(containerRef.current!)
-    })
-
-    return () => {
-      mapRef.current?.remove()
-      mapRef.current = null
-      if (containerRef.current) {
-        // ResizeObserver cleanup happens automatically when the element is removed
-      }
-    }
+  const onLoad = useCallback(() => {
+    const bounds = getBounds(locations)
+    if (!mapRef.current || !bounds) return
+    mapRef.current.fitBounds(bounds, { padding: 60, duration: 600 })
   }, [locations])
 
+  if (!MAPTILER_KEY) {
+    return (
+      <div className={`flex items-center justify-center ${className}`} style={{ background: '#e8e0d4' }}>
+        <p className="text-sm" style={{ color: '#888' }}>Map unavailable</p>
+      </div>
+    )
+  }
+
+  if (locations.length === 0) return null
+
+  const singleLocation = locations.length === 1
+  const bounds = getBounds(locations)
+
+  const routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
+    type: 'Feature',
+    geometry: { type: 'LineString', coordinates: locations.map(l => [l.lng, l.lat]) },
+    properties: {},
+  }
+
   return (
-    <>
-      <style>{`
-        .wandr-popup .leaflet-popup-content-wrapper {
-          border-radius: 10px;
-          padding: 2px 6px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .wandr-popup .leaflet-popup-tip { display: none; }
-      `}</style>
-      <div ref={containerRef} className={className} style={{ background: '#e8e0d4' }} />
-    </>
+    <Map
+      ref={mapRef}
+      mapStyle={MAP_STYLE}
+      initialViewState={
+        singleLocation
+          ? { longitude: locations[0].lng, latitude: locations[0].lat, zoom: 12 }
+          : bounds
+          ? { bounds, fitBoundsOptions: { padding: 60 } }
+          : undefined
+      }
+      style={{ width: '100%', height: '100%' }}
+      onLoad={onLoad}
+      attributionControl={false}
+    >
+      {/* Route line */}
+      {!singleLocation && (
+        <Source id="route" type="geojson" data={routeGeoJSON}>
+          <Layer
+            id="route-line"
+            type="line"
+            paint={{
+              'line-color': TERRA,
+              'line-width': 2.5,
+              'line-opacity': 0.75,
+              'line-dasharray': [2, 2],
+            }}
+          />
+        </Source>
+      )}
+
+      {/* Numbered pins */}
+      {locations.map((loc, i) => (
+        <Marker key={i} latitude={loc.lat} longitude={loc.lng} anchor="center">
+          <div
+            title={loc.label}
+            style={{
+              background: i === locations.length - 1 ? JADE : TERRA,
+              color: SAND,
+              borderRadius: '50%',
+              width: 30,
+              height: 30,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 11,
+              fontWeight: 700,
+              border: '2.5px solid white',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.22)',
+              fontFamily: 'sans-serif',
+              cursor: 'default',
+              userSelect: 'none',
+            }}
+          >
+            {loc.day}
+          </div>
+        </Marker>
+      ))}
+    </Map>
   )
 }

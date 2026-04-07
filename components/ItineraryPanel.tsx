@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, lazy, Suspense } from 'react'
+import { useState, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import type { TripLocation } from './TripMap'
 
-const TripMap = lazy(() => import('./TripMap').then(m => ({ default: m.TripMap })))
+const TripMap = dynamic(() => import('./TripMap').then(m => ({ default: m.TripMap })), { ssr: false })
 
 const C = {
   sand: '#F5ECD7',
