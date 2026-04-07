@@ -23,6 +23,7 @@ const LOADING_MESSAGES = [
   () => 'Adding local secrets...',
   () => 'Checking the weather patterns...',
   () => 'Curating hidden gems...',
+  () => 'Good things take time...',
 ]
 
 export default function HomePage() {
