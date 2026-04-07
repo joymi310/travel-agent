@@ -399,20 +399,11 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                     <ul className="space-y-2">
                       {day.highlights.map((h, j) => {
                         const reason = highlightReason(h)
-                        const text = highlightText(h)
-                        const viatorUrl = `https://www.viator.com/search/${encodeURIComponent(text + ' ' + itinerary.destination)}`
                         return (
                           <li key={j} className="flex items-start gap-2" style={{ color: C.dark }}>
                             <span className="mt-1.5 shrink-0" aria-hidden="true" style={{ color: C.terra, fontSize: '9px' }}>●</span>
                             <div>
-                              <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-sm">{text}</span>
-                                <a href={viatorUrl} target="_blank" rel="noopener noreferrer"
-                                  className="text-xs transition-opacity hover:opacity-70 shrink-0"
-                                  style={{ color: C.terra }}>
-                                  Book ↗
-                                </a>
-                              </div>
+                              <span className="text-sm">{highlightText(h)}</span>
                               {reason && <p className="text-xs mt-0.5 italic" style={{ color: '#999' }}>{reason}</p>}
                             </div>
                           </li>
@@ -424,18 +415,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   {/* IT-05: Stay — typography hierarchy, no competing icon */}
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#999' }}>Stay</p>
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <p className="text-sm font-medium" style={{ color: C.dark }}>{accommodationName(day.accommodation)}</p>
-                      <a
-                        href={`https://www.google.com/travel/hotels/search?q=${encodeURIComponent(accommodationName(day.accommodation) + ' ' + itinerary.destination)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs transition-opacity hover:opacity-70 shrink-0"
-                        style={{ color: C.terra }}
-                      >
-                        Check availability ↗
-                      </a>
-                    </div>
+                    <p className="text-sm font-medium" style={{ color: C.dark }}>{accommodationName(day.accommodation)}</p>
                     {accommodationReason(day.accommodation) && (
                       <p className="text-xs mt-0.5 italic" style={{ color: '#999' }}>{accommodationReason(day.accommodation)}</p>
                     )}
@@ -566,13 +546,6 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           </div>
         )
       })()}
-
-      {/* Affiliate disclaimer */}
-      {view === 'list' && (
-        <p className="shrink-0 px-5 py-2.5 text-center text-xs border-t" style={{ color: '#bbb', borderColor: `${C.dark}06` }}>
-          Wandr may earn a small commission on bookings made through these links — at no extra cost to you.
-        </p>
-      )}
     </div>
   )
 }
