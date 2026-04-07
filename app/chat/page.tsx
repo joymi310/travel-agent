@@ -316,10 +316,10 @@ export default function ChatPage() {
     return () => subscription.unsubscribe()
   }, [supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Redirect to home if auth resolved and there's nothing to show
+  // Redirect to home only if auth resolved, no itinerary, and no saved trips at all
   useEffect(() => {
-    if (authChecked && !itinerary) router.replace('/')
-  }, [authChecked, itinerary, router])
+    if (authChecked && !itinerary && savedConversations.length === 0) router.replace('/')
+  }, [authChecked, itinerary, savedConversations, router])
 
   const startNewTrip = () => {
     setMessages([])
