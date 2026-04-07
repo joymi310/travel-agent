@@ -221,21 +221,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STAT STRIP ── */}
-      <div className="border-y px-6 py-5" style={{ borderColor: `${C.dark}10`, background: 'white' }}>
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
-          {[
-            { value: '13', label: 'cities covered' },
-            { value: 'Free', label: 'to start' },
-            { value: 'Claude', label: 'powered AI' },
-          ].map(({ value, label }) => (
-            <div key={label} className="flex items-center gap-2 text-sm">
-              <span className="font-bold text-base" style={{ color: C.terra, fontFamily: 'var(--font-playfair)' }}>{value}</span>
-              <span style={{ color: C.dark, opacity: 0.45 }}>{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" className="pt-12 pb-24 px-6" aria-labelledby="how-it-works-heading">
