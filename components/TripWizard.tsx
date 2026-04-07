@@ -131,6 +131,33 @@ const EXPLORATION_OPTIONS: { id: ExplorationStyle; label: string; desc: string }
   },
 ]
 
+const DURATION_OPTIONS = [3, 5, 7, 10, 14, 21]
+
+function DurationPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div>
+      <p className="text-xs font-medium mb-2" style={{ color: C.dark, opacity: 0.5 }}>How many days?</p>
+      <div className="flex flex-wrap gap-2">
+        {DURATION_OPTIONS.map(d => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => onChange(d)}
+            className="rounded-xl px-4 py-2 text-sm font-medium transition-all"
+            style={{
+              background: value === d ? C.terra : 'white',
+              color: value === d ? C.sand : C.dark,
+              border: `1.5px solid ${value === d ? C.terra : `${C.saffron}44`}`,
+            }}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function TripWizard({ onComplete, onClose, initialDestination }: TripWizardProps) {
   const [step, setStep] = useState(1)
 
@@ -146,6 +173,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [monthText, setMonthText] = useState('')
+  const [flexibleDays, setFlexibleDays] = useState(7)
   // Step 5
   const [budget, setBudget] = useState('')
   const [budgetType, setBudgetType] = useState<'flights-included' | 'land-only'>('flights-included')
@@ -205,7 +233,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         traveller, destination, origin,
         explorationStyle: explorationStyle as ExplorationStyle,
         dateMode, startDate, endDate,
-        dateText: buildDateText(), duration: days,
+        dateText: buildDateText(), duration: dateMode === 'specific' ? days : flexibleDays,
         budget, budgetType,
         profileQ1, profileQ2, profileQ3, profileQ4,
       })
@@ -434,7 +462,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
               )}
 
               {dateMode === 'month' && (
-                <div>
+                <div className="space-y-3">
                   <input
                     type="text"
                     value={monthText}
@@ -447,15 +475,19 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                     autoFocus
                   />
                   {errors.monthText && <p className="mt-1.5 text-xs" style={{ color: C.terra }}>{errors.monthText}</p>}
+                  <DurationPicker value={flexibleDays} onChange={setFlexibleDays} />
                 </div>
               )}
 
               {dateMode === 'flexible' && (
-                <div className="py-4 text-center">
-                  <p className="text-3xl mb-2">🗓️</p>
-                  <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
-                    No worries — we&apos;ll plan your trip without locking in dates.
-                  </p>
+                <div className="space-y-3">
+                  <div className="py-2 text-center">
+                    <p className="text-3xl mb-2">🗓️</p>
+                    <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
+                      No worries — we&apos;ll plan your trip without locking in dates.
+                    </p>
+                  </div>
+                  <DurationPicker value={flexibleDays} onChange={setFlexibleDays} />
                 </div>
               )}
             </>

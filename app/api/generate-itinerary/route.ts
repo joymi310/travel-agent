@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const destination = sanitize(body.destination)
     const origin = sanitize(body.origin)
     const dateText = sanitize(body.dateText)
-    const duration = typeof body.duration === 'number' && body.duration >= 0 && body.duration <= 30
+    const duration = typeof body.duration === 'number' && body.duration > 0 && body.duration <= 30
       ? body.duration : 7
     const budget = sanitize(body.budget, 50)
     const budgetType = sanitize(body.budgetType, 50)
@@ -131,7 +131,7 @@ IMPORTANT: Every highlight must have a "reason" field that references something 
       model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
-      maxTokens: 8000,
+      maxTokens: 16000,
     })
 
     const cleaned = text.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, m =>
