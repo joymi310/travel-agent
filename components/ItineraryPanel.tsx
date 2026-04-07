@@ -288,74 +288,6 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         </div>
       </div>
 
-      {/* Budget summary — list view only */}
-      {view === 'list' && itinerary.budget_summary && (() => {
-        const b = itinerary.budget_summary!
-        const low = formatMoney(b.total_low, b.currency)
-        const high = formatMoney(b.total_high, b.currency)
-        const includesText = b.includes.join(', ')
-        const excludesText = b.excludes.join(', ')
-        return (
-          <div className="border-b" style={{ borderColor: `${C.dark}08` }}>
-            <button
-              onClick={() => setBudgetOpen(o => !o)}
-              className="w-full px-5 py-3 flex items-center gap-2 text-left hover:bg-black/[0.02] transition-colors"
-              aria-expanded={budgetOpen}
-            >
-              <span className="text-base shrink-0" aria-hidden="true" style={{ opacity: 0.5 }}>💰</span>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-semibold" style={{ color: C.dark }}>
-                  {low}–{high} <span className="font-normal text-xs" style={{ color: '#666' }}>{b.currency}</span>
-                </span>
-                <span className="hidden sm:inline text-xs ml-2" style={{ color: '#888' }}>estimated total</span>
-              </div>
-              <span className="text-xs shrink-0" aria-hidden="true" style={{ color: C.dark, opacity: 0.3 }}>
-                {budgetOpen ? '▲' : '▼'}
-              </span>
-            </button>
-
-            {budgetOpen && (
-              <div className="px-5 pb-4 space-y-3">
-                {/* Includes / excludes */}
-                <p className="text-xs leading-relaxed" style={{ color: '#777' }}>
-                  <span style={{ color: C.jade }}>✓</span> Includes {includesText}
-                  {excludesText && <> &nbsp;·&nbsp; <span style={{ color: '#aaa' }}>✗</span> Excludes {excludesText}</>}
-                </p>
-
-                {/* Per-category breakdown */}
-                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${C.dark}08` }}>
-                  {([
-                    { label: 'Accommodation', value: b.breakdown.accommodation },
-                    { label: 'Food & drink',  value: b.breakdown.food },
-                    { label: 'Activities',    value: b.breakdown.activities },
-                    { label: 'Local transport', value: b.breakdown.local_transport },
-                  ] as const).map(({ label, value }, i, arr) => (
-                    <div
-                      key={label}
-                      className="flex items-center justify-between px-4 py-2.5 text-xs"
-                      style={{
-                        background: i % 2 === 0 ? 'white' : '#FAFAF8',
-                        borderBottom: i < arr.length - 1 ? `1px solid ${C.dark}06` : 'none',
-                        color: C.dark,
-                      }}
-                    >
-                      <span style={{ opacity: 0.65 }}>{label}</span>
-                      <span className="font-medium">{formatMoney(value, b.currency)}</span>
-                    </div>
-                  ))}
-                  <div
-                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold"
-                    style={{ background: `${C.terra}08`, color: C.terra }}
-                  >
-                    <span>~{formatMoney(b.per_day_avg, b.currency)} per day avg</span>
-                    <span>{low}–{high}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      })()}
 
 
       {/* Map view */}
@@ -397,7 +329,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
       )}
 
       {/* Days accordion */}
-      {view === 'list' && <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 pb-8">
+      {view === 'list' && <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 pb-4">
         {itinerary.days.map((day, i) => {
           const isExpanded = expandedDay === i
           const isLast = i === itinerary.days.length - 1
@@ -517,6 +449,72 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           )
         })}
       </div>}
+
+      {/* Budget summary footer — list view only */}
+      {view === 'list' && itinerary.budget_summary && (() => {
+        const b = itinerary.budget_summary!
+        const low = formatMoney(b.total_low, b.currency)
+        const high = formatMoney(b.total_high, b.currency)
+        const includesText = b.includes.join(', ')
+        const excludesText = b.excludes.join(', ')
+        return (
+          <div className="shrink-0 border-t" style={{ borderColor: `${C.dark}08`, background: '#FDFAF4' }}>
+            <button
+              onClick={() => setBudgetOpen(o => !o)}
+              className="w-full px-5 py-3 flex items-center gap-2 text-left hover:bg-black/[0.02] transition-colors"
+              aria-expanded={budgetOpen}
+            >
+              <span className="text-base shrink-0" aria-hidden="true" style={{ opacity: 0.5 }}>💰</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-semibold" style={{ color: C.dark }}>
+                  {low}–{high} <span className="font-normal text-xs" style={{ color: '#666' }}>{b.currency}</span>
+                </span>
+                <span className="hidden sm:inline text-xs ml-2" style={{ color: '#888' }}>estimated total</span>
+              </div>
+              <span className="text-xs shrink-0" aria-hidden="true" style={{ color: C.dark, opacity: 0.3 }}>
+                {budgetOpen ? '▼' : '▲'}
+              </span>
+            </button>
+
+            {budgetOpen && (
+              <div className="px-5 pb-4 space-y-3">
+                <p className="text-xs leading-relaxed" style={{ color: '#777' }}>
+                  <span style={{ color: C.jade }}>✓</span> Includes {includesText}
+                  {excludesText && <> &nbsp;·&nbsp; <span style={{ color: '#aaa' }}>✗</span> Excludes {excludesText}</>}
+                </p>
+                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${C.dark}08` }}>
+                  {([
+                    { label: 'Accommodation', value: b.breakdown.accommodation },
+                    { label: 'Food & drink',  value: b.breakdown.food },
+                    { label: 'Activities',    value: b.breakdown.activities },
+                    { label: 'Local transport', value: b.breakdown.local_transport },
+                  ] as const).map(({ label, value }, i, arr) => (
+                    <div
+                      key={label}
+                      className="flex items-center justify-between px-4 py-2.5 text-xs"
+                      style={{
+                        background: i % 2 === 0 ? 'white' : '#FAFAF8',
+                        borderBottom: i < arr.length - 1 ? `1px solid ${C.dark}06` : 'none',
+                        color: C.dark,
+                      }}
+                    >
+                      <span style={{ opacity: 0.65 }}>{label}</span>
+                      <span className="font-medium">{formatMoney(value, b.currency)}</span>
+                    </div>
+                  ))}
+                  <div
+                    className="flex items-center justify-between px-4 py-2.5 text-xs font-semibold"
+                    style={{ background: `${C.terra}08`, color: C.terra }}
+                  >
+                    <span>~{formatMoney(b.per_day_avg, b.currency)} per day avg</span>
+                    <span>{low}–{high}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }
