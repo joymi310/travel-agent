@@ -21,6 +21,7 @@ interface Highlight {
 
 interface Meal {
   name: string
+  dish?: string
   reason?: string
 }
 
@@ -49,6 +50,10 @@ function highlightReason(h: string | Highlight): string | undefined {
 
 function mealName(m: string | Meal): string {
   return typeof m === 'string' ? m : m.name
+}
+
+function mealDish(m: string | Meal): string | undefined {
+  return typeof m === 'string' ? undefined : m.dish
 }
 
 function mealReason(m: string | Meal): string | undefined {
@@ -409,24 +414,42 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="shrink-0 text-base" aria-hidden="true">🍴</span>
-                      <div>
-                        <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>Meals</dt>
-                        <dd className="space-y-1">
-                          {day.meals.map((m, j) => {
-                            const reason = mealReason(m)
-                            return (
-                              <div key={j}>
-                                <span className="text-sm" style={{ color: C.dark }}>{mealName(m)}</span>
-                                {reason && (
-                                  <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
-                                )}
+                    <div>
+                      <dt className="text-xs font-medium mb-2 flex items-center gap-1.5" style={{ color: '#555' }}>
+                        <span aria-hidden="true">🍴</span> Restaurants
+                      </dt>
+                      <dd className="space-y-2">
+                        {day.meals.map((m, j) => {
+                          const name = mealName(m)
+                          const dish = mealDish(m)
+                          const reason = mealReason(m)
+                          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + itinerary.destination)}`
+                          return (
+                            <div key={j} className="rounded-xl px-3 py-2.5"
+                              style={{ background: `${C.saffron}08`, border: `1px solid ${C.saffron}20` }}>
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="text-sm font-semibold leading-snug" style={{ color: C.dark }}>{name}</span>
+                                <a
+                                  href={mapsUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs shrink-0 transition-opacity hover:opacity-70"
+                                  style={{ color: C.terra }}
+                                  aria-label={`Find ${name} on Google Maps`}
+                                >
+                                  Maps ↗
+                                </a>
                               </div>
-                            )
-                          })}
-                        </dd>
-                      </div>
+                              {dish && (
+                                <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.65 }}>Order: {dish}</p>
+                              )}
+                              {reason && (
+                                <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </dd>
                     </div>
                     <div className="flex items-start gap-2.5">
                       <span className="shrink-0 text-base" aria-hidden="true">🚌</span>

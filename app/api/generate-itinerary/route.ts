@@ -111,8 +111,8 @@ export async function POST(req: Request) {
       ],
       "accommodation": { "name": "Boutique hotel in the Old Quarter", "reason": "Mid-range budget, walkable to everything on Day 1" },
       "meals": [
-        { "name": "Bun Cha lunch at Dac Kim, Hang Manh St", "reason": "The place Obama made famous — essential for a first-timer" },
-        { "name": "Banh Mi from Banh Mi 25" }
+        { "name": "Bun Cha Huong Lien", "dish": "Bun cha set (~$3 USD)", "reason": "Obama/Bourdain spot — iconic, no-frills" },
+        { "name": "Banh Mi 25", "dish": "Classic pork banh mi", "reason": "Best banh mi in the Old Quarter" }
       ],
       "transport": "Grab taxi from airport ~45 min",
       "estimatedCost": "~$80 NZD per person"
@@ -125,7 +125,9 @@ IMPORTANT: The "budget_summary" must reflect the user's actual stated budget lev
 
 IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
 
-IMPORTANT: Every highlight must have a "reason" field that references something specific the traveller told you — their budget level, pace preference, interests, travel party, or what they want to do or avoid. Accommodation must have a "reason". Named restaurants should have a "reason". The reason must feel personal, not generic. Keep every "reason" to 8 words or fewer — punchy, not verbose. Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
+IMPORTANT: Every highlight must have a "reason" field. Accommodation must have a "reason". Keep every "reason" to 8 words or fewer — punchy, not verbose.
+
+IMPORTANT: Every meal must be a specific named restaurant or stall (never a generic "hotel restaurant" unless it is genuinely world-class). Each meal must include a "dish" field with exactly what to order (include approximate local price where helpful), and a "reason" ≤8 words. For budget travellers: include at least one street food stall per day with neighbourhood context. For luxury travellers: name at least one fine dining venue per trip and add "(reservation recommended)" to the dish field if booking is required. Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
 
     const actualDuration = duration > 0 ? duration : 7
     const maxTokens = Math.min(Math.max(actualDuration * 650 + 1500, 3500), 16000)
