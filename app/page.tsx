@@ -501,7 +501,7 @@ export default function HomePage() {
             Your next adventure is one conversation away.
           </h2>
           <p className="text-lg opacity-80">
-            Sign in free and tell us where you&apos;re dreaming of. Your personalised itinerary waits.
+            Sign in free and tell us where you&apos;re dreaming of. Your personalised itinerary awaits.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <button onClick={handleStartPlanning} className="font-semibold px-8 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-md"
