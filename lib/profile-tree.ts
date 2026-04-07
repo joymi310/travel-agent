@@ -84,11 +84,13 @@ export const PROFILE_TREE: Record<string, TreeQuestion[]> = {
     },
     {
       id: 'naps',
-      question: 'Are nap schedules a factor?',
+      question: 'When are nap times?',
       options: [
-        { id: 'strict', label: 'Yes — naps are sacred', desc: 'Itinerary needs to work around them' },
-        { id: 'flexible', label: 'Somewhat — we can push when needed' },
-        { id: 'none', label: 'No — past that stage' },
+        { id: 'morning_afternoon', label: 'Morning and afternoon', desc: 'Two naps a day — plan around both' },
+        { id: 'midday', label: 'Midday only', desc: 'One nap around lunchtime' },
+        { id: 'afternoon', label: 'Just afternoon', desc: 'Afternoons are quiet time' },
+        { id: 'morning', label: 'Just morning', desc: 'Mornings are slow starts' },
+        { id: 'none', label: 'No naps needed', desc: 'Past that stage' },
       ],
     },
     {
@@ -109,6 +111,18 @@ export const PROFILE_TREE: Record<string, TreeQuestion[]> = {
         { id: 'theme_parks', label: 'Theme parks & rides' },
         { id: 'culture', label: 'New experiences', desc: 'Happy to explore anything' },
       ],
+    },
+    {
+      id: 'kids_activities',
+      type: 'text',
+      question: 'What would the kids like to do?',
+      placeholder: 'e.g. see animals, go to the beach, visit a theme park…',
+    },
+    {
+      id: 'must_sees',
+      type: 'text',
+      question: 'What are three key activities or sights you want to see?',
+      placeholder: 'e.g. Eiffel Tower, a cooking class, a local market…',
     },
     {
       id: 'priority',
@@ -302,7 +316,15 @@ export function buildProfileContext(
   else if (travelStyle === 'family_young_kids') {
     const numKids: Record<string, string> = { one: '1 child', two: '2 children', three_plus: '3 or more children' }
     const ages: Record<string, string> = { infant: 'a lap infant (under 1)', toddler: 'a toddler (1–2 years)', preschool: 'preschool-age children (3–5)', mixed: 'a mix of young children' }
-    const naps: Record<string, string> = { strict: 'nap schedules are strict and must be factored into daily planning', flexible: 'nap schedules are somewhat flexible', none: 'kids are past napping' }
+    const naps: Record<string, string> = {
+      morning_afternoon: 'two naps a day (morning and afternoon) — schedule must work around both',
+      midday: 'one midday nap — afternoons free after ~2pm',
+      afternoon: 'afternoon nap only — mornings are the active window',
+      morning: 'morning nap only — afternoons are flexible',
+      none: 'no naps needed',
+      strict: 'nap schedules are strict and must be factored into daily planning',
+      flexible: 'nap schedules are somewhat flexible',
+    }
     const flights: Record<string, string> = { short: 'up to 4 hours', medium: 'up to 8 hours', long: 'any duration' }
     const interests: Record<string, string> = { beach: 'beach and water activities', animals: 'animals and wildlife', theme_parks: 'theme parks and rides', culture: 'open to new experiences' }
     const priorities: Record<string, string> = { ease: 'minimising travel stress and logistics', beach: 'beach and resort-style holidays where kids can run free', culture: 'cultural experiences worth the extra effort', budget: 'keeping costs down' }
@@ -312,6 +334,8 @@ export function buildProfileContext(
     if (profileData.naps) lines.push(`Nap schedule: ${naps[profileData.naps] ?? profileData.naps}.`)
     if (profileData.flight_tolerance) lines.push(`Comfortable with flights up to ${flights[profileData.flight_tolerance] ?? profileData.flight_tolerance}.`)
     if (profileData.interests) lines.push(`Kids' interests: ${interests[profileData.interests] ?? profileData.interests}.`)
+    if (profileData.kids_activities) lines.push(`What kids want to do: ${profileData.kids_activities}.`)
+    if (profileData.must_sees) lines.push(`Must-see activities/sights: ${profileData.must_sees}.`)
     if (profileData.priority) lines.push(`Adults' top priority: ${priorities[profileData.priority] ?? profileData.priority}.`)
     lines.push('Suggest nap-friendly pacing, family rooms, child-friendly restaurants, and early dinners. When a destination or activity has challenges for young kids, explain how to handle them — not whether to avoid them.')
   }

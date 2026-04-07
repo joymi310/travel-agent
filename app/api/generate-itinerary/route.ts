@@ -24,10 +24,9 @@ export async function POST(req: Request) {
       ? body.duration : 7
     const budget = sanitize(body.budget, 50)
     const budgetType = sanitize(body.budgetType, 50)
-    const profileQ1 = sanitize(body.profileQ1)
-    const profileQ2 = sanitize(body.profileQ2)
-    const profileQ3 = sanitize(body.profileQ3)
-    const profileQ4 = sanitize(body.profileQ4)
+    const profileAnswersRaw = Array.isArray(body.profileAnswers) ? body.profileAnswers : [
+      body.profileQ1, body.profileQ2, body.profileQ3, body.profileQ4,
+    ]
     const explorationStyle = ['classics', 'mixed', 'off_beaten_track'].includes(body.explorationStyle)
       ? (body.explorationStyle as string) : 'mixed'
 
@@ -50,7 +49,7 @@ export async function POST(req: Request) {
 
     const durationClause = duration > 0 ? `${duration} day` : '7 day'
 
-    const profileQuestions = [profileQ1, profileQ2, profileQ3, profileQ4].filter(Boolean)
+    const profileQuestions = (profileAnswersRaw as unknown[]).map((v) => sanitize(v)).filter(Boolean)
 
     const userMessage = [
       `Plan a ${durationClause} trip to ${destination} for a ${traveller || 'traveller'} flying from ${origin || 'New Zealand'}.`,

@@ -23,10 +23,7 @@ export interface WizardAnswers {
   duration: number
   budget: string
   budgetType: string
-  profileQ1: string
-  profileQ2: string
-  profileQ3: string
-  profileQ4: string
+  profileAnswers: string[]
 }
 
 interface TripWizardProps {
@@ -177,11 +174,8 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   // Step 5
   const [budget, setBudget] = useState('')
   const [budgetType, setBudgetType] = useState<'flights-included' | 'land-only'>('flights-included')
-  // Step 6 — profile-specific
-  const [profileQ1, setProfileQ1] = useState('')
-  const [profileQ2, setProfileQ2] = useState('')
-  const [profileQ3, setProfileQ3] = useState('')
-  const [profileQ4, setProfileQ4] = useState('')
+  // Step 6 — profile-specific (dynamic, any number of questions)
+  const [profileAnswers, setProfileAnswers] = useState<string[]>([])
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -189,8 +183,14 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   const TOTAL_STEPS = 6
 
   const profileQuestions = traveller ? PROFILE_QUESTIONS[traveller] ?? [] : []
-  const profileValues = [profileQ1, profileQ2, profileQ3, profileQ4]
-  const profileSetters = [setProfileQ1, setProfileQ2, setProfileQ3, setProfileQ4]
+
+  const setProfileAnswer = (i: number, value: string) => {
+    setProfileAnswers(prev => {
+      const next = [...prev]
+      next[i] = value
+      return next
+    })
+  }
 
   const validate = (): boolean => {
     const e: Record<string, string> = {}
@@ -211,7 +211,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
     if (step === 5 && !budget) e.budget = 'Please select a budget'
     if (step === 6) {
       profileQuestions.forEach((q, i) => {
-        if (q.type === 'radio' && !profileValues[i]) {
+        if (q.type === 'radio' && !profileAnswers[i]) {
           e[`q${i}`] = 'Please select an option'
         }
       })
@@ -235,7 +235,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         dateMode, startDate, endDate,
         dateText: buildDateText(), duration: dateMode === 'specific' ? days : flexibleDays,
         budget, budgetType,
-        profileQ1, profileQ2, profileQ3, profileQ4,
+        profileAnswers,
       })
     } else {
       setStep(s => s + 1)
@@ -563,8 +563,8 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                     {q.type === 'text' ? (
                       <input
                         type="text"
-                        value={profileValues[i]}
-                        onChange={e => { profileSetters[i](e.target.value); setErrors({}) }}
+                        value={profileAnswers[i] ?? ''}
+                        onChange={e => { setProfileAnswer(i, e.target.value); setErrors({}) }}
                         placeholder={q.placeholder}
                         className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
                         style={inputStyle()}
@@ -576,11 +576,11 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                         {q.options!.map(opt => (
                           <button
                             key={opt}
-                            onClick={() => { profileSetters[i](opt); setErrors({}) }}
+                            onClick={() => { setProfileAnswer(i, opt); setErrors({}) }}
                             className="w-full text-left rounded-xl px-4 py-2.5 text-sm transition-all"
                             style={{
-                              background: profileValues[i] === opt ? `${C.terra}12` : 'white',
-                              border: `1.5px solid ${profileValues[i] === opt ? C.terra : `${C.dark}15`}`,
+                              background: profileAnswers[i] === opt ? `${C.terra}12` : 'white',
+                              border: `1.5px solid ${profileAnswers[i] === opt ? C.terra : `${C.dark}15`}`,
                               color: C.dark,
                             }}
                           >
