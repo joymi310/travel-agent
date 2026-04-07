@@ -193,8 +193,12 @@ export default function HomePage() {
               Every trip should feel like{' '}
               <em style={{ color: C.terra, fontStyle: 'italic' }}>magic.</em>
             </h1>
+            <p className="text-xl font-semibold tracking-wide"
+              style={{ color: C.terra, letterSpacing: '0.01em' }}>
+              Your pace.&nbsp; Your budget.&nbsp; Your vibe.
+            </p>
             <p className="text-lg leading-relaxed opacity-80 max-w-lg">
-              Tell Wandr where you&apos;re dreaming of. Get a personalised itinerary built around you — your pace, your budget, your vibe.
+              Tell Wandr where you&apos;re dreaming of and get a personalised itinerary built around you.
             </p>
             <div className="flex flex-wrap gap-3">
               <button onClick={handleStartPlanning}
@@ -535,6 +539,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</span>
           <div className="flex flex-col items-center gap-1.5">
+            <p className="text-xs opacity-50 text-center" style={{ color: C.terra }}>Your pace. Your budget. Your vibe.</p>
             <p className="text-xs opacity-40 text-center">© 2026 Wandr · No bookings made. Just brilliant plans.</p>
             <p className="text-xs opacity-30 text-center">Powered by Claude · Anthropic</p>
           </div>

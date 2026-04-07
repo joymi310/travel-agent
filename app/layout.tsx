@@ -17,7 +17,12 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Wandr — Your AI Travel Companion",
-  description: "Tell Wandr where you're dreaming of. Get a personalised itinerary built around you — your pace, your budget, your vibe.",
+  description: "Your pace. Your budget. Your vibe. Tell Wandr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
+  openGraph: {
+    title: "Wandr — Your AI Travel Companion",
+    description: "Your pace. Your budget. Your vibe. Tell Wandr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
