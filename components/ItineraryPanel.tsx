@@ -482,25 +482,8 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         const excludesText = b.excludes.join(', ')
         return (
           <div className="shrink-0 border-t" style={{ borderColor: `${C.dark}08`, background: '#FDFAF4' }}>
-            <button
-              onClick={() => setBudgetOpen(o => !o)}
-              className="w-full px-5 py-3 flex items-center gap-2 text-left hover:bg-black/[0.02] transition-colors"
-              aria-expanded={budgetOpen}
-            >
-              <span className="text-base shrink-0" aria-hidden="true" style={{ opacity: 0.5 }}>💰</span>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-semibold" style={{ color: C.dark }}>
-                  {low}–{high} <span className="font-normal text-xs" style={{ color: '#666' }}>{b.currency}</span>
-                </span>
-                <span className="hidden sm:inline text-xs ml-2" style={{ color: '#888' }}>estimated total</span>
-              </div>
-              <span className="text-xs shrink-0" aria-hidden="true" style={{ color: C.dark, opacity: 0.3 }}>
-                {budgetOpen ? '▼' : '▲'}
-              </span>
-            </button>
-
             {budgetOpen && (
-              <div className="px-5 pb-4 space-y-3">
+              <div className="px-5 pt-4 pb-2 space-y-3">
                 <p className="text-xs leading-relaxed" style={{ color: '#777' }}>
                   <span style={{ color: C.jade }}>✓</span> Includes {includesText}
                   {excludesText && <> &nbsp;·&nbsp; <span style={{ color: '#aaa' }}>✗</span> Excludes {excludesText}</>}
@@ -535,6 +518,22 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 </div>
               </div>
             )}
+            <button
+              onClick={() => setBudgetOpen(o => !o)}
+              className="w-full px-5 py-3 flex items-center gap-2 text-left hover:bg-black/[0.02] transition-colors"
+              aria-expanded={budgetOpen}
+            >
+              <span className="text-base shrink-0" aria-hidden="true" style={{ opacity: 0.5 }}>💰</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-semibold" style={{ color: C.dark }}>
+                  {low}–{high} <span className="font-normal text-xs" style={{ color: '#666' }}>{b.currency}</span>
+                </span>
+                <span className="hidden sm:inline text-xs ml-2" style={{ color: '#888' }}>estimated total</span>
+              </div>
+              <span className="text-xs shrink-0" aria-hidden="true" style={{ color: C.dark, opacity: 0.3 }}>
+                {budgetOpen ? '▼' : '▲'}
+              </span>
+            </button>
           </div>
         )
       })()}
