@@ -96,17 +96,29 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
           })
       })
 
-      // Fit all pins with padding
-      if (latlngs.length === 1) {
-        map.setView(latlngs[0], 12)
-      } else {
-        map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40] })
+      // Fit all pins — defer so the flex layout has finished sizing the container
+      const fitMap = () => {
+        map.invalidateSize()
+        if (latlngs.length === 1) {
+          map.setView(latlngs[0], 12)
+        } else {
+          map.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40] })
+        }
       }
+      // Two passes: immediate + 300ms fallback covers most browser paint cycles
+      requestAnimationFrame(() => { fitMap(); setTimeout(fitMap, 300) })
+
+      // Also re-fit whenever the container is resized (e.g. panel resize)
+      const ro = new ResizeObserver(() => map.invalidateSize())
+      ro.observe(containerRef.current!)
     })
 
     return () => {
       mapRef.current?.remove()
       mapRef.current = null
+      if (containerRef.current) {
+        // ResizeObserver cleanup happens automatically when the element is removed
+      }
     }
   }, [locations])
 
