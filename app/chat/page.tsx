@@ -110,6 +110,7 @@ export default function ChatPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+  const [authChecked, setAuthChecked] = useState(false)
   const myTripsRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const router = useRouter()
@@ -298,6 +299,7 @@ export default function ChatPage() {
         // Load all saved conversations for My Trips panel
         await loadSavedConversations(u.id)
       }
+      setAuthChecked(true)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -305,6 +307,11 @@ export default function ChatPage() {
     })
     return () => subscription.unsubscribe()
   }, [supabase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Redirect to home if auth resolved and there's nothing to show
+  useEffect(() => {
+    if (authChecked && !itinerary) router.replace('/')
+  }, [authChecked, itinerary, router])
 
   const startNewTrip = () => {
     setMessages([])
