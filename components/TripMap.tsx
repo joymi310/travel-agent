@@ -47,11 +47,10 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
       const map = L.map(containerRef.current!, { zoomControl: true, attributionControl: true })
       mapRef.current = map
 
-      // Carto Voyager — clean, modern styling, free, no key needed
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
+      // Stadia Alidade Smooth — clean minimal basemap, free tier, no key for low volume
+      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://stadiamaps.com/">Stadia Maps</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 20,
       }).addTo(map)
 
       const latlngs = locations.map(l => [l.lat, l.lng] as [number, number])
