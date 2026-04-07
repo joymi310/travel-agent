@@ -472,6 +472,7 @@ export default function ChatPage() {
                     : m.content,
                 }))}
                 isLoading={isLoading}
+                loadingMessage={isLoading && itinerary ? 'Working on updating your itinerary now...' : undefined}
               />
             )}
           </div>

@@ -15,9 +15,10 @@ const C = {
 interface ChatMessagesProps {
   messages: Message[]
   isLoading: boolean
+  loadingMessage?: string
 }
 
-export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, loadingMessage }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -73,11 +74,15 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
             w.
           </div>
           <div className="rounded-2xl px-4 py-3" style={{ background: 'white', borderTopLeftRadius: '4px', boxShadow: '0 1px 3px rgba(26,18,8,0.08)' }}>
-            <div className="flex gap-1 items-center h-5">
-              <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s]" style={{ background: C.saffron }} />
-              <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s]" style={{ background: C.saffron }} />
-              <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: C.saffron }} />
-            </div>
+            {loadingMessage ? (
+              <p className="text-sm animate-pulse" style={{ color: C.dark, opacity: 0.6 }}>{loadingMessage}</p>
+            ) : (
+              <div className="flex gap-1 items-center h-5">
+                <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s]" style={{ background: C.saffron }} />
+                <span className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s]" style={{ background: C.saffron }} />
+                <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: C.saffron }} />
+              </div>
+            )}
           </div>
         </div>
       )}
