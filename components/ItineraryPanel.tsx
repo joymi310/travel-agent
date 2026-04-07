@@ -159,11 +159,20 @@ function formatMoney(amount: number, currency: string): string {
 }
 
 export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
-  const [expandedDay, setExpandedDay] = useState<number | null>(0)
+  const [expandedDay, setExpandedDay] = useState<number | null>(null)   // IT-01: collapsed by default
+  const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set()) // IT-02
   const [shareLabel, setShareLabel] = useState('Share')
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [view, setView] = useState<'list' | 'map'>('list')
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const toggleMeal = (key: string) => {
+    setExpandedMeals(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   const hasMap = (itinerary.locations?.length ?? 0) > 0
 
@@ -334,7 +343,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
       )}
 
       {/* Days accordion */}
-      {view === 'list' && <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 pb-4">
+      {view === 'list' && <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-2 pb-4">
         {itinerary.days.map((day, i) => {
           const isExpanded = expandedDay === i
           const isLast = i === itinerary.days.length - 1
@@ -344,11 +353,12 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
             <div
               key={day.day}
               className="rounded-2xl overflow-hidden"
-              style={{ background: 'white', boxShadow: '0 1px 8px rgba(26,18,8,0.06)' }}
+              style={{ background: 'white', boxShadow: '0 1px 6px rgba(26,18,8,0.05)' }}
             >
+              {/* IT-01: header always visible; IT-04: cost in header */}
               <button
                 id={headingId}
-                className="w-full px-5 py-4 flex items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="w-full px-4 py-3.5 flex items-center gap-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{
                   borderBottom: isExpanded ? `1px solid ${C.sand}` : 'none',
                   outlineColor: C.terra,
@@ -358,16 +368,18 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 aria-controls={panelId}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                   aria-hidden="true"
                   style={{ background: isLast ? C.jade : C.terra, color: C.sand }}
                 >
                   {day.day}
                 </div>
-                <span className="font-semibold text-sm flex-1 leading-tight" style={{ color: C.dark }}>
-                  Day {day.day}: {day.title}
+                <span className="font-semibold text-sm flex-1 leading-tight min-w-0 truncate" style={{ color: C.dark }}>
+                  {day.title}
                 </span>
-                <span className="text-xs shrink-0" aria-hidden="true" style={{ color: C.dark, opacity: 0.3 }}>
+                {/* IT-04: per-day cost on header row */}
+                <span className="text-xs shrink-0 font-medium" style={{ color: C.jade }}>{day.estimatedCost}</span>
+                <span className="text-xs shrink-0 ml-1" aria-hidden="true" style={{ color: C.dark, opacity: 0.25 }}>
                   {isExpanded ? '▲' : '▼'}
                 </span>
               </button>
@@ -377,24 +389,22 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   id={panelId}
                   role="region"
                   aria-labelledby={headingId}
-                  className="px-5 py-4 space-y-4"
+                  className="px-4 py-4 space-y-4"
                 >
                   {/* Highlights */}
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: C.saffron }}>
                       Highlights
                     </p>
-                    <ul className="space-y-2.5">
+                    <ul className="space-y-2">
                       {day.highlights.map((h, j) => {
                         const reason = highlightReason(h)
                         return (
                           <li key={j} className="flex items-start gap-2" style={{ color: C.dark }}>
-                            <span className="mt-1.5 shrink-0" aria-hidden="true" style={{ color: C.terra, fontSize: '10px' }}>●</span>
+                            <span className="mt-1.5 shrink-0" aria-hidden="true" style={{ color: C.terra, fontSize: '9px' }}>●</span>
                             <div>
                               <span className="text-sm">{highlightText(h)}</span>
-                              {reason && (
-                                <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
-                              )}
+                              {reason && <p className="text-xs mt-0.5 italic" style={{ color: '#999' }}>{reason}</p>}
                             </div>
                           </li>
                         )
@@ -402,70 +412,69 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                     </ul>
                   </div>
 
-                  {/* Details */}
-                  <dl className="space-y-2.5">
-                    <div className="flex items-start gap-2.5">
-                      <span className="shrink-0 text-base" aria-hidden="true">🏨</span>
-                      <div>
-                        <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>Stay</dt>
-                        <dd className="text-sm" style={{ color: C.dark }}>{accommodationName(day.accommodation)}</dd>
-                        {accommodationReason(day.accommodation) && (
-                          <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{accommodationReason(day.accommodation)}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium mb-2 flex items-center gap-1.5" style={{ color: '#555' }}>
-                        <span aria-hidden="true">🍴</span> Restaurants
-                      </dt>
-                      <dd className="space-y-2">
-                        {day.meals.map((m, j) => {
-                          const name = mealName(m)
-                          const dish = mealDish(m)
-                          const reason = mealReason(m)
-                          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + itinerary.destination)}`
-                          return (
-                            <div key={j} className="rounded-xl px-3 py-2.5"
-                              style={{ background: `${C.saffron}08`, border: `1px solid ${C.saffron}20` }}>
-                              <div className="flex items-start justify-between gap-2">
-                                <span className="text-sm font-semibold leading-snug" style={{ color: C.dark }}>{name}</span>
-                                <a
-                                  href={mapsUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs shrink-0 transition-opacity hover:opacity-70"
-                                  style={{ color: C.terra }}
-                                  aria-label={`Find ${name} on Google Maps`}
-                                >
-                                  Maps ↗
-                                </a>
-                              </div>
-                              {dish && (
-                                <p className="text-xs mt-0.5" style={{ color: C.dark, opacity: 0.65 }}>Order: {dish}</p>
-                              )}
-                              {reason && (
-                                <p className="text-xs mt-0.5 italic" style={{ color: '#888' }}>{reason}</p>
-                              )}
-                            </div>
-                          )
-                        })}
-                      </dd>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <span className="shrink-0 text-base" aria-hidden="true">🚌</span>
-                      <div>
-                        <dt className="text-xs font-medium mb-0.5" style={{ color: '#555' }}>Getting around</dt>
-                        <dd className="text-sm" style={{ color: C.dark }}>{day.transport}</dd>
-                      </div>
-                    </div>
-                  </dl>
-
-                  {/* Cost */}
-                  <div className="flex items-center justify-between pt-3 border-t"
-                    style={{ borderColor: `${C.dark}08` }}>
-                    <span className="text-xs" style={{ color: '#555' }}>Est. daily cost</span>
-                    <span className="text-sm font-semibold" style={{ color: C.jade }}>{day.estimatedCost}</span>
+                  {/* IT-05: Stay — typography hierarchy, no competing icon */}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#999' }}>Stay</p>
+                    <p className="text-sm font-medium" style={{ color: C.dark }}>{accommodationName(day.accommodation)}</p>
+                    {accommodationReason(day.accommodation) && (
+                      <p className="text-xs mt-0.5 italic" style={{ color: '#999' }}>{accommodationReason(day.accommodation)}</p>
+                    )}
                   </div>
+
+                  {/* IT-02: Restaurants — name only at scan level, detail on tap */}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#999' }}>Restaurants</p>
+                    <div className="space-y-1.5">
+                      {day.meals.map((m, j) => {
+                        const name = mealName(m)
+                        const dish = mealDish(m)
+                        const reason = mealReason(m)
+                        const mealKey = `${i}-${j}`
+                        const mealExpanded = expandedMeals.has(mealKey)
+                        const hasDetail = !!(dish || reason)
+                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + itinerary.destination)}`
+                        return (
+                          <div key={j} className="rounded-xl px-3 py-2"
+                            style={{ background: `${C.saffron}08`, border: `1px solid ${C.saffron}18` }}>
+                            <div className="flex items-center gap-2">
+                              {hasDetail && (
+                                <button
+                                  onClick={() => toggleMeal(mealKey)}
+                                  className="shrink-0 transition-opacity hover:opacity-70"
+                                  aria-label={mealExpanded ? 'Hide details' : 'Show details'}
+                                  style={{ color: C.dark, opacity: 0.3, fontSize: '10px' }}
+                                >
+                                  {mealExpanded ? '▲' : '▼'}
+                                </button>
+                              )}
+                              <span className="text-sm font-medium flex-1 leading-snug" style={{ color: C.dark }}>{name}</span>
+                              <a
+                                href={mapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs shrink-0 transition-opacity hover:opacity-70"
+                                style={{ color: C.terra }}
+                                aria-label={`Find ${name} on Google Maps`}
+                              >
+                                Maps ↗
+                              </a>
+                            </div>
+                            {mealExpanded && (
+                              <div className="mt-1.5 pl-4 space-y-0.5">
+                                {dish && <p className="text-xs" style={{ color: C.dark, opacity: 0.6 }}>Order: {dish}</p>}
+                                {reason && <p className="text-xs italic" style={{ color: '#999' }}>{reason}</p>}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* IT-03: Getting around as footnote */}
+                  <p className="text-xs" style={{ color: '#aaa' }}>
+                    <span style={{ color: '#bbb' }}>Getting around —</span> {day.transport}
+                  </p>
                 </div>
               )}
             </div>
