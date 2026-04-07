@@ -47,9 +47,10 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
       const map = L.map(containerRef.current!, { zoomControl: true, attributionControl: true })
       mapRef.current = map
 
-      // Stadia Alidade Smooth — clean minimal basemap, free tier, no key for low volume
-      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-        attribution: '© <a href="https://stadiamaps.com/">Stadia Maps</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      // Carto Light — minimal, clean, no API key required
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 20,
       }).addTo(map)
 
