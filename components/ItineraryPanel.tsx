@@ -394,7 +394,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 </div>
                 {/* IT-04: per-day cost on header row — desktop only */}
                 <span className="text-xs font-medium truncate max-w-[40%] hidden sm:block" style={{ color: C.jade }}>{day.estimatedCost}</span>
-                <span className="text-xs shrink-0 ml-1" aria-hidden="true" style={{ color: C.dark, opacity: 0.25 }}>
+                <span className="text-xs shrink-0 ml-1 mr-1" aria-hidden="true" style={{ color: C.dark, opacity: 0.25 }}>
                   {isExpanded ? '▲' : '▼'}
                 </span>
               </button>
