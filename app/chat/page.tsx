@@ -583,7 +583,7 @@ export default function ChatPage() {
 
           {/* Quick-reply chips — shown only after itinerary generation, disappear on first send */}
           {showChips && itinerary && !isLoading && (
-            <div className="px-4 pt-2 pb-3 shrink-0 border-t" style={{ borderColor: `${C.dark}10`, background: C.sand }}>
+            <div className="px-5 pt-2 pb-3 shrink-0 border-t" style={{ borderColor: `${C.dark}10`, background: C.sand }}>
               <p className="text-xs mb-2 font-medium" style={{ color: `${C.dark}50` }}>Quick replies</p>
               <div
                 className="flex gap-2 overflow-x-auto pb-1"
@@ -612,7 +612,7 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="border-t p-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+          <div className="border-t px-5 pt-3 pb-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
             <ChatInput
               input={input}
               setInput={setInput}
