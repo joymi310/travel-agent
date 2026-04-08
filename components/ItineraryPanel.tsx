@@ -160,7 +160,6 @@ function formatMoney(amount: number, currency: string): string {
 
 export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   const [expandedDay, setExpandedDay] = useState<number | null>(null)   // IT-01: collapsed by default
-  const dayRefs = useRef<(HTMLDivElement | null)[]>([])
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set()) // IT-02
   const [shareLabel, setShareLabel] = useState('Share')
   const [budgetOpen, setBudgetOpen] = useState(false)
@@ -353,7 +352,6 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           return (
             <div
               key={day.day}
-              ref={(el) => { dayRefs.current[i] = el }}
               className="rounded-2xl overflow-hidden"
               style={{ background: 'white', boxShadow: '0 1px 6px rgba(26,18,8,0.05)' }}
             >
@@ -365,15 +363,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   borderBottom: isExpanded ? `1px solid ${C.sand}` : 'none',
                   outlineColor: C.terra,
                 }}
-                onClick={() => {
-                  const next = isExpanded ? null : i
-                  setExpandedDay(next)
-                  if (next !== null) {
-                    setTimeout(() => {
-                      dayRefs.current[next]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-                    }, 50)
-                  }
-                }}
+                onClick={() => setExpandedDay(isExpanded ? null : i)}
                 aria-expanded={isExpanded}
                 aria-controls={panelId}
               >
