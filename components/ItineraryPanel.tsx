@@ -388,7 +388,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   {day.title}
                 </span>
                 {/* IT-04: per-day cost on header row */}
-                <span className="text-xs shrink-0 font-medium" style={{ color: C.jade }}>{day.estimatedCost}</span>
+                <span className="text-xs font-medium truncate max-w-[40%]" style={{ color: C.jade }}>{day.estimatedCost}</span>
                 <span className="text-xs shrink-0 ml-1" aria-hidden="true" style={{ color: C.dark, opacity: 0.25 }}>
                   {isExpanded ? '▲' : '▼'}
                 </span>
