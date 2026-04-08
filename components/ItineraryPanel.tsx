@@ -450,7 +450,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                               {hasDetail && (
                                 <button
                                   onClick={() => toggleMeal(mealKey)}
-                                  className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+                                  className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
                                   aria-label={mealExpanded ? 'Hide details' : 'Show details'}
                                   style={{ background: `${C.saffron}30`, color: C.dark, fontSize: '9px' }}
                                 >

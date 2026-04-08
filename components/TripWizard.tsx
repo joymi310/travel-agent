@@ -425,7 +425,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
 
               {dateMode === 'specific' && (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium mb-1.5" style={{ color: C.dark, opacity: 0.5 }}>Departure</label>
                       <input

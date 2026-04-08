@@ -175,7 +175,7 @@ export default function PreviewPage() {
     <div className="min-h-screen pb-28" style={{ background: C.sand }}>
       {/* Top nav */}
       <div className="sticky top-0 z-30 border-b px-4 py-3"
-        style={{ background: C.dark, borderColor: `${C.sand}15` }}>
+        style={{ background: C.dark, borderColor: `${C.sand}15`, paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}>
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
             wandr.
@@ -225,7 +225,7 @@ export default function PreviewPage() {
 
       {/* Sticky bottom banner */}
       <div className="fixed bottom-0 left-0 right-0 z-40 px-4 py-3 border-t"
-        style={{ background: 'white', borderColor: `${C.sand}80` }}>
+        style={{ background: 'white', borderColor: `${C.sand}80`, paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
           <p className="text-sm flex-1" style={{ color: C.dark, opacity: 0.7 }}>
             Sign in free to unlock hotels, restaurants &amp; transport for every day

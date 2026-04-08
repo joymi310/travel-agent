@@ -334,7 +334,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: C.sand }}>
+    <div className="flex flex-col h-[100dvh]" style={{ background: C.sand }}>
       {showPicker && user && (
         <ProfileWizard
           onSave={() => {
@@ -347,7 +347,7 @@ export default function ChatPage() {
 
       {/* Header */}
       <header className="border-b px-4 py-3 flex items-center gap-3 shrink-0"
-        style={{ background: C.dark, borderColor: `${C.sand}15` }}>
+        style={{ background: C.dark, borderColor: `${C.sand}15`, paddingTop: 'calc(0.75rem + env(safe-area-inset-top))' }}>
         <Link href="/" className="text-sm transition-opacity hover:opacity-70"
           aria-label="Back to home"
           style={{ color: C.sand, opacity: 0.6 }}>
@@ -607,7 +607,7 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="border-t p-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand }}>
+          <div className="border-t p-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
             <ChatInput
               input={input}
               setInput={setInput}
