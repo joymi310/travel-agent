@@ -88,7 +88,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      <div className="flex-1 flex flex-col items-center justify-start lg:justify-center px-8 pt-16 pb-12">
         <div className="w-full max-w-sm space-y-8">
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden block text-center text-2xl font-bold"
@@ -97,7 +97,7 @@ export default function LoginPage() {
           </Link>
 
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+            <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
               {mode === 'signin' ? 'Welcome back.' : 'Start your journey.'}
             </h1>
             <p className="text-sm opacity-60" style={{ color: C.dark }}>
