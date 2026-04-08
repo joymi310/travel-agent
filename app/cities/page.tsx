@@ -54,7 +54,7 @@ export default async function CitiesPage() {
               City Guides
             </h1>
             <p className="text-base max-w-xl" style={{ color: C.dark, opacity: 0.6 }}>
-              In-depth guides written by AI, refined by real travellers. Neighbourhoods, transport, food and a local expert you can chat to.
+              In-depth guides written by AI, refined by real travellers. Neighbourhoods, transport, food and an AI travel expert you can chat to.
             </p>
           </div>
           <div className="pt-1">
