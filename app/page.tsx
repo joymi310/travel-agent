@@ -238,7 +238,6 @@ export default function HomePage() {
                 Explore city guides
               </Link>
             </div>
-            <p className="text-sm opacity-50">Free to start · No bookings, just brilliant plans · Works anywhere</p>
           </div>
           {/* Right — animated vintage world map */}
           <div className="relative" aria-hidden="true">

@@ -84,7 +84,6 @@ export default function LoginPage() {
               </span>
             ))}
           </div>
-          <p className="text-sm opacity-40" style={{ color: C.sand }}>Free to start · No bookings made · Works anywhere</p>
         </div>
       </div>
 
