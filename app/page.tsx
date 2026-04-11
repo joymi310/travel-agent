@@ -128,7 +128,7 @@ export default function HomePage() {
           <p className="text-sm max-w-xs" style={{ color: C.sand, opacity: 0.6 }}>
             Create a free account to get 5× more daily itineraries — or come back tomorrow.
           </p>
-          <Link href="/login"
+          <Link href="/login?mode=signup"
             className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
             style={{ background: C.terra, color: C.sand }}>
             Sign in free
@@ -198,7 +198,7 @@ export default function HomePage() {
             style={{ borderColor: C.terra, color: C.terra }}>
             Sign in
           </Link>
-          <Link href="/login" className="text-sm font-semibold px-5 py-2 rounded-full transition-all hover:opacity-90"
+          <Link href="/login?mode=signup" className="text-sm font-semibold px-5 py-2 rounded-full transition-all hover:opacity-90"
             style={{ background: C.terra, color: C.sand }}>
             Get started free
           </Link>
