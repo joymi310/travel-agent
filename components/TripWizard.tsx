@@ -353,7 +353,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
                     type="text"
                     value={destination}
                     onChange={e => { setDestination(e.target.value); setErrors({}) }}
-                    placeholder="e.g. Vietnam, Japan, Morocco..."
+                    placeholder="e.g. Paris, China, Europe..."
                     className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
                     style={inputStyle(!!errors.destination)}
                     onFocus={e => e.target.style.borderColor = C.terra}
