@@ -101,7 +101,7 @@ ${returningVisitorNote} ${explorationNote}
 
 RULES (apply to both parts):
 - Generate exactly ${actualDuration} days — no skipping, no summarising
-- Every restaurant/café must be a real named place — no generics like "local restaurant"
+- Every restaurant/bar must be a real establishment that verifiably exists at the destination. NEVER use a name from another city or country, and NEVER fabricate a name. If you are not confident a specific named venue exists at this location, use a vivid description instead (e.g. "a decades-old pho stall on Hang Buom St in the Old Quarter") — a concrete description beats an invented name
 - Every reason field: ≤8 words, punchy
 - Locations array: one entry per city/area change; for single-city trips use neighbourhood granularity with accurate lat/lng
 - Budget level: ${budget || 'mid-range'}. Currency matching origin city (NZ cities → NZD, AU cities → AUD, UK cities → GBP, US cities → USD, EU cities → EUR)
@@ -112,7 +112,7 @@ RULES (apply to both parts):
 - The wandr_data block must be on ONE LINE — no internal newlines in the JSON`
 
     const result = streamText({
-      model: anthropic('claude-haiku-4-5-20251001'),
+      model: anthropic('claude-sonnet-4-20250514'),
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
       maxTokens,
