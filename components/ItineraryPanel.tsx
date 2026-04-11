@@ -490,7 +490,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
         const includesText = b.includes.join(', ')
         const excludesText = b.excludes.join(', ')
         return (
-          <div className="shrink-0 border-t" style={{ borderColor: `${C.dark}08`, background: '#FDFAF4' }}>
+          <div className="shrink-0 border-t" style={{ borderColor: `${C.dark}08`, background: budgetOpen ? `${C.saffron}0C` : '#FDFAF4' }}>
             {budgetOpen && (
               <div className="px-5 pt-4 pb-2 space-y-3">
                 <p className="text-xs leading-relaxed" style={{ color: '#777' }}>
