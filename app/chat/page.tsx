@@ -19,6 +19,8 @@ const C = {
   dark: '#1A1208',
 }
 
+const GUEST_LIMIT = 3
+
 function toStr(v: unknown): string {
   if (typeof v === 'string') return v
   if (v && typeof v === 'object') {
@@ -111,6 +113,7 @@ export default function ChatPage() {
     body: { itinerary, conversationId },
   })
   const [user, setUser] = useState<User | null>(null)
+  const [guestCount, setGuestCount] = useState(0)
   const [showPicker, setShowPicker] = useState(false)
   const [mobileTab, setMobileTab] = useState<'chat' | 'itinerary'>('chat')
   const [showMyTrips, setShowMyTrips] = useState(false)
@@ -144,9 +147,19 @@ export default function ChatPage() {
     if (messages.some(m => m.role === 'user')) setShowChips(false)
   }, [messages])
 
+  const hitGuestLimit = !user && authChecked && guestCount >= GUEST_LIMIT
+
+  const handleChatSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (hitGuestLimit) return
+    handleSubmit(e)
+    if (!user) setGuestCount(c => c + 1)
+  }
+
   const handleChipClick = (chip: string) => {
+    if (hitGuestLimit) return
     setShowChips(false)
     append({ role: 'user', content: chip })
+    if (!user) setGuestCount(c => c + 1)
   }
 
   // Persist itinerary to DB whenever it changes
@@ -614,17 +627,39 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="border-t px-5 pt-3 pb-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
-            <ChatInput
-              input={input}
-              setInput={setInput}
-              handleSubmit={handleSubmit}
-              isLoading={isLoading}
-            />
-            <p className="text-center text-xs mt-2" style={{ color: C.dark, opacity: 0.35 }}>
-              Planning only — no bookings made
-            </p>
-          </div>
+          {hitGuestLimit ? (
+            <div className="border-t px-5 pt-4 pb-5 shrink-0 text-center space-y-3"
+              style={{ borderColor: `${C.dark}15`, background: C.dark, paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
+              <p className="text-sm font-medium" style={{ color: C.sand }}>
+                Sign in free to keep refining your trip →
+              </p>
+              <Link href="/login"
+                className="inline-block font-semibold px-5 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-90"
+                style={{ background: C.terra, color: C.sand }}>
+                Sign in to save &amp; continue
+              </Link>
+            </div>
+          ) : (
+            <div className="border-t px-5 pt-3 pb-4 shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand, paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+              <ChatInput
+                input={input}
+                setInput={setInput}
+                handleSubmit={handleChatSubmit}
+                isLoading={isLoading}
+              />
+              {!user && (
+                <p className="text-center text-xs mt-2" style={{ color: C.dark, opacity: 0.35 }}>
+                  {GUEST_LIMIT - guestCount} free message{GUEST_LIMIT - guestCount !== 1 ? 's' : ''} remaining ·{' '}
+                  <Link href="/login" style={{ color: C.terra }}>Sign in for unlimited</Link>
+                </p>
+              )}
+              {user && (
+                <p className="text-center text-xs mt-2" style={{ color: C.dark, opacity: 0.35 }}>
+                  Planning only — no bookings made
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right — Itinerary panel */}
