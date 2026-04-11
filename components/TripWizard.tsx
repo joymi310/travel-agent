@@ -250,7 +250,9 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         dateMode, startDate, endDate,
         dateText: buildDateText(), duration: dateMode === 'specific' ? days : flexibleDays,
         budget, budgetType,
-        profileAnswers,
+        profileAnswers: profileQuestions.map((q, i) =>
+          profileAnswers[i] ? `${q.label}: ${profileAnswers[i]}` : ''
+        ).filter(Boolean),
       })
     } else {
       setStep(s => s + 1)
