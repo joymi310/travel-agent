@@ -269,6 +269,9 @@ export default function InspirePage() {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<Destination[] | null>(null)
   const [error, setError] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState(false)
+  const [generatingDest, setGeneratingDest] = useState('')
 
   const TOTAL_STEPS = 7
 
@@ -317,12 +320,106 @@ export default function InspirePage() {
     }
   }
 
-  const handlePick = (dest: Destination) => {
+  const handlePick = async (dest: Destination) => {
     const destination = dest.city === dest.country ? dest.city : `${dest.city}, ${dest.country}`
-    router.push(`/?wizard=1&destination=${encodeURIComponent(destination)}`)
+
+    // Map quiz answers → generate-itinerary params
+    const durationDays =
+      duration.startsWith('a long weekend') ? 4 :
+      duration.startsWith('1 week') ? 7 :
+      duration.startsWith('2 weeks') ? 14 :
+      21
+
+    const traveller =
+      group.includes('baby') || group.includes('toddler') ? 'Family with young kids' :
+      group.includes('young kids') ? 'Family with older kids' :
+      group.includes('teenagers') ? 'Family with teens' :
+      group.includes('mixed') ? 'Family with young kids' :
+      'Couple'
+
+    const budgetSimple =
+      budget.startsWith('budget') ? 'budget' :
+      budget.startsWith('luxury') ? 'luxury' :
+      'mid-range'
+
+    const profileAnswers = [
+      vibes.length > 0 ? `Trip vibe: ${vibes.join(', ')}` : '',
+      when ? `Timing: ${when}` : '',
+      flightTime ? `Maximum flight time: ${flightTime}` : '',
+    ].filter(Boolean)
+
+    const answers = {
+      destination,
+      origin: origin || 'New Zealand',
+      traveller,
+      duration: durationDays,
+      budget: budgetSimple,
+      budgetType: 'land-only',
+      dateMode: 'flexible' as const,
+      startDate: '',
+      endDate: '',
+      dateText: '',
+      explorationStyle: 'mixed' as const,
+      profileAnswers,
+    }
+
+    setGeneratingDest(destination)
+    setGenerating(true)
+    setGenerateError(false)
+
+    try {
+      const res = await fetch('/api/generate-itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
+      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
+      router.push('/chat')
+    } catch {
+      setGenerateError(true)
+      setGenerating(false)
+    }
   }
 
   const progressPct = ((step + 1) / TOTAL_STEPS) * 100
+
+  // ── Generating itinerary overlay ──
+  if (generating) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6" style={{ background: C.dark }}>
+        <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map(i => (
+            <span key={i} className="w-2.5 h-2.5 rounded-full animate-bounce"
+              style={{ background: C.saffron, animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+        <p className="text-base text-center px-8 max-w-xs" style={{ color: C.sand, opacity: 0.7 }}>
+          Building your trip to {generatingDest}…
+        </p>
+      </div>
+    )
+  }
+
+  if (generateError) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6" style={{ background: C.dark }}>
+        <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+        <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
+          Something went wrong building your trip to {generatingDest}.
+        </p>
+        <button
+          onClick={() => setGenerateError(false)}
+          className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
+          style={{ background: C.terra, color: C.sand }}
+        >
+          Back to results
+        </button>
+      </div>
+    )
+  }
 
   // ── Results view ──
   if (loading) {
