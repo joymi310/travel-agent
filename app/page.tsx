@@ -78,7 +78,7 @@ export default function HomePage() {
       if (res.status === 429) { setRateLimited(true); return }
       if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
       localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
-      router.push('/preview')
+      router.push('/chat')
     } catch {
       setPendingAnswers(answers)
       setGenError(true)

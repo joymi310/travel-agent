@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wandr — World Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100vh;
+  background: #2A2018;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+svg { max-width: 100%; height: auto; display: block; }
+
+/* CLOUDS */
+@keyframes drift {
+  from { transform: translateX(-360px); }
+  to   { transform: translateX(1360px); }
+}
+.cl-a { animation: drift 55s -14s linear infinite; }
+.cl-b { animation: drift 72s -40s linear infinite; }
+.cl-c { animation: drift 46s  -8s linear infinite; }
+
+/* SUN */
+@keyframes sunbreathe {
+  0%,100% { opacity:.92; transform:scale(1);    }
+  50%     { opacity:1;   transform:scale(1.05); }
+}
+@keyframes rayspin { to { transform:rotate(360deg); } }
+.sun-disc { transform-origin:1115px 72px; animation:sunbreathe 6s ease-in-out infinite; }
+.sun-rays { transform-origin:1115px 72px; animation:rayspin 30s linear infinite; }
+
+/* LANDMARK ARRIVAL PULSE */
+@keyframes glow {
+  0%,100% { transform:scale(1);    filter:drop-shadow(0 0  0px rgba(194,113,79,0));   }
+  7%      { transform:scale(1.55); filter:drop-shadow(0 0 12px rgba(194,113,79,.95)); }
+  20%     { transform:scale(1);    filter:drop-shadow(0 0  0px rgba(194,113,79,0));   }
+}
+.lm { transform-box:fill-box; transform-origin:center bottom; animation:glow 20s ease-in-out infinite; }
+.lm-0 { animation-delay:  0.0s; }
+.lm-1 { animation-delay:  2.0s; }
+.lm-2 { animation-delay:  4.8s; }
+.lm-3 { animation-delay:  6.1s; }
+.lm-4 { animation-delay:  8.0s; }
+.lm-5 { animation-delay:  9.4s; }
+.lm-6 { animation-delay: 11.0s; }
+.lm-7 { animation-delay: 12.8s; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1200 700" width="1200" height="700">
+
+<!-- ── OCEAN BACKGROUND ── -->
+<rect width="1200" height="700" fill="#C2D8E8"/>
+
+<!-- Subtle grid lines -->
+<g stroke="#A8C8DA" stroke-width="0.6" opacity="0.4">
+  <line x1="0"   y1="175" x2="1200" y2="175"/>
+  <line x1="0"   y1="350" x2="1200" y2="350"/>
+  <line x1="0"   y1="525" x2="1200" y2="525"/>
+  <line x1="300" y1="0"   x2="300"  y2="700"/>
+  <line x1="600" y1="0"   x2="600"  y2="700"/>
+  <line x1="900" y1="0"   x2="900"  y2="700"/>
+</g>
+
+<!-- ── CONTINENTS — clean intentional polygons ── -->
+
+<!-- Greenland -->
+<polygon points="308,52 392,38 450,70 444,132 390,150 318,118"
+         fill="#DDBC72" stroke="#A88438" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- North America -->
+<polygon points="85,100 200,80 288,118 310,168 296,270 256,314 218,326 174,303 126,256 82,193"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+<!-- Florida -->
+<ellipse cx="234" cy="337" rx="11" ry="17" fill="#DDBC72" stroke="#A88438" stroke-width="1"/>
+
+<!-- South America -->
+<polygon points="180,340 284,320 312,372 304,442 278,514 240,546 204,532 172,478 161,414 169,364"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+
+<!-- Europe -->
+<polygon points="458,110 580,100 632,150 626,248 568,268 490,252 456,198"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+<!-- Scandinavia -->
+<polygon points="538,108 564,80 581,88 577,121 556,130 538,118"
+         fill="#DDBC72" stroke="#A88438" stroke-width="1.2"/>
+<!-- British Isles -->
+<ellipse cx="476" cy="148" rx="18" ry="22" fill="#DDBC72" stroke="#A88438" stroke-width="1"/>
+
+<!-- Africa -->
+<polygon points="478,248 640,234 670,330 662,460 622,510 558,520 494,507 460,457 458,330"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+<!-- Madagascar -->
+<ellipse cx="698" cy="432" rx="12" ry="28" fill="#DDBC72" stroke="#A88438" stroke-width="0.9"
+         transform="rotate(-10,698,432)"/>
+
+<!-- Asia (main) -->
+<polygon points="622,112 870,88 1052,130 1077,250 1044,337 890,354 715,317 644,264 622,188"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+<!-- India -->
+<polygon points="722,310 812,310 808,415 762,434 720,394"
+         fill="#DDBC72" stroke="#A88438" stroke-width="1.3"/>
+<!-- SE Asia/Malay -->
+<polygon points="872,320 926,335 930,370 910,387 877,354"
+         fill="#DDBC72" stroke="#A88438" stroke-width="1"/>
+<!-- Japan -->
+<ellipse cx="1033" cy="196" rx="18" ry="28" fill="#DDBC72" stroke="#A88438" stroke-width="1"
+         transform="rotate(-20,1033,196)"/>
+
+<!-- Australia -->
+<polygon points="840,398 1060,394 1090,494 1044,570 906,572 836,527"
+         fill="#DDBC72" stroke="#A88438" stroke-width="2" stroke-linejoin="round"/>
+<!-- New Zealand -->
+<ellipse cx="1093" cy="536" rx="18" ry="28" fill="#DDBC72" stroke="#A88438" stroke-width="0.9"
+         transform="rotate(15,1093,536)"/>
+
+<!-- Antarctica hint -->
+<path d="M 0,682 Q 300,658 600,670 Q 900,682 1200,662 L 1200,700 L 0,700 Z"
+      fill="#EAE2CC" opacity="0.6"/>
+
+<!-- ── CLOUDS ── -->
+<g class="cl-a" opacity="0.88">
+  <circle cx="108" cy="148" r="17"  fill="white"/>
+  <circle cx="128" cy="140" r="13"  fill="white"/>
+  <circle cx="92"  cy="144" r="12"  fill="white"/>
+  <circle cx="118" cy="154" r="9"   fill="white"/>
+</g>
+<g class="cl-b" opacity="0.75">
+  <circle cx="108" cy="190" r="15"  fill="white"/>
+  <circle cx="125" cy="183" r="11"  fill="white"/>
+  <circle cx="94"  cy="186" r="10"  fill="white"/>
+</g>
+<g class="cl-c" opacity="0.68">
+  <circle cx="108" cy="118" r="13"  fill="white"/>
+  <circle cx="123" cy="112" r="10"  fill="white"/>
+  <circle cx="95"  cy="115" r="9"   fill="white"/>
+</g>
+
+<!-- ── SUN (top-right corner) ── -->
+<g class="sun-rays">
+  <g stroke="#E8A820" stroke-width="3.5" stroke-linecap="round" opacity="0.5">
+    <line x1="1115" y1="33"  x2="1115" y2="17"/>
+    <line x1="1115" y1="111" x2="1115" y2="127"/>
+    <line x1="1076" y1="72"  x2="1060" y2="72"/>
+    <line x1="1154" y1="72"  x2="1170" y2="72"/>
+    <line x1="1087" y1="44"  x2="1076" y2="33"/>
+    <line x1="1143" y1="100" x2="1154" y2="111"/>
+    <line x1="1143" y1="44"  x2="1154" y2="33"/>
+    <line x1="1087" y1="100" x2="1076" y2="111"/>
+  </g>
+</g>
+<circle class="sun-disc" cx="1115" cy="72" r="31" fill="#F5C030"/>
+<circle                   cx="1115" cy="72" r="23" fill="#FAD858"/>
+<!-- Cute sun face -->
+<circle cx="1107" cy="68" r="2.8" fill="#C8820A" opacity="0.75"/>
+<circle cx="1123" cy="68" r="2.8" fill="#C8820A" opacity="0.75"/>
+<path   d="M 1107,77 Q 1115,84 1123,77"
+        fill="none" stroke="#C8820A" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+<!-- ── FLIGHT PATH ── -->
+<path id="fp"
+  d="M 250,270
+     C 242,340 225,390 215,435
+     C 208,480 340,298 515,192
+     C 528,175 546,204 562,226
+     C 578,246 648,264 682,276
+     C 696,282 740,286 758,290
+     C 773,285 826,242 852,230
+     C 868,218 958,355 945,468
+     C 940,556 606,624 400,585
+     C 296,562 264,412 250,270"
+  fill="none" stroke="#C2714F" stroke-width="2.5"
+  stroke-dasharray="8 11" opacity="0.6"/>
+
+<!-- ════════════════════════════════════════
+     LANDMARKS
+     ════════════════════════════════════════ -->
+
+<!-- 0 · STATUE OF LIBERTY (250, 270) — verdigris -->
+<g class="lm lm-0">
+  <!-- Pedestal -->
+  <rect   x="242" y="262" width="16" height="12" fill="#6A9470" rx="2"/>
+  <!-- Robe / body -->
+  <rect   x="245" y="247" width="10" height="16" fill="#7BAE80" rx="1.5"/>
+  <!-- Crown (5 spikes) -->
+  <polygon points="242,247 244.5,239 247,247" fill="#7BAE80"/>
+  <polygon points="245,247 248,240 251,247"   fill="#7BAE80"/>
+  <polygon points="248,247 251,239 254,247"   fill="#7BAE80"/>
+  <polygon points="251,247 254,240 257,247"   fill="#7BAE80"/>
+  <!-- Torch arm -->
+  <line x1="255" y1="251" x2="267" y2="239" stroke="#6A9470" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Torch flame -->
+  <ellipse cx="267" cy="236" rx="5.5" ry="7"   fill="#E8863A"/>
+  <ellipse cx="267" cy="233" rx="2.8" ry="3.5" fill="#FAD050"/>
+  <text x="250" y="280" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Liberty</text>
+</g>
+
+<!-- 1 · MACHU PICCHU (215, 435) — earthy -->
+<g class="lm lm-1">
+  <!-- Three mountain peaks -->
+  <polygon points="194,441 204,419 214,441" fill="#907050"/>
+  <polygon points="205,441 216,410 227,441" fill="#7E6040"/>
+  <polygon points="218,441 229,421 240,441" fill="#907050"/>
+  <!-- Terraced steps on central peak -->
+  <rect x="210" y="426" width="13" height="4"   fill="#C2714F" rx="0.5"/>
+  <rect x="208" y="430" width="17" height="3.5" fill="#A84030" rx="0.5"/>
+  <rect x="206" y="433" width="19" height="3"   fill="#8A3020" rx="0.5"/>
+  <!-- Ruin walls on plateau -->
+  <rect x="212" y="420" width="4"   height="6" fill="#D8C07A" rx="0.5"/>
+  <rect x="218" y="421" width="3.5" height="5" fill="#D8C07A" rx="0.5"/>
+  <rect x="222" y="422" width="3"   height="4" fill="#D8C07A" rx="0.5"/>
+  <text x="217" y="448" text-anchor="middle" font-size="7.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Machu Picchu</text>
+</g>
+
+<!-- 2 · EIFFEL TOWER (515, 195) — terracotta -->
+<g class="lm lm-2">
+  <!-- Legs (spread wide at base, meet at 1st floor) -->
+  <polygon points="496,213 504,193 508,193 500,213" fill="#C2714F"/>
+  <polygon points="534,213 526,193 522,193 530,213" fill="#C2714F"/>
+  <!-- 1st floor crossbeam -->
+  <rect x="499" y="191" width="32" height="5.5" fill="#C2714F" rx="1"/>
+  <!-- Upper body widens between floors -->
+  <polygon points="503,191 509,180 521,180 527,191" fill="#C2714F"/>
+  <!-- 2nd floor crossbeam -->
+  <rect x="508" y="178" width="14" height="4.5" fill="#A04030" rx="1"/>
+  <!-- Top section tapers to point -->
+  <polygon points="510,178 515,157 520,178" fill="#C2714F"/>
+  <!-- Antenna -->
+  <line x1="515" y1="155" x2="515" y2="147" stroke="#8B3020" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="515" cy="146" r="3" fill="#A04030"/>
+  <!-- Base platform -->
+  <rect x="493" y="212" width="44" height="5" fill="#8B3020" rx="2"/>
+  <text x="515" y="224" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Paris</text>
+</g>
+
+<!-- 3 · COLOSSEUM (562, 226) — sandy/amber -->
+<g class="lm lm-3">
+  <!-- Ground shadow -->
+  <ellipse cx="562" cy="241" rx="25" ry="5" fill="#8B6030" opacity="0.18"/>
+  <!-- Outer ring -->
+  <ellipse cx="562" cy="222" rx="24" ry="15" fill="#D8C078" stroke="#C2714F" stroke-width="3"/>
+  <!-- Inner ring -->
+  <ellipse cx="562" cy="222" rx="16" ry="9.5" fill="#C4A862" stroke="#A04030" stroke-width="2"/>
+  <!-- Arena floor -->
+  <ellipse cx="562" cy="224" rx="9"  ry="5.5" fill="#B09048"/>
+  <!-- Arch openings on outer wall -->
+  <g fill="none" stroke="#8B3820" stroke-width="1.5" opacity="0.7">
+    <path d="M 541,222 Q 541,215 545.5,214 Q 550,213 550,220"/>
+    <path d="M 552,214 Q 557,210 562,210 Q 567,210 572,214"/>
+    <path d="M 574,220 Q 574,213 578.5,214 Q 583,215 583,222"/>
+  </g>
+  <!-- Ground line -->
+  <rect x="537" y="236" width="50" height="3" fill="#A04030" opacity="0.7" rx="1.5"/>
+  <text x="562" y="245" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Rome</text>
+</g>
+
+<!-- 4 · BURJ KHALIFA (682, 276) — sage green -->
+<g class="lm lm-4">
+  <!-- Main tower tapers from base to tip -->
+  <polygon points="682,244 677,280 687,280" fill="#7AAE84"/>
+  <!-- Setback tiers (distinctive stepped silhouette) -->
+  <rect x="679" y="260" width="6"  height="4.5" fill="#5A8862" rx="0.5"/>
+  <rect x="678" y="267" width="8"  height="4.5" fill="#4A7852" rx="0.5"/>
+  <!-- Y-plan wing fins (characteristic) -->
+  <polygon points="677,264 670,268 674,273 677,270" fill="#5A8862" opacity="0.85"/>
+  <polygon points="687,264 694,268 690,273 687,270" fill="#5A8862" opacity="0.85"/>
+  <!-- Podium base -->
+  <rect x="674" y="280" width="16" height="5.5" fill="#3E6845" rx="1.5"/>
+  <!-- Spire -->
+  <line x1="682" y1="242" x2="682" y2="230" stroke="#6A9870" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="682" cy="229" r="2.5" fill="#5A8862"/>
+  <text x="682" y="292" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Dubai</text>
+</g>
+
+<!-- 5 · TAJ MAHAL (758, 290) — ivory -->
+<g class="lm lm-5">
+  <!-- 4 corner minarets -->
+  <rect x="742" y="267" width="6"  height="23" fill="#ECD89A" rx="2.5"/>
+  <path d="M 742,267 Q 745,259 748,267 Z" fill="#C49A60"/>
+  <circle cx="745" cy="258" r="2" fill="#C49A60"/>
+  <rect x="770" y="267" width="6"  height="23" fill="#ECD89A" rx="2.5"/>
+  <path d="M 770,267 Q 773,259 776,267 Z" fill="#C49A60"/>
+  <circle cx="773" cy="258" r="2" fill="#C49A60"/>
+  <!-- Inner minarets (slightly taller) -->
+  <rect x="749" y="264" width="5"  height="26" fill="#F5ECBE" rx="2"/>
+  <path d="M 749,264 Q 751.5,256 754,264 Z" fill="#C49A60"/>
+  <rect x="764" y="264" width="5"  height="26" fill="#F5ECBE" rx="2"/>
+  <path d="M 764,264 Q 766.5,256 769,264 Z" fill="#C49A60"/>
+  <!-- Main gate body -->
+  <rect x="750" y="278" width="18" height="12" fill="#FAF4DC"/>
+  <!-- Pointed arch entrance -->
+  <path d="M 752,290 Q 759,278 766,290" fill="#D8C888"/>
+  <!-- Central dome -->
+  <path d="M 750,278 Q 759,256 768,278" fill="#FAF4DC"/>
+  <ellipse cx="759" cy="276" rx="12" ry="7" fill="#FFFAE8"/>
+  <!-- Dome finial -->
+  <line x1="759" y1="269" x2="759" y2="259" stroke="#C49A60" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="759" cy="258" r="3.5" fill="#C49A60"/>
+  <!-- Platform/plinth -->
+  <rect x="743" y="290" width="32" height="4"   fill="#C49A60" rx="1"/>
+  <rect x="746" y="294" width="26" height="3"   fill="#A87840" rx="0.5"/>
+  <text x="759" y="304" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Agra</text>
+</g>
+
+<!-- 6 · GREAT WALL OF CHINA (852, 230) — terracotta on hills -->
+<g class="lm lm-6">
+  <!-- Rolling hills -->
+  <ellipse cx="838" cy="239" rx="19" ry="11" fill="#9A7A50" opacity="0.5"/>
+  <ellipse cx="864" cy="236" rx="16" ry="10" fill="#886A42" opacity="0.5"/>
+  <ellipse cx="884" cy="239" rx="13" ry="9"  fill="#886A42" opacity="0.4"/>
+  <!-- Wall winding over terrain -->
+  <polyline points="823,236 833,224 844,228 853,218 862,222 871,213 880,218 888,224"
+            fill="none" stroke="#C2714F" stroke-width="6"
+            stroke-linecap="square" stroke-linejoin="round"/>
+  <!-- Crenellations -->
+  <g fill="#A04030">
+    <rect x="824" y="231" width="4" height="5" rx="0.5"/>
+    <rect x="834" y="219" width="4" height="5" rx="0.5"/>
+    <rect x="844" y="223" width="4" height="5" rx="0.5"/>
+    <rect x="853" y="213" width="4" height="5" rx="0.5"/>
+    <rect x="862" y="217" width="4" height="5" rx="0.5"/>
+    <rect x="871" y="208" width="4" height="5" rx="0.5"/>
+    <rect x="880" y="213" width="4" height="5" rx="0.5"/>
+  </g>
+  <text x="856" y="247" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Great Wall</text>
+</g>
+
+<!-- 7 · SYDNEY OPERA HOUSE (945, 467) — cream shells -->
+<g class="lm lm-7">
+  <!-- Shell 1 — far left, small -->
+  <path d="M 928,470 Q 932,450 941,456 L 941,470 Z"
+        fill="#EDE8CC" stroke="#C0A058" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- Shell 2 — centre, tallest -->
+  <path d="M 937,470 Q 945,441 957,451 L 957,470 Z"
+        fill="#EDE8CC" stroke="#C0A058" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- Shell 3 — right, medium -->
+  <path d="M 951,470 Q 958,450 966,457 L 966,470 Z"
+        fill="#E4D8B0" stroke="#C0A058" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- Back shell (depth) -->
+  <path d="M 942,470 Q 948,454 954,459 L 954,470 Z"
+        fill="#D8CCA0" stroke="#C0A058" stroke-width="1" opacity="0.65"/>
+  <!-- Harbour platform -->
+  <rect x="924" y="469" width="48" height="4.5" fill="#C0A058" rx="2"/>
+  <!-- Water reflection -->
+  <rect x="924" y="473" width="48" height="3"   fill="#9AC4D8" opacity="0.55" rx="1"/>
+  <text x="948" y="483" text-anchor="middle" font-size="8.5"
+        font-family="Georgia,serif" fill="#4A3018" opacity="0.9">Sydney</text>
+</g>
+
+<!-- ── PLANE ── -->
+<g id="plane">
+  <ellipse cx="5" cy="0" rx="11" ry="3.2" fill="#F5F0E8"/>
+  <polygon points="2,-3 9,-3 7,-9.5 0,-9.5" fill="#E8863A"/>
+  <polygon points="2, 3 9, 3 7, 9.5 0, 9.5" fill="#E8863A"/>
+  <polygon points="-4,-3 -4,-8 -8,-8 -8,-3"   fill="#C2714F"/>
+  <circle  cx="14" cy="0" r="2.2" fill="#7ABDD5" opacity="0.9"/>
+  <ellipse cx="3"  cy="-3" rx="3.5" ry="1.3" fill="#C8C0B0"/>
+  <ellipse cx="3"  cy=" 3" rx="3.5" ry="1.3" fill="#C8C0B0"/>
+  <animateMotion dur="20s" repeatCount="indefinite" rotate="auto">
+    <mpath xlink:href="#fp"/>
+  </animateMotion>
+</g>
+
+<!-- ── COMPASS ROSE ── -->
+<g transform="translate(60,638)" opacity="0.48">
+  <polygon points="0,-19  3,-6  0,-9 -3,-6"  fill="#A04030"/>
+  <polygon points="0, 19  3, 6  0, 9 -3, 6"  fill="#C2714F"/>
+  <polygon points="-19,0 -6,-3 -9,0 -6, 3"   fill="#C2714F"/>
+  <polygon points=" 19,0  6,-3  9,0  6, 3"   fill="#C2714F"/>
+  <circle cx="0" cy="0" r="4.5" fill="#D8BE78"/>
+  <circle cx="0" cy="0" r="2"   fill="#8B6030"/>
+  <text x="0" y="-24" text-anchor="middle" font-size="9"
+        font-family="Arial,sans-serif" fill="#8B5E30" font-weight="bold">N</text>
+</g>
+
+<!-- ── TITLE ── -->
+<text x="60" y="65"
+  font-family="Georgia,'Times New Roman',serif"
+  font-size="48" font-style="italic"
+  fill="#A04030">wandr</text>
+<text x="63" y="87"
+  font-family="Arial,Helvetica,sans-serif"
+  font-size="11" letter-spacing="5.5"
+  fill="#8B5E30" opacity="0.72">YOUR WORLD AWAITS</text>
+<line x1="63" y1="93" x2="222" y2="93" stroke="#C2714F" stroke-width="1" opacity="0.45"/>
+
+<!-- ── DECORATIVE DOUBLE BORDER ── -->
+<rect x="8"  y="8"  width="1184" height="684"
+      fill="none" stroke="#8B6030" stroke-width="2.5" opacity="0.3" rx="3"/>
+<rect x="15" y="15" width="1170" height="670"
+      fill="none" stroke="#8B6030" stroke-width="0.8" opacity="0.15" rx="2"/>
+
+</svg>
+</body>
+</html>
