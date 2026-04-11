@@ -638,7 +638,7 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         </div>
         {/* Custom scrollbar — flex sibling, always visible when content overflows */}
         {isScrollable && (
-          <div className="w-1 mr-2 py-3 flex-shrink-0 relative" aria-hidden="true">
+          <div className="w-1.5 mr-2 py-3 flex-shrink-0 relative" aria-hidden="true">
             <div className="absolute inset-y-3 inset-x-0 rounded-full" style={{ background: 'rgba(26,18,8,0.08)' }} />
             <div
               className="absolute inset-x-0 rounded-full transition-[top] duration-75"
