@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     const duration = sanitize(body.duration, 50)
     const when = sanitize(body.when, 50)
     const budget = sanitize(body.budget, 50)
+    const flightTime = sanitize(body.flightTime, 100)
     const group = sanitize(body.group, 100)
     const origin = sanitize(body.origin, 100)
 
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
       duration ? `Trip length: ${duration}.` : '',
       when ? `Timing: ${when}.` : '',
       budget ? `Budget: ${budget}.` : '',
+      flightTime ? `Maximum flight time: ${flightTime}.` : '',
       group ? `Travelling: ${group}.` : '',
       `Flying from: ${origin || 'New Zealand'}.`,
     ].filter(Boolean).join(' ')
@@ -59,6 +61,7 @@ Rules:
 - best_time is a brief string like "April–June" or "Year-round"
 - vibe_tags is 2–3 tags from: beach, culture, food, adventure, nature, city, luxury, budget, history, wellness
 - emoji is a single relevant emoji for the destination (landmark, flag, or nature icon)
+- Respect the maximum flight time strictly — if someone says "up to 3 hours" from Auckland, do NOT suggest Europe or the US. Only suggest destinations reachable within that flight time from their origin city (or from New Zealand if no origin given)
 - Consider who is travelling — if kids are mentioned, suggest genuinely family-friendly destinations with good infrastructure, safe environments, and child-appropriate activities. If "just adults" or no kids, you can suggest more adventurous or remote options freely
 - Consider the timing stated — if someone is going "next month" suggest places that are great at that time of year`
 
