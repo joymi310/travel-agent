@@ -53,29 +53,39 @@ interface PQ {
   options?: string[]
 }
 
+const ACCESSIBILITY_Q: PQ = {
+  label: 'Any accessibility needs we should plan around?',
+  type: 'text',
+  placeholder: 'e.g. wheelchair access, limited walking, dietary requirements — or leave blank',
+}
+
 const PROFILE_QUESTIONS: Record<string, PQ[]> = {
   'Solo traveller': [
     { label: 'Travel pace?', type: 'radio', options: ['Relaxed — a few things a day', 'Balanced — mix of activity and downtime', 'Packed — maximum sights, full days'] },
     { label: 'What\'s the one thing you most want to do or experience?', type: 'text', placeholder: 'e.g. eat my way through the street food scene, find hidden temples...' },
     { label: 'Anything you want to avoid?', type: 'text', placeholder: 'e.g. big tour groups, early mornings, overly touristy spots...' },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Solo female traveller': [
     { label: 'Any safety or comfort considerations to plan around?', type: 'text', placeholder: 'e.g. solo nights out, certain neighbourhoods, or none...' },
     { label: 'What\'s the one thing you most want to do or experience?', type: 'text', placeholder: 'e.g. food, culture, beaches, history...' },
     { label: 'Anything you want to avoid?', type: 'text', placeholder: 'e.g. overly touristy areas, long solo drives, or none...' },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Senior traveller': [
     { label: 'Any mobility or physical considerations to plan around?', type: 'text', placeholder: 'e.g. limited walking, no steep stairs, or none...' },
     { label: 'Comfortable walking per day?', type: 'radio', options: ['Light (1–2km)', 'Moderate (3–5km)', 'Active (6km+)'] },
     { label: 'What\'s the one thing you most want to do or experience?', type: 'text', placeholder: 'e.g. local food, historical sites, coastal scenery...' },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Couple': [
     { label: 'Any competing interests to balance?', type: 'text', placeholder: 'e.g. one loves museums, one wants beaches, or none...' },
     { label: 'What\'s the one thing you both most want to do?', type: 'text', placeholder: 'e.g. great food, getting off the beaten track, relaxing by a pool...' },
     { label: 'Travel pace?', type: 'radio', options: ['Relaxed', 'Balanced', 'Packed'] },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Family with young kids': [
@@ -84,18 +94,21 @@ const PROFILE_QUESTIONS: Record<string, PQ[]> = {
     { label: 'What would the kids like to do?', type: 'text', placeholder: 'e.g. see animals, go to the beach, visit a theme park…' },
     { label: 'Three key things you want to see or do?', type: 'text', placeholder: 'e.g. Eiffel Tower, a cooking class, a local market…' },
     { label: 'Accommodation preference?', type: 'radio', options: ['Apartment / villa with kitchen', 'Family hotel room', 'Resort with kids\' facilities', 'Flexible'] },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Family with older kids': [
     { label: 'How old are the kids and what are they into?', type: 'text', placeholder: 'e.g. 8 and 10, love animals and swimming' },
     { label: 'How much walking before mutiny sets in?', type: 'radio', options: ['Short bursts only', 'A few hours', 'Happy all day'] },
     { label: 'Accommodation style?', type: 'radio', options: ['Budget family room', 'Mid-range hotel', 'Resort / pool essential', 'Apartment / villa', 'A mix — happy to vary it'] },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Family with teens': [
     { label: 'How old are the teens and what are they into?', type: 'text', placeholder: 'e.g. 14 and 16, love food and adventure' },
     { label: 'What does everyone want to get out of this trip?', type: 'text', placeholder: 'e.g. adventure, relaxation, culture, trying new food...' },
     { label: 'Accommodation style?', type: 'radio', options: ['Budget / hostel', 'Mid-range hotel', 'Apartment / villa', 'Resort', 'A mix — happy to vary it'] },
+    ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
 }
