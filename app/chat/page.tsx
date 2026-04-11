@@ -612,20 +612,27 @@ export default function ChatPage() {
           {showChips && itinerary && !isLoading && (
             <div className="px-5 pt-2 pb-3 shrink-0 border-t" style={{ borderColor: `${C.dark}10`, background: C.sand }}>
               <p className="text-xs mb-2 font-medium" style={{ color: `${C.dark}50` }}>Quick replies</p>
-              <div
-                className="flex gap-2 overflow-x-auto pb-1"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {STATIC_CHIPS.map(chip => (
-                  <button
-                    key={chip}
-                    onClick={() => handleChipClick(chip)}
-                    className="shrink-0 text-xs font-medium px-3.5 py-2 rounded-full border transition-all hover:opacity-80 active:scale-95"
-                    style={{ borderColor: C.terra, color: C.terra, background: `${C.terra}08`, whiteSpace: 'nowrap' }}
-                  >
-                    {chip}
-                  </button>
-                ))}
+              <div className="relative">
+                <div
+                  className="flex gap-2 overflow-x-auto pb-1"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {STATIC_CHIPS.map(chip => (
+                    <button
+                      key={chip}
+                      onClick={() => handleChipClick(chip)}
+                      className="shrink-0 text-xs font-medium px-3.5 py-2 rounded-full border transition-all hover:opacity-80 active:scale-95"
+                      style={{ borderColor: C.terra, color: C.terra, background: `${C.terra}08`, whiteSpace: 'nowrap' }}
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+                {/* Fade + chevron to signal horizontal scroll */}
+                <div className="pointer-events-none absolute right-0 top-0 bottom-1 w-12 flex items-center justify-end"
+                  style={{ background: `linear-gradient(to right, transparent, ${C.sand})` }}>
+                  <span className="text-lg leading-none pr-0.5" style={{ color: C.terra, opacity: 0.6 }}>›</span>
+                </div>
               </div>
             </div>
           )}
