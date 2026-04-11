@@ -378,12 +378,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                   <span className="font-semibold text-sm leading-tight block truncate" style={{ color: C.dark }}>
                     {day.title}
                   </span>
-                  <span className="text-xs font-medium block sm:hidden truncate" style={{ color: C.jade }}>
-                    {day.estimatedCost}
-                  </span>
                 </div>
-                {/* IT-04: per-day cost on header row — desktop only */}
-                <span className="text-xs font-medium truncate max-w-[40%] hidden sm:block" style={{ color: C.jade }}>{day.estimatedCost}</span>
                 <span className="text-xs shrink-0 ml-1 mr-1" aria-hidden="true" style={{ color: C.dark, opacity: 0.25 }}>
                   {isExpanded ? '▲' : '▼'}
                 </span>
