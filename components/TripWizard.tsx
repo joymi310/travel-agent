@@ -194,18 +194,32 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   const [errors, setErrors] = useState<Record<string, string>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showScrollHint, setShowScrollHint] = useState(false)
+  const [isScrollable, setIsScrollable] = useState(false)
+  const [thumbTop, setThumbTop] = useState(0)
+  const [thumbHeight, setThumbHeight] = useState(0)
 
-  // Show fade/hint when content is scrollable and not yet at the bottom
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    const check = () => setShowScrollHint(el.scrollHeight > el.clientHeight + 4 && el.scrollTop + el.clientHeight < el.scrollHeight - 4)
-    check()
-    el.addEventListener('scroll', check)
-    const ro = new ResizeObserver(check)
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el
+      const scrollable = scrollHeight > clientHeight + 4
+      setIsScrollable(scrollable)
+      setShowScrollHint(scrollable && scrollTop + clientHeight < scrollHeight - 4)
+      if (scrollable) {
+        const trackH = clientHeight - 16
+        const th = Math.max((clientHeight / scrollHeight) * trackH, 32)
+        const tt = 8 + (scrollTop / (scrollHeight - clientHeight)) * (trackH - th)
+        setThumbHeight(th)
+        setThumbTop(tt)
+      }
+    }
+    update()
+    el.addEventListener('scroll', update)
+    const ro = new ResizeObserver(update)
     ro.observe(el)
-    return () => { el.removeEventListener('scroll', check); ro.disconnect() }
-  }, [step]) // re-run when step changes so new content is measured
+    return () => { el.removeEventListener('scroll', update); ro.disconnect() }
+  }, [step])
 
   const days = tripDays(startDate, endDate)
   const TOTAL_STEPS = 6
@@ -314,13 +328,10 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         {/* Scrollable content */}
         <div className="relative">
         <style>{`
-          .wandr-wizard-scroll::-webkit-scrollbar { width: 8px; }
-          .wandr-wizard-scroll::-webkit-scrollbar-track { background: rgba(26,18,8,0.06); border-radius: 99px; }
-          .wandr-wizard-scroll::-webkit-scrollbar-thumb { background: rgba(201,74,43,0.55); border-radius: 99px; }
-          .wandr-wizard-scroll::-webkit-scrollbar-thumb:hover { background: rgba(201,74,43,0.8); }
-          .wandr-wizard-scroll { scrollbar-width: auto; scrollbar-color: rgba(201,74,43,0.55) rgba(26,18,8,0.06); }
+          .wandr-wizard-scroll::-webkit-scrollbar { display: none; }
+          .wandr-wizard-scroll { scrollbar-width: none; }
         `}</style>
-        <div ref={scrollRef} className="wandr-wizard-scroll px-6 py-6 space-y-4 overflow-y-scroll" style={{ maxHeight: '65vh' }}>
+        <div ref={scrollRef} className="wandr-wizard-scroll py-6 space-y-4 overflow-y-auto" style={{ maxHeight: '65vh', paddingLeft: '24px', paddingRight: isScrollable ? '40px' : '24px' }}>
 
           {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (
@@ -627,10 +638,20 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
         </div>
-        {/* Fade when more content exists below */}
+        {/* Bottom fade when more content below */}
         {showScrollHint && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12"
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10"
             style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))' }} />
+        )}
+        {/* Custom scrollbar — always visible when content overflows */}
+        {isScrollable && (
+          <div className="absolute right-2 top-0 bottom-0 w-1.5 pointer-events-none" aria-hidden="true">
+            <div className="absolute inset-y-2 inset-x-0 rounded-full" style={{ background: 'rgba(26,18,8,0.08)' }} />
+            <div
+              className="absolute inset-x-0 rounded-full transition-all duration-75"
+              style={{ background: C.terra, opacity: 0.5, top: thumbTop, height: thumbHeight }}
+            />
+          </div>
         )}
         </div>
 
