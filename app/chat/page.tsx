@@ -10,6 +10,7 @@ import { ItineraryPanel, type Itinerary } from '@/components/ItineraryPanel'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
+import type { WizardAnswers } from '@/components/TripWizard'
 
 const C = {
   sand: '#F5ECD7',
@@ -119,6 +120,18 @@ export default function ChatPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [authChecked, setAuthChecked] = useState(false)
+  const [pendingAnswers] = useState<WizardAnswers | null>(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const raw = localStorage.getItem('wandr_generating')
+      if (!raw) return null
+      localStorage.removeItem('wandr_generating')
+      return (JSON.parse(raw) as { wizardAnswers: WizardAnswers }).wizardAnswers
+    } catch { return null }
+  })
+  const [generating, setGenerating] = useState(false)
+  const [genError, setGenError] = useState(false)
+  const [pendingTripToSave, setPendingTripToSave] = useState<{ wizardAnswers: WizardAnswers; itinerary: Itinerary } | null>(null)
   const myTripsRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
   const router = useRouter()
@@ -255,6 +268,7 @@ export default function ChatPage() {
           .single()
         const style = profile?.travel_style ?? null
 
+        if (!pendingAnswers) {
         // Save pending trip from wizard flow
         const raw = localStorage.getItem('wandr_pending_trip')
         // Only show profile picker if no travel style AND no pending trip
@@ -318,6 +332,7 @@ export default function ChatPage() {
             }
           }
         }
+        } // end if (!pendingAnswers)
 
         // Load all saved conversations for My Trips panel
         await loadSavedConversations(u.id)
@@ -331,10 +346,90 @@ export default function ChatPage() {
     return () => subscription.unsubscribe()
   }, [supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Redirect to home only if auth resolved, no itinerary, and no saved trips at all
+  // Redirect to home only if auth resolved, not generating, no itinerary, and no saved trips
   useEffect(() => {
-    if (authChecked && !itinerary && savedConversations.length === 0) router.replace('/')
-  }, [authChecked, itinerary, savedConversations, router])
+    if (authChecked && !generating && !pendingAnswers && !itinerary && savedConversations.length === 0) router.replace('/')
+  }, [authChecked, generating, pendingAnswers, itinerary, savedConversations, router])
+
+  const startGeneration = async (answers: WizardAnswers) => {
+    setGenerating(true)
+    setGenError(false)
+    try {
+      const res = await fetch('/api/generate-itinerary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers),
+      })
+      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let accumulated = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        accumulated += decoder.decode(value, { stream: true })
+      }
+      const match = accumulated.match(/<wandr_data>([\s\S]*?)<\/wandr_data>/)
+      if (!match) throw new Error('No itinerary data found in response')
+      const parsed: Itinerary = JSON.parse(match[1].trim())
+      const questions: string[] = parsed.follow_up_questions ?? []
+      const followUpBlock = questions.length > 0
+        ? `\n\n${questions.map((q: string) => `- ${q}`).join('\n')}`
+        : ''
+      setItinerary(parsed)
+      setMessages([{
+        id: 'pending-itinerary',
+        role: 'assistant' as const,
+        content: `Here's your **${parsed.duration}** itinerary for **${parsed.destination}**! It's shown on the left.${followUpBlock}`,
+      }])
+      setShowChips(true)
+      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: parsed }))
+      setPendingTripToSave({ wizardAnswers: answers, itinerary: parsed })
+    } catch (err) {
+      console.error('[wayfindr] Generation failed:', err)
+      setGenError(true)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  // Trigger generation on mount if wizard just completed
+  useEffect(() => {
+    if (pendingAnswers) startGeneration(pendingAnswers)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save generated trip to DB when user becomes available
+  useEffect(() => {
+    if (!pendingTripToSave || !user || conversationId) return
+    const { wizardAnswers: answers, itinerary: itin } = pendingTripToSave
+    setPendingTripToSave(null)
+    ;(async () => {
+      try {
+        if (answers.explorationStyle) {
+          supabase.from('profiles')
+            .update({ exploration_style: answers.explorationStyle })
+            .eq('id', user.id)
+            .then(() => {})
+        }
+        const { data: conv } = await supabase
+          .from('conversations')
+          .insert({ user_id: user.id, title: answers.destination, itinerary: itin })
+          .select('id')
+          .single()
+        if (conv?.id) {
+          setConversationId(conv.id)
+          await supabase.from('messages').insert({
+            conversation_id: conv.id,
+            role: 'assistant',
+            content: formatItineraryAsMarkdown(itin),
+          })
+        }
+        localStorage.removeItem('wandr_pending_trip')
+      } catch (err) {
+        console.error('[wayfindr] Failed to save generated trip to DB:', err)
+      }
+    })()
+  }, [pendingTripToSave, user, conversationId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const startNewTrip = () => {
     setMessages([])
@@ -561,6 +656,32 @@ export default function ChatPage() {
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
 
+        {/* Left — Generating skeleton */}
+        {generating && !itinerary && (
+          <div
+            className="flex-1 overflow-hidden border-r hidden lg:flex flex-col p-8 gap-5"
+            style={{ borderColor: `${C.dark}10` }}
+            aria-label="Generating itinerary"
+            aria-busy="true"
+          >
+            <div className="animate-pulse space-y-3">
+              <div className="h-7 rounded-xl w-3/4" style={{ background: `${C.dark}12` }} />
+              <div className="h-4 rounded-lg w-1/2" style={{ background: `${C.dark}08` }} />
+            </div>
+            {[0, 1, 2].map(i => (
+              <div key={i} className="animate-pulse space-y-2 pt-5 border-t" style={{ borderColor: `${C.dark}08` }}>
+                <div className="h-5 rounded-lg w-2/5" style={{ background: `${C.dark}10` }} />
+                <div className="h-3 rounded w-full" style={{ background: `${C.dark}07` }} />
+                <div className="h-3 rounded w-5/6" style={{ background: `${C.dark}07` }} />
+                <div className="h-3 rounded w-4/6" style={{ background: `${C.dark}07` }} />
+              </div>
+            ))}
+            <p className="text-sm mt-auto text-center" style={{ color: `${C.dark}40` }}>
+              Building your itinerary…
+            </p>
+          </div>
+        )}
+
         {/* Left — Itinerary panel */}
         {itinerary && (
           <div
@@ -593,7 +714,7 @@ export default function ChatPage() {
 
         {/* Right — Chat */}
         <div
-          className={`flex flex-col overflow-hidden ${itinerary ? 'lg:w-[40%]' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
+          className={`flex flex-col overflow-hidden ${(itinerary || generating) ? 'lg:w-[40%]' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
           style={{ borderColor: `${C.dark}10` }}
           role="main"
         >
@@ -601,12 +722,25 @@ export default function ChatPage() {
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center space-y-2">
-                  <p className="text-2xl" style={{ fontFamily: 'var(--font-playfair)', color: C.dark, opacity: 0.3 }}>
-                    Where to next?
-                  </p>
-                  <p className="text-sm" style={{ color: C.dark, opacity: 0.4 }}>
-                    Ask me anything about your next adventure.
-                  </p>
+                  {generating ? (
+                    <>
+                      <p className="text-2xl" style={{ fontFamily: 'var(--font-playfair)', color: C.dark, opacity: 0.5 }}>
+                        Building your trip…
+                      </p>
+                      <p className="text-sm" style={{ color: C.dark, opacity: 0.35 }}>
+                        Your itinerary will appear on the left.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl" style={{ fontFamily: 'var(--font-playfair)', color: C.dark, opacity: 0.3 }}>
+                        Where to next?
+                      </p>
+                      <p className="text-sm" style={{ color: C.dark, opacity: 0.4 }}>
+                        Ask me anything about your next adventure.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -661,6 +795,16 @@ export default function ChatPage() {
               className="px-4 py-2 text-center text-sm shrink-0 border-t"
               style={{ background: `${C.terra}15`, color: C.terra, borderColor: `${C.terra}30` }}>
               {error.message.includes('limit') ? 'Daily message limit reached. Please try again tomorrow.' : 'Something went wrong. Please try again.'}
+            </div>
+          )}
+
+          {genError && (
+            <div
+              role="alert"
+              className="px-4 py-3 text-center text-sm shrink-0 border-t"
+              style={{ background: `${C.terra}15`, color: C.terra, borderColor: `${C.terra}30` }}>
+              Couldn&apos;t build your itinerary —{' '}
+              <Link href="/" style={{ textDecoration: 'underline' }}>try again from home</Link>.
             </div>
           )}
 

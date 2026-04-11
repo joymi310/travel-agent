@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WayfindrMap from '@/components/WayfindrMap'
 import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
   sand: '#F5ECD7',
@@ -20,12 +18,6 @@ const C = {
 export default function HomePage() {
   const [showWizard, setShowWizard] = useState(false)
   const [wizardInitialDest, setWizardInitialDest] = useState('')
-  const [showLoading, setShowLoading] = useState(false)
-  const [loadingDest, setLoadingDest] = useState('')
-  const [streamedText, setStreamedText] = useState('')
-  const [genError, setGenError] = useState(false)
-  const [rateLimited, setRateLimited] = useState(false)
-  const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
   const router = useRouter()
 
   // Auto-open wizard if ?destination= or ?wizard=1 param is present
@@ -45,182 +37,21 @@ export default function HomePage() {
     setShowWizard(true)
   }
 
-  const generate = async (answers: WizardAnswers) => {
+  const generate = (answers: WizardAnswers) => {
     setShowWizard(false)
-    setShowLoading(true)
-    setGenError(false)
-    setRateLimited(false)
-    setLoadingDest(answers.destination)
-    setStreamedText('')
-
-    try {
-      const res = await fetch('/api/generate-itinerary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(answers),
-      })
-
-      if (res.status === 429) { setRateLimited(true); return }
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error ?? 'Failed')
-      }
-
-      // Stream the response, accumulating chunks into state
-      const reader = res.body!.getReader()
-      const decoder = new TextDecoder()
-      let accumulated = ''
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        accumulated += decoder.decode(value, { stream: true })
-        setStreamedText(accumulated)
-      }
-
-      // Extract structured data from the <wandr_data> block at end of stream
-      const marker = '<wandr_data>'
-      const closeMarker = '</wandr_data>'
-      const markerIdx = accumulated.indexOf(marker)
-      if (markerIdx === -1) throw new Error('No itinerary data received')
-      const afterMarker = accumulated.slice(markerIdx + marker.length)
-      const closeIdx = afterMarker.indexOf(closeMarker)
-      if (closeIdx === -1) throw new Error('Malformed itinerary data')
-      const jsonStr = afterMarker.slice(0, closeIdx).replace(/[\r\n]/g, '').trim()
-      const itinerary = JSON.parse(jsonStr)
-
-      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary }))
-      router.push('/chat')
-    } catch {
-      setPendingAnswers(answers)
-      setGenError(true)
-    } finally {
-      setShowLoading(false)
-    }
+    localStorage.setItem('wandr_generating', JSON.stringify({ wizardAnswers: answers }))
+    router.push('/chat')
   }
-
-  const handleWizardComplete = (answers: WizardAnswers) => generate(answers)
-  const retryGenerate = () => pendingAnswers && generate(pendingAnswers)
-
-  // Derived streaming state — markdown portion is everything before the wandr_data block
-  const markdownPart = streamedText.includes('<wandr_data>')
-    ? streamedText.split('<wandr_data>')[0]
-    : streamedText
-  const streamComplete = streamedText.includes('</wandr_data>')
 
   return (
     <>
       {/* Wizard modal */}
       {showWizard && (
         <TripWizard
-          onComplete={handleWizardComplete}
+          onComplete={generate}
           onClose={() => setShowWizard(false)}
           initialDestination={wizardInitialDest}
         />
-      )}
-
-      {/* Streaming itinerary loading overlay */}
-      {showLoading && (
-        <div className="fixed inset-0 z-50 flex flex-col"
-          role="status" aria-live="polite" aria-label="Loading your itinerary"
-          style={{ background: C.dark }}>
-          {/* Header */}
-          <div className="shrink-0 py-6 text-center">
-            <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
-          </div>
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto px-6 pb-10">
-            <div className="max-w-xl mx-auto">
-              {!markdownPart ? (
-                /* Skeleton shimmer — shown until first content arrives */
-                <div className="animate-pulse space-y-4">
-                  <div className="h-7 rounded-lg w-3/4" style={{ background: `${C.sand}18` }} />
-                  <div className="h-4 rounded-lg w-1/2 mb-4" style={{ background: `${C.sand}12` }} />
-                  {[0, 1, 2].map(i => (
-                    <div key={i} className="rounded-2xl p-5" style={{ background: `${C.sand}08` }}>
-                      <div className="h-4 rounded w-2/5 mb-4" style={{ background: `${C.sand}18` }} />
-                      <div className="space-y-2 mb-4">
-                        <div className="h-3 rounded w-full" style={{ background: `${C.sand}10` }} />
-                        <div className="h-3 rounded w-5/6" style={{ background: `${C.sand}10` }} />
-                      </div>
-                      <div className="flex gap-3">
-                        <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
-                        <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
-                      </div>
-                    </div>
-                  ))}
-                  <p className="text-center text-sm pt-4" style={{ color: `${C.sand}50` }}>
-                    Building your trip to {loadingDest}…
-                  </p>
-                </div>
-              ) : (
-                /* Streamed markdown content */
-                <>
-                  <style>{`
-                    .wayfindr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
-                    .wayfindr-stream em{color:${C.saffron};font-style:italic}
-                    .wayfindr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
-                    .wayfindr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
-                    .wayfindr-stream ul{margin:.2rem 0 .4rem 1.1rem}
-                    .wayfindr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
-                    .wayfindr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
-                    .wayfindr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
-                  `}</style>
-                  <div className="wayfindr-stream">
-                    <ReactMarkdown>{markdownPart}</ReactMarkdown>
-                    {!streamComplete && (
-                      <span className="animate-pulse font-mono text-sm" style={{ color: C.saffron }}>|</span>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Rate limit overlay */}
-      {rateLimited && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6 text-center"
-          role="alert" aria-live="assertive"
-          style={{ background: C.dark }}>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
-          <p className="text-lg font-semibold" style={{ color: C.sand }}>You&apos;ve reached today&apos;s limit</p>
-          <p className="text-sm max-w-xs" style={{ color: C.sand, opacity: 0.6 }}>
-            Create a free account to get 5× more daily itineraries — or come back tomorrow.
-          </p>
-          <Link href="/login?mode=signup"
-            className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
-            style={{ background: C.terra, color: C.sand }}>
-            Sign in free
-          </Link>
-          <button onClick={() => setRateLimited(false)}
-            className="text-sm transition-opacity hover:opacity-60"
-            style={{ color: C.sand, opacity: 0.4 }}>
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Error overlay */}
-      {genError && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6"
-          role="alert" aria-live="assertive"
-          style={{ background: C.dark }}>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
-          <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
-            Something went wrong building your trip to {loadingDest}.
-          </p>
-          <button onClick={retryGenerate}
-            className="font-semibold px-6 py-3 rounded-xl text-sm transition-opacity hover:opacity-90"
-            style={{ background: C.terra, color: C.sand }}>
-            Try again
-          </button>
-          <button onClick={() => setGenError(false)}
-            className="text-sm transition-opacity hover:opacity-60"
-            style={{ color: C.sand, opacity: 0.4 }}>
-            Cancel
-          </button>
-        </div>
       )}
 
     <div style={{ fontFamily: 'var(--font-dm-sans), DM Sans, sans-serif', background: C.sand, color: C.dark }}>
