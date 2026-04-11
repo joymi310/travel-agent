@@ -53,7 +53,7 @@ interface PQ {
   options?: string[]
 }
 
-const PROFILE_QUESTIONS: Record<string, [PQ, PQ, PQ, PQ]> = {
+const PROFILE_QUESTIONS: Record<string, PQ[]> = {
   'Solo traveller': [
     { label: 'Travel pace?', type: 'radio', options: ['Relaxed — a few things a day', 'Balanced — mix of activity and downtime', 'Packed — maximum sights, full days'] },
     { label: 'What\'s the one thing you most want to do or experience?', type: 'text', placeholder: 'e.g. eat my way through the street food scene, find hidden temples...' },
@@ -81,6 +81,8 @@ const PROFILE_QUESTIONS: Record<string, [PQ, PQ, PQ, PQ]> = {
   'Family with young kids': [
     { label: 'How old are the kids?', type: 'text', placeholder: 'e.g. 18 months and 3 years' },
     { label: 'Stroller or nap schedules to work around?', type: 'radio', options: ['Stroller + naps are essential', 'Naps only', 'Pretty flexible now', 'No constraints'] },
+    { label: 'What would the kids like to do?', type: 'text', placeholder: 'e.g. see animals, go to the beach, visit a theme park…' },
+    { label: 'Three key things you want to see or do?', type: 'text', placeholder: 'e.g. Eiffel Tower, a cooking class, a local market…' },
     { label: 'Accommodation preference?', type: 'radio', options: ['Apartment / villa with kitchen', 'Family hotel room', 'Resort with kids\' facilities', 'Flexible'] },
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
