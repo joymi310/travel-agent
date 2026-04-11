@@ -95,33 +95,34 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
         </Source>
       )}
 
-      {/* Numbered pins */}
-      {locations.map((loc, i) => (
-        <Marker key={i} latitude={loc.lat} longitude={loc.lng} anchor="center">
-          <div
-            title={loc.label}
-            style={{
-              background: i === locations.length - 1 ? JADE : TERRA,
-              color: SAND,
-              borderRadius: '50%',
-              width: 30,
-              height: 30,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontWeight: 700,
-              border: '2.5px solid white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.22)',
-              fontFamily: 'sans-serif',
-              cursor: 'default',
-              userSelect: 'none',
-            }}
-          >
-            {loc.day}
-          </div>
-        </Marker>
-      ))}
+      {/* Day pill pins */}
+      {locations.map((loc, i) => {
+        const isLast = i === locations.length - 1
+        return (
+          <Marker key={i} latitude={loc.lat} longitude={loc.lng} anchor="center">
+            <div
+              title={`Day ${loc.day} — ${loc.city}${isLast ? ' (final stop)' : ' (overnight)'}`}
+              style={{
+                background: isLast ? JADE : TERRA,
+                color: SAND,
+                borderRadius: '999px',
+                padding: '4px 9px',
+                fontSize: 11,
+                fontWeight: 700,
+                border: '2px solid white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                fontFamily: 'sans-serif',
+                cursor: 'default',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.2,
+              }}
+            >
+              Day {loc.day}
+            </div>
+          </Marker>
+        )
+      })}
     </Map>
   )
 }

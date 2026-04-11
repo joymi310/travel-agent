@@ -314,25 +314,37 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           }>
             <TripMap locations={itinerary.locations!} className="absolute inset-0 w-full h-full" />
           </Suspense>
-          {/* Location legend */}
+          {/* Map legend */}
           <div
-            className="absolute bottom-3 left-3 right-3 z-[1000] rounded-xl px-3 py-2.5 overflow-x-auto"
+            className="absolute bottom-3 left-3 right-3 z-[1000] rounded-xl px-3 py-2.5"
             style={{ background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
           >
-            <div className="flex gap-3 items-start" style={{ minWidth: 'max-content' }}>
+            {/* Color key */}
+            <div className="flex gap-3 mb-2 pb-2 text-xs" style={{ borderBottom: `1px solid ${C.dark}10` }}>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: C.terra }} />
+                <span style={{ color: `${C.dark}70` }}>Overnight stop</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: C.jade }} />
+                <span style={{ color: `${C.dark}70` }}>Final destination</span>
+              </div>
+            </div>
+            {/* Stop list */}
+            <div className="flex gap-2.5 items-center overflow-x-auto" style={{ minWidth: 0 }}>
               {itinerary.locations!.map((loc, i) => {
                 const isLast = i === itinerary.locations!.length - 1
                 return (
-                  <div key={i} className="flex items-center gap-1.5 text-xs shrink-0">
+                  <div key={i} className="flex items-center gap-1.5 shrink-0">
                     <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: isLast ? C.jade : C.terra, color: C.sand, fontSize: '9px' }}
+                      className="rounded-full px-2 py-0.5 text-xs font-bold shrink-0"
+                      style={{ background: isLast ? C.jade : C.terra, color: C.sand, fontSize: '10px' }}
                     >
-                      {loc.day}
+                      Day {loc.day}
                     </div>
-                    <span style={{ color: C.dark }}>{loc.city}</span>
+                    <span className="text-xs" style={{ color: C.dark }}>{loc.city}</span>
                     {i < itinerary.locations!.length - 1 && (
-                      <span style={{ color: `${C.dark}30` }}>→</span>
+                      <span className="text-xs" style={{ color: `${C.dark}30` }}>→</span>
                     )}
                   </div>
                 )
@@ -368,11 +380,11 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 aria-controls={panelId}
               >
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                  className="rounded-full px-2.5 py-1 text-xs font-bold shrink-0"
                   aria-hidden="true"
                   style={{ background: isLast ? C.jade : C.terra, color: C.sand }}
                 >
-                  {day.day}
+                  Day {day.day}
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-sm leading-tight block truncate" style={{ color: C.dark }}>
