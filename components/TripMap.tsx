@@ -121,7 +121,7 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
                 textOverflow: 'ellipsis',
               }}
             >
-              {loc.city}
+              Day {loc.day}
             </div>
           </Marker>
         )
