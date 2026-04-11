@@ -22,11 +22,11 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Wandr — Your AI Travel Companion",
-  description: "Your pace. Your budget. Your vibe. Tell Wandr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
+  title: "Wayfindr — Your AI Travel Companion",
+  description: "Your pace. Your budget. Your vibe. Tell Wayfindr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
   openGraph: {
-    title: "Wandr — Your AI Travel Companion",
-    description: "Your pace. Your budget. Your vibe. Tell Wandr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
+    title: "Wayfindr — Your AI Travel Companion",
+    description: "Your pace. Your budget. Your vibe. Tell Wayfindr where you're dreaming of and get a personalised day-by-day itinerary built around you.",
     type: "website",
   },
 };

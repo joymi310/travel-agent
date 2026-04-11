@@ -223,7 +223,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   ]
 
   return (
-    <div className="h-full flex flex-col overflow-hidden wandr-itinerary-panel" style={{ background: '#FDFAF4' }}>
+    <div className="h-full flex flex-col overflow-hidden wayfindr-itinerary-panel" style={{ background: '#FDFAF4' }}>
 
       {/* Header */}
       <div className="shrink-0 px-6 py-5 border-b" style={{ background: '#FDFAF4', borderColor: `${C.dark}10` }}>

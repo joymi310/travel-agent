@@ -92,10 +92,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const url = `${base}/cities/${city.slug}`
 
   return {
-    title: `${city.name} Travel Guide — Where to Stay, Local Tips & Neighbourhoods | Wandr`,
+    title: `${city.name} Travel Guide — Where to Stay, Local Tips & Neighbourhoods | Wayfindr`,
     description,
     openGraph: {
-      title: `${city.name} Travel Guide | Wandr`,
+      title: `${city.name} Travel Guide | Wayfindr`,
       description,
       url,
       type: 'website',
@@ -139,7 +139,7 @@ export default async function CityPage({ params }: { params: { slug: string } })
       <nav className="border-b px-6 py-4" style={{ background: C.dark, borderColor: 'rgba(245,236,215,0.1)' }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-            wandr.
+            wayfindr.
           </Link>
           <Link href="/login" className="text-sm transition-opacity hover:opacity-70"
             style={{ color: C.sand, opacity: 0.6 }}>
@@ -168,7 +168,7 @@ export default async function CityPage({ params }: { params: { slug: string } })
                   {city.hero_photographer_name}
                 </a>
                 {' '}on{' '}
-                <a href="https://unsplash.com?utm_source=wandr&utm_medium=referral"
+                <a href="https://unsplash.com?utm_source=wayfindr&utm_medium=referral"
                   target="_blank" rel="noopener noreferrer"
                   className="underline hover:opacity-80 transition-opacity">
                   Unsplash
@@ -242,12 +242,12 @@ export default async function CityPage({ params }: { params: { slug: string } })
               <p className="text-xs font-semibold mb-0.5" style={{ color: '#9A5800' }}>Visa & entry requirements</p>
               <p className="text-sm leading-relaxed mb-2" style={{ color: C.dark, opacity: 0.8 }}>
                 Entry requirements change — ETIAS, eVisa schemes, and travel advisories are updated regularly.
-                Ask Wandr for a current answer based on your passport.
+                Ask Wayfindr for a current answer based on your passport.
               </p>
               <Link href={`/?destination=${city.slug}`}
                 className="text-xs font-semibold transition-opacity hover:opacity-70"
                 style={{ color: '#9A5800' }}>
-                Ask Wandr about visas for {city.name} →
+                Ask Wayfindr about visas for {city.name} →
               </Link>
             </div>
           </div>
@@ -335,10 +335,10 @@ export default async function CityPage({ params }: { params: { slug: string } })
       {/* Footer */}
       <footer className="py-8 px-6 text-center" style={{ background: C.dark }}>
         <Link href="/" className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-          wandr.
+          wayfindr.
         </Link>
         <p className="text-xs mt-2" style={{ color: C.sand, opacity: 0.3 }}>
-          © 2026 Wandr · No bookings made. Just brilliant plans.
+          © 2026 Wayfindr · No bookings made. Just brilliant plans.
         </p>
       </footer>
     </div>

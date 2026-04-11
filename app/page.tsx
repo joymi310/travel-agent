@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
-import WandrMap from '@/components/WandrMap'
+import WayfindrMap from '@/components/WayfindrMap'
 import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 
@@ -125,7 +125,7 @@ export default function HomePage() {
           style={{ background: C.dark }}>
           {/* Header */}
           <div className="shrink-0 py-6 text-center">
-            <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+            <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
           </div>
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-6 pb-10">
@@ -156,16 +156,16 @@ export default function HomePage() {
                 /* Streamed markdown content */
                 <>
                   <style>{`
-                    .wandr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
-                    .wandr-stream em{color:${C.saffron};font-style:italic}
-                    .wandr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
-                    .wandr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
-                    .wandr-stream ul{margin:.2rem 0 .4rem 1.1rem}
-                    .wandr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
-                    .wandr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
-                    .wandr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
+                    .wayfindr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
+                    .wayfindr-stream em{color:${C.saffron};font-style:italic}
+                    .wayfindr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
+                    .wayfindr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
+                    .wayfindr-stream ul{margin:.2rem 0 .4rem 1.1rem}
+                    .wayfindr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
+                    .wayfindr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
+                    .wayfindr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
                   `}</style>
-                  <div className="wandr-stream">
+                  <div className="wayfindr-stream">
                     <ReactMarkdown>{markdownPart}</ReactMarkdown>
                     {!streamComplete && (
                       <span className="animate-pulse font-mono text-sm" style={{ color: C.saffron }}>|</span>
@@ -183,7 +183,7 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6 text-center"
           role="alert" aria-live="assertive"
           style={{ background: C.dark }}>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
           <p className="text-lg font-semibold" style={{ color: C.sand }}>You&apos;ve reached today&apos;s limit</p>
           <p className="text-sm max-w-xs" style={{ color: C.sand, opacity: 0.6 }}>
             Create a free account to get 5× more daily itineraries — or come back tomorrow.
@@ -206,7 +206,7 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6"
           role="alert" aria-live="assertive"
           style={{ background: C.dark }}>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
           <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
             Something went wrong building your trip to {loadingDest}.
           </p>
@@ -240,9 +240,9 @@ export default function HomePage() {
         aria-label="Main navigation"
         style={{ background: 'rgba(245,236,215,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.saffron}22` }}>
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Wandr home"
+          <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Wayfindr home"
             style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-            wandr.
+            wayfindr.
           </Link>
           <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
             style={{ background: `${C.saffron}25`, color: C.saffron, border: `1px solid ${C.saffron}50` }}>
@@ -285,7 +285,7 @@ export default function HomePage() {
               Your pace.&nbsp; Your budget.&nbsp; Your vibe.
             </p>
             <p className="text-lg leading-relaxed opacity-80 max-w-lg">
-              Tell Wandr where you&apos;re dreaming of and get a personalised itinerary built around you.
+              Tell Wayfindr where you&apos;re dreaming of and get a personalised itinerary built around you.
             </p>
             <div className="flex flex-wrap gap-3">
               <button onClick={handleStartPlanning}
@@ -303,7 +303,7 @@ export default function HomePage() {
           {/* Right — animated vintage world map */}
           <div className="relative" aria-hidden="true">
             <div className="absolute inset-0 rounded-3xl blur-3xl opacity-20" style={{ background: `radial-gradient(circle, ${C.saffron}, ${C.terra})` }} />
-            <WandrMap />
+            <WayfindrMap />
           </div>
         </div>
       </section>
@@ -319,7 +319,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {([
               { step: '01', Icon: Navigation, title: 'Tell us where you want to go', desc: 'Type a destination, a vibe, or let us inspire you. No account needed — just start.' },
-              { step: '02', Icon: MessageCircle, title: "Chat like it's a friend", desc: 'Tell Wandr your budget, travel style, and what excites you. The more you share, the better the plan.' },
+              { step: '02', Icon: MessageCircle, title: "Chat like it's a friend", desc: 'Tell Wayfindr your budget, travel style, and what excites you. The more you share, the better the plan.' },
               { step: '03', Icon: Map, title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary — accommodation, restaurants, transport, all built around you.' },
               { step: '04', Icon: SlidersHorizontal, title: 'Sign in for unlimited tweaks', desc: 'Free account = saved itineraries, unlimited chat refinements, and your plan waiting whenever you come back.' },
             ] as const).map((item) => (
@@ -347,10 +347,10 @@ export default function HomePage() {
           <div className="space-y-5">
             <p className="text-sm font-medium uppercase tracking-widest" style={{ color: C.terra }}>See how it feels</p>
             <h2 id="chat-preview-heading" className="text-4xl font-bold leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-              Just talk.<br />Wandr figures out the rest.
+              Just talk.<br />Wayfindr figures out the rest.
             </h2>
             <p className="text-base leading-relaxed opacity-70 max-w-sm">
-              No forms. No dropdowns. Tell Wandr what kind of trip you want — in your own words — and it builds the plan around you.
+              No forms. No dropdowns. Tell Wayfindr what kind of trip you want — in your own words — and it builds the plan around you.
             </p>
             <button onClick={handleStartPlanning}
               className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-full text-sm transition-all hover:opacity-90"
@@ -366,7 +366,7 @@ export default function HomePage() {
             <div className="px-5 py-3.5 flex items-center gap-3 border-b" style={{ borderColor: `${C.dark}0D`, background: 'white' }}>
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                 style={{ background: C.terra, color: C.sand, fontFamily: 'var(--font-playfair)' }}>w</div>
-              <span className="text-sm font-semibold" style={{ color: C.dark }}>wandr.</span>
+              <span className="text-sm font-semibold" style={{ color: C.dark }}>wayfindr.</span>
               <span className="ml-auto text-xs px-2.5 py-1 rounded-full font-medium"
                 style={{ background: `${C.jade}20`, color: C.jade }}>● Online</span>
             </div>
@@ -382,7 +382,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Wandr response */}
+              {/* Wayfindr response */}
               <div className="flex gap-3 items-start">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
                   style={{ background: C.dark, color: C.sand, fontFamily: 'var(--font-playfair)' }}>w</div>
@@ -423,7 +423,7 @@ export default function HomePage() {
             <div className="px-4 pb-4">
               <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm"
                 style={{ borderColor: `${C.dark}18`, background: 'white', color: `${C.dark}55` }}>
-                <span className="flex-1">Message wandr...</span>
+                <span className="flex-1">Message wayfindr...</span>
                 <div className="w-7 h-7 rounded-full flex items-center justify-center"
                   style={{ background: C.terra }}>
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -445,7 +445,7 @@ export default function HomePage() {
           <div className="text-center mb-10">
             <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>See it in action</p>
             <h2 id="sample-heading" className="text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
-              Here&apos;s what a Wandr plan looks like
+              Here&apos;s what a Wayfindr plan looks like
             </h2>
             <p className="text-base opacity-60">A 3-day Tokyo itinerary, built in under a minute.</p>
           </div>
@@ -553,7 +553,7 @@ export default function HomePage() {
       <section className="py-24 px-6" aria-labelledby="features-heading">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Why Wandr</p>
+            <p className="text-sm font-medium mb-3 uppercase tracking-widest" style={{ color: C.terra }}>Why Wayfindr</p>
             <h2 id="features-heading" className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>Built differently</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -561,7 +561,7 @@ export default function HomePage() {
               { Icon: Sparkles,     title: 'Remembers you',        desc: 'Your travel style, budget, and preferences are saved. Every conversation gets smarter.',                           dark: true },
               { Icon: DollarSign,   title: 'Honest costs',         desc: 'Real estimates for flights, hotels, food, and activities — no vague ranges that tell you nothing.',              dark: true },
               { Icon: CalendarDays, title: 'Day-by-day itinerary', desc: 'Not a list of ideas — a complete morning, afternoon, and evening plan ready to use.',                            dark: true },
-              { Icon: RefreshCw,    title: 'Endlessly editable',   desc: "Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wandr adapts instantly.",              dark: true },
+              { Icon: RefreshCw,    title: 'Endlessly editable',   desc: "Change your mind? Just say so. Swap a city, cut a day, add a beach stop — Wayfindr adapts instantly.",              dark: true },
             ] as const).map(({ Icon, title, desc, dark }) => (
               <div key={title}
                 className="rounded-2xl p-7 flex flex-col gap-3"
@@ -609,10 +609,10 @@ export default function HomePage() {
       {/* ── FOOTER ── */}
       <footer className="py-10 px-6" style={{ background: C.dark, color: C.sand }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</span>
+          <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</span>
           <div className="flex flex-col items-center gap-1.5">
             <p className="text-xs opacity-50 text-center" style={{ color: C.terra }}>Your pace. Your budget. Your vibe.</p>
-            <p className="text-xs opacity-40 text-center">© 2026 Wandr · No bookings made. Just brilliant plans.</p>
+            <p className="text-xs opacity-40 text-center">© 2026 Wayfindr · No bookings made. Just brilliant plans.</p>
             <p className="text-xs opacity-30 text-center">Powered by Claude · Anthropic</p>
           </div>
           <div className="flex gap-6 text-xs opacity-50">

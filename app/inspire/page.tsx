@@ -423,7 +423,7 @@ export default function InspirePage() {
     return (
       <div className="fixed inset-0 z-50 flex flex-col" style={{ background: C.dark }}>
         <div className="shrink-0 py-6 text-center">
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
         </div>
         <div className="flex-1 overflow-y-auto px-6 pb-10">
           <div className="max-w-xl mx-auto">
@@ -451,16 +451,16 @@ export default function InspirePage() {
             ) : (
               <>
                 <style>{`
-                  .wandr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
-                  .wandr-stream em{color:${C.saffron};font-style:italic}
-                  .wandr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
-                  .wandr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
-                  .wandr-stream ul{margin:.2rem 0 .4rem 1.1rem}
-                  .wandr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
-                  .wandr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
-                  .wandr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
+                  .wayfindr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
+                  .wayfindr-stream em{color:${C.saffron};font-style:italic}
+                  .wayfindr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
+                  .wayfindr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
+                  .wayfindr-stream ul{margin:.2rem 0 .4rem 1.1rem}
+                  .wayfindr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
+                  .wayfindr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
+                  .wayfindr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
                 `}</style>
-                <div className="wandr-stream">
+                <div className="wayfindr-stream">
                   <ReactMarkdown>{inspireMarkdownPart}</ReactMarkdown>
                   {!inspireStreamComplete && (
                     <span className="animate-pulse font-mono text-sm" style={{ color: C.saffron }}>|</span>
@@ -477,7 +477,7 @@ export default function InspirePage() {
   if (generateError) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 px-6" style={{ background: C.dark }}>
-        <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
+        <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wayfindr.</p>
         <p className="text-sm text-center" style={{ color: C.sand, opacity: 0.6 }}>
           Something went wrong building your trip to {generatingDest}.
         </p>
@@ -694,7 +694,7 @@ export default function InspirePage() {
           Back
         </Link>
         <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-          wandr.
+          wayfindr.
         </span>
         <span className="text-sm opacity-40" style={{ color: C.dark }}>{step + 1} of {TOTAL_STEPS}</span>
       </div>

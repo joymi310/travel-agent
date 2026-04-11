@@ -1,6 +1,6 @@
 'use client'
 
-export default function WandrMap() {
+export default function WayfindrMap() {
   return (
     <div style={{
       WebkitMaskImage: 'radial-gradient(ellipse at center, black 55%, transparent 80%)',
@@ -8,7 +8,7 @@ export default function WandrMap() {
     }}>
       <img
         src="/hero-map.png"
-        alt="Wandr illustrated map"
+        alt="Wayfindr illustrated map"
         style={{ width: '100%', display: 'block', mixBlendMode: 'multiply' }}
       />
     </div>

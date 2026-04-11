@@ -73,7 +73,7 @@ Include 3-5 neighbourhoods. Make all content specific and useful — real names,
     try {
       const wikiRes = await fetch(
         `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(cityData.name)}&prop=pageimages&format=json&pithumbsize=1200`,
-        { headers: { 'User-Agent': 'Wandr Travel App' } }
+        { headers: { 'User-Agent': 'Wayfindr Travel App' } }
       )
       const wikiData = await wikiRes.json()
       const pages = Object.values(wikiData?.query?.pages ?? {}) as Record<string, unknown>[]

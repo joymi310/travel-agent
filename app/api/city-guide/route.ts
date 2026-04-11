@@ -26,7 +26,7 @@ interface Questionnaire {
   duration: string
 }
 
-const GUIDE_INSTRUCTIONS = `You are Wandr, an expert travel guide. You will be given city context and a traveller profile, then generate a personalised city guide.
+const GUIDE_INSTRUCTIONS = `You are Wayfindr, an expert travel guide. You will be given city context and a traveller profile, then generate a personalised city guide.
 
 ## YOUR TASK
 Write exactly 5 sections using these exact headings. Each section must be personalised to this specific traveller — their budget, who they're with, and their interests should shape every recommendation.

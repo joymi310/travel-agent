@@ -79,7 +79,7 @@ function LoginForm() {
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden"
         style={{ background: C.dark }}>
         <Link href="/" className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-          wandr.
+          wayfindr.
         </Link>
         {/* Decorative circles */}
         <div className="absolute top-1/3 -left-20 w-80 h-80 rounded-full opacity-10" style={{ background: C.saffron }} />
@@ -106,7 +106,7 @@ function LoginForm() {
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden block text-center text-2xl font-bold"
             style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-            wandr.
+            wayfindr.
           </Link>
 
           <div className="space-y-1">

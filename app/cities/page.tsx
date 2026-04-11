@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'City Guides — Local Tips, Neighbourhoods & Travel Advice | Wandr',
+  title: 'City Guides — Local Tips, Neighbourhoods & Travel Advice | Wayfindr',
   description: 'Explore in-depth travel guides for cities around the world. Real neighbourhood advice, local tips and AI-powered Q&A.',
 }
 
@@ -31,7 +31,7 @@ export default async function CitiesPage() {
       <nav className="border-b px-6 py-4" style={{ background: C.dark, borderColor: 'rgba(245,236,215,0.1)' }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
-            wandr.
+            wayfindr.
           </Link>
           <Link href="/login" className="text-sm transition-opacity hover:opacity-70"
             style={{ color: C.sand, opacity: 0.6 }}>

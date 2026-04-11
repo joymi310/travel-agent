@@ -326,10 +326,10 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         {/* Scrollable content */}
         <div className="flex" style={{ maxHeight: '65vh' }}>
         <style>{`
-          .wandr-wizard-scroll::-webkit-scrollbar { display: none; }
-          .wandr-wizard-scroll { scrollbar-width: none; }
+          .wayfindr-wizard-scroll::-webkit-scrollbar { display: none; }
+          .wayfindr-wizard-scroll { scrollbar-width: none; }
         `}</style>
-        <div ref={scrollRef} className="wandr-wizard-scroll flex-1 px-6 py-6 space-y-4 overflow-y-auto">
+        <div ref={scrollRef} className="wayfindr-wizard-scroll flex-1 px-6 py-6 space-y-4 overflow-y-auto">
 
           {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (

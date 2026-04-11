@@ -133,7 +133,7 @@ export default function ChatPage() {
       try {
         setItinerary(JSON.parse(match[1].trim()))
       } catch {
-        console.error('[wandr] Failed to parse itinerary update')
+        console.error('[wayfindr] Failed to parse itinerary update')
       }
       return
     }
@@ -286,7 +286,7 @@ export default function ChatPage() {
             }
             localStorage.removeItem('wandr_pending_trip')
             setShowChips(true)
-          } catch (err) { console.error('[wandr] Pending trip save failed:', err) }
+          } catch (err) { console.error('[wayfindr] Pending trip save failed:', err) }
         } else {
           // No pending trip — restore most recent conversation
           const { data: conv } = await supabase
@@ -371,8 +371,8 @@ export default function ChatPage() {
         <div className="w-px h-4" style={{ background: `${C.sand}20` }} aria-hidden="true" />
         <div className="flex items-center gap-2 flex-1">
           <Link href="/" className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}
-            aria-label="Wandr home">
-            wandr.
+            aria-label="Wayfindr home">
+            wayfindr.
           </Link>
         </div>
         <div className="flex items-center gap-3 text-sm">

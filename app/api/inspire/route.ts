@@ -102,7 +102,7 @@ ${isLongerTrip ? `- IMPORTANT: This is a longer trip (${duration}). Suggest COUN
               dest.image_url = photo.urls.regular
               dest.photographer_name = photo.user?.name ?? undefined
               dest.photographer_url = photo.user?.links?.html
-                ? `${photo.user.links.html}?utm_source=wandr&utm_medium=referral`
+                ? `${photo.user.links.html}?utm_source=wayfindr&utm_medium=referral`
                 : undefined
             }
           } catch {

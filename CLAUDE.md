@@ -1,6 +1,6 @@
 # travel-agent
 
-Wandr — an AI travel planning app. Users describe a trip, get a structured itinerary, and can refine it via chat.
+Wayfindr — an AI travel planning app. Users describe a trip, get a structured itinerary, and can refine it via chat.
 
 ## Stack
 
@@ -25,7 +25,7 @@ Wandr — an AI travel planning app. Users describe a trip, get a structured iti
 
 | File | Purpose |
 |------|---------|
-| `lib/system-prompt.ts` | Wandr system prompt + per-travel-style behaviour overrides |
+| `lib/system-prompt.ts` | Wayfindr system prompt + per-travel-style behaviour overrides |
 | `lib/profile-tree.ts` | Travel style questionnaire definitions and `buildProfileContext()` |
 | `lib/rate-limit.ts` | Rate limit checker via Supabase RPC |
 | `lib/supabase/client.ts` | Browser Supabase client (anon key) |
