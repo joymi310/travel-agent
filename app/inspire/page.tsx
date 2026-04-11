@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 const C = {
   sand: '#F5ECD7',
@@ -273,6 +274,7 @@ export default function InspirePage() {
   const [generating, setGenerating] = useState(false)
   const [generateError, setGenerateError] = useState(false)
   const [generatingDest, setGeneratingDest] = useState('')
+  const [streamedText, setStreamedText] = useState('')
 
   const TOTAL_STEPS = 7
 
@@ -368,6 +370,7 @@ export default function InspirePage() {
     setGeneratingDest(destination)
     setGenerating(true)
     setGenerateError(false)
+    setStreamedText('')
 
     try {
       const res = await fetch('/api/generate-itinerary', {
@@ -375,9 +378,31 @@ export default function InspirePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(answers),
       })
-      const data = await res.json()
-      if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
-      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Failed')
+      }
+
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let accumulated = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        accumulated += decoder.decode(value, { stream: true })
+        setStreamedText(accumulated)
+      }
+
+      const marker = '<!--WANDR_DATA:'
+      const markerIdx = accumulated.indexOf(marker)
+      if (markerIdx === -1) throw new Error('No itinerary data received')
+      const afterMarker = accumulated.slice(markerIdx + marker.length)
+      const closeIdx = afterMarker.indexOf('-->')
+      if (closeIdx === -1) throw new Error('Malformed itinerary data')
+      const jsonStr = afterMarker.slice(0, closeIdx).replace(/[\r\n]/g, '').trim()
+      const itinerary = JSON.parse(jsonStr)
+
+      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary }))
       router.push('/chat')
     } catch {
       setGenerateError(true)
@@ -388,19 +413,62 @@ export default function InspirePage() {
   const progressPct = ((step + 1) / TOTAL_STEPS) * 100
 
   // ── Generating itinerary overlay ──
+  const inspireMarkdownPart = streamedText.includes('<!--WANDR_DATA:')
+    ? streamedText.split('<!--WANDR_DATA:')[0]
+    : streamedText
+  const inspireStreamComplete = streamedText.includes('<!--WANDR_DATA:')
+
   if (generating) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6" style={{ background: C.dark }}>
-        <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map(i => (
-            <span key={i} className="w-2.5 h-2.5 rounded-full animate-bounce"
-              style={{ background: C.saffron, animationDelay: `${i * 0.15}s` }} />
-          ))}
+      <div className="fixed inset-0 z-50 flex flex-col" style={{ background: C.dark }}>
+        <div className="shrink-0 py-6 text-center">
+          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
         </div>
-        <p className="text-base text-center px-8 max-w-xs" style={{ color: C.sand, opacity: 0.7 }}>
-          Building your trip to {generatingDest}…
-        </p>
+        <div className="flex-1 overflow-y-auto px-6 pb-10">
+          <div className="max-w-xl mx-auto">
+            {!inspireMarkdownPart ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-7 rounded-lg w-3/4" style={{ background: `${C.sand}18` }} />
+                <div className="h-4 rounded-lg w-1/2 mb-4" style={{ background: `${C.sand}12` }} />
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="rounded-2xl p-5" style={{ background: `${C.sand}08` }}>
+                    <div className="h-4 rounded w-2/5 mb-4" style={{ background: `${C.sand}18` }} />
+                    <div className="space-y-2 mb-4">
+                      <div className="h-3 rounded w-full" style={{ background: `${C.sand}10` }} />
+                      <div className="h-3 rounded w-5/6" style={{ background: `${C.sand}10` }} />
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
+                      <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
+                    </div>
+                  </div>
+                ))}
+                <p className="text-center text-sm pt-4" style={{ color: `${C.sand}50` }}>
+                  Building your trip to {generatingDest}…
+                </p>
+              </div>
+            ) : (
+              <>
+                <style>{`
+                  .wandr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
+                  .wandr-stream em{color:${C.saffron};font-style:italic}
+                  .wandr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
+                  .wandr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
+                  .wandr-stream ul{margin:.2rem 0 .4rem 1.1rem}
+                  .wandr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
+                  .wandr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
+                  .wandr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
+                `}</style>
+                <div className="wandr-stream">
+                  <ReactMarkdown>{inspireMarkdownPart}</ReactMarkdown>
+                  {!inspireStreamComplete && (
+                    <span className="animate-pulse font-mono text-sm" style={{ color: C.saffron }}>|</span>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     )
   }

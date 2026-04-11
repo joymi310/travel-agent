@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WandrMap from '@/components/WandrMap'
 import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -16,22 +17,12 @@ const C = {
   dark: '#1A1208',
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-const LOADING_MESSAGES = [
-  (dest: string) => `Building your trip to ${dest}...`,
-  () => 'Finding the best routes...',
-  () => 'Adding local secrets...',
-  () => 'Checking the weather patterns...',
-  () => 'Curating hidden gems...',
-  () => 'Good things take time...',
-]
-
 export default function HomePage() {
   const [showWizard, setShowWizard] = useState(false)
   const [wizardInitialDest, setWizardInitialDest] = useState('')
   const [showLoading, setShowLoading] = useState(false)
-  const [loadingMsg, setLoadingMsg] = useState('')
   const [loadingDest, setLoadingDest] = useState('')
+  const [streamedText, setStreamedText] = useState('')
   const [genError, setGenError] = useState(false)
   const [rateLimited, setRateLimited] = useState(false)
   const [pendingAnswers, setPendingAnswers] = useState<WizardAnswers | null>(null)
@@ -60,13 +51,7 @@ export default function HomePage() {
     setGenError(false)
     setRateLimited(false)
     setLoadingDest(answers.destination)
-    setLoadingMsg(LOADING_MESSAGES[0](answers.destination))
-
-    let msgIdx = 0
-    const interval = setInterval(() => {
-      msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length
-      setLoadingMsg(LOADING_MESSAGES[msgIdx](answers.destination))
-    }, 2200)
+    setStreamedText('')
 
     try {
       const res = await fetch('/api/generate-itinerary', {
@@ -74,22 +59,52 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(answers),
       })
-      const data = await res.json()
+
       if (res.status === 429) { setRateLimited(true); return }
-      if (!res.ok || data.error) throw new Error(data.error ?? 'Failed')
-      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: data.itinerary }))
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Failed')
+      }
+
+      // Stream the response, accumulating chunks into state
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let accumulated = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        accumulated += decoder.decode(value, { stream: true })
+        setStreamedText(accumulated)
+      }
+
+      // Extract structured data from the WANDR_DATA block at end of stream
+      const marker = '<!--WANDR_DATA:'
+      const markerIdx = accumulated.indexOf(marker)
+      if (markerIdx === -1) throw new Error('No itinerary data received')
+      const afterMarker = accumulated.slice(markerIdx + marker.length)
+      const closeIdx = afterMarker.indexOf('-->')
+      if (closeIdx === -1) throw new Error('Malformed itinerary data')
+      const jsonStr = afterMarker.slice(0, closeIdx).replace(/[\r\n]/g, '').trim()
+      const itinerary = JSON.parse(jsonStr)
+
+      localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary }))
       router.push('/chat')
     } catch {
       setPendingAnswers(answers)
       setGenError(true)
     } finally {
-      clearInterval(interval)
       setShowLoading(false)
     }
   }
 
   const handleWizardComplete = (answers: WizardAnswers) => generate(answers)
   const retryGenerate = () => pendingAnswers && generate(pendingAnswers)
+
+  // Derived streaming state — markdown portion is everything before the WANDR_DATA block
+  const markdownPart = streamedText.includes('<!--WANDR_DATA:')
+    ? streamedText.split('<!--WANDR_DATA:')[0]
+    : streamedText
+  const streamComplete = streamedText.includes('<!--WANDR_DATA:')
 
   return (
     <>
@@ -102,19 +117,63 @@ export default function HomePage() {
         />
       )}
 
-      {/* Loading overlay */}
+      {/* Streaming itinerary loading overlay */}
       {showLoading && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6"
+        <div className="fixed inset-0 z-50 flex flex-col"
           role="status" aria-live="polite" aria-label="Loading your itinerary"
           style={{ background: C.dark }}>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
-          <div className="flex gap-1.5">
-            {[0, 1, 2].map(i => (
-              <span key={i} className="w-2.5 h-2.5 rounded-full animate-bounce"
-                style={{ background: C.saffron, animationDelay: `${i * 0.15}s` }} />
-            ))}
+          {/* Header */}
+          <div className="shrink-0 py-6 text-center">
+            <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>wandr.</p>
           </div>
-          <p className="text-base text-center px-8 max-w-xs" style={{ color: C.sand, opacity: 0.7 }}>{loadingMsg}</p>
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto px-6 pb-10">
+            <div className="max-w-xl mx-auto">
+              {!markdownPart ? (
+                /* Skeleton shimmer — shown until first content arrives */
+                <div className="animate-pulse space-y-4">
+                  <div className="h-7 rounded-lg w-3/4" style={{ background: `${C.sand}18` }} />
+                  <div className="h-4 rounded-lg w-1/2 mb-4" style={{ background: `${C.sand}12` }} />
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="rounded-2xl p-5" style={{ background: `${C.sand}08` }}>
+                      <div className="h-4 rounded w-2/5 mb-4" style={{ background: `${C.sand}18` }} />
+                      <div className="space-y-2 mb-4">
+                        <div className="h-3 rounded w-full" style={{ background: `${C.sand}10` }} />
+                        <div className="h-3 rounded w-5/6" style={{ background: `${C.sand}10` }} />
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
+                        <div className="h-3 rounded flex-1" style={{ background: `${C.sand}10` }} />
+                      </div>
+                    </div>
+                  ))}
+                  <p className="text-center text-sm pt-4" style={{ color: `${C.sand}50` }}>
+                    Building your trip to {loadingDest}…
+                  </p>
+                </div>
+              ) : (
+                /* Streamed markdown content */
+                <>
+                  <style>{`
+                    .wandr-stream h1{font-size:1.4rem;font-weight:700;color:${C.sand};margin-bottom:.4rem;font-family:var(--font-playfair)}
+                    .wandr-stream em{color:${C.saffron};font-style:italic}
+                    .wandr-stream h2{font-size:.95rem;font-weight:600;color:${C.terra};margin:1.2rem 0 .4rem;border-bottom:1px solid rgba(245,236,215,.1);padding-bottom:.35rem}
+                    .wandr-stream p{font-size:.87rem;color:${C.sand};opacity:.8;margin:.2rem 0;line-height:1.6}
+                    .wandr-stream ul{margin:.2rem 0 .4rem 1.1rem}
+                    .wandr-stream li{font-size:.87rem;color:${C.sand};opacity:.8;margin-bottom:.15rem;line-height:1.5}
+                    .wandr-stream strong{color:${C.saffron};font-weight:600;opacity:1!important}
+                    .wandr-stream hr{border-color:rgba(245,236,215,.1);margin:.75rem 0}
+                  `}</style>
+                  <div className="wandr-stream">
+                    <ReactMarkdown>{markdownPart}</ReactMarkdown>
+                    {!streamComplete && (
+                      <span className="animate-pulse font-mono text-sm" style={{ color: C.saffron }}>|</span>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic'
-import { generateText } from 'ai'
+import { streamText } from 'ai'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 120
@@ -71,89 +71,54 @@ export async function POST(req: Request) {
       ? 'EXPLORATION STYLE — OFF THE BEATEN TRACK: This traveller actively avoids mainstream tourist attractions. NEVER headline a day with a famous sight. Every day must include at least one recommendation that a casual tourist would never find. Use local guesthouses, street stalls with no tourist menus, and non-tourist neighbourhoods. If an attraction is truly unmissable, mention it once with crowd-avoidance timing only — never as a highlight.'
       : 'EXPLORATION STYLE — MIXED: Balance 1–2 headline sights per city with neighbourhood exploration and local spots. This is the default balanced approach.'
 
-    const systemPrompt = `You are a travel planning API. Respond ONLY with a valid JSON object — no markdown, no code fences, no explanation. ${returningVisitorNote} ${explorationNote} Use exactly this structure:
-{
-  "destination": "Vietnam",
-  "duration": "10 days",
-  "tagline": "Street food, ancient towns & turquoise bays",
-  "follow_up_questions": [
-    "I've given you 4 days in Hoi An — do you want that more beach-focused or centred on the old town?",
-    "Day 3 in Hanoi is quite packed — want me to build in more breathing room?"
-  ],
-  "locations": [
-    { "day": 1, "city": "Hanoi", "lat": 21.0278, "lng": 105.8342, "label": "Hanoi (Days 1–3)" },
-    { "day": 4, "city": "Hoi An", "lat": 15.8801, "lng": 108.3380, "label": "Hoi An (Days 4–6)" },
-    { "day": 7, "city": "Ho Chi Minh City", "lat": 10.8231, "lng": 106.6297, "label": "Ho Chi Minh City (Days 7–10)" }
-  ],
-  "budget_summary": {
-    "total_low": 2200,
-    "total_high": 2800,
-    "currency": "USD",
-    "includes": ["accommodation", "activities", "local transport", "food"],
-    "excludes": ["international flights"],
-    "per_day_avg": 250,
-    "breakdown": {
-      "accommodation": 900,
-      "food": 600,
-      "activities": 500,
-      "local_transport": 200
-    }
-  },
-  "days": [
-    {
-      "day": 1,
-      "title": "Arrive in Hanoi & explore the Old Quarter",
-      "highlights": [
-        { "text": "Street food tour of the Old Quarter", "reason": "You said food is your top priority — this is the best way to hit the ground running" },
-        { "text": "Check in near Hoan Kiem Lake", "reason": "Central location keeps walking distances short, suits your relaxed pace" },
-        { "text": "Evening wander at Ta Hien beer street", "reason": "Lively but unhurried — good first-night energy without committing to a packed schedule" }
-      ],
-      "accommodation": { "name": "Boutique hotel in the Old Quarter", "reason": "Mid-range budget, walkable to everything on Day 1" },
-      "meals": [
-        { "name": "Bun Cha Huong Lien", "dish": "Bun cha set (~$3 USD)", "reason": "Obama/Bourdain spot — iconic, no-frills" },
-        { "name": "Banh Mi 25", "dish": "Classic pork banh mi", "reason": "Best banh mi in the Old Quarter" }
-      ],
-      "transport": "Grab taxi from airport ~45 min",
-      "estimatedCost": "~$80 NZD per person"
-    }
-  ]
-}
-IMPORTANT: The "locations" array defines the map pins. For multi-city trips, include one entry per city/destination change — use the day the traveller arrives there. For single-city trips, include one entry per day with neighbourhood-level specificity (e.g. Shinjuku, Asakusa). Each entry needs accurate lat/lng coordinates. The label should say the city and day range (e.g. "Hanoi (Days 1–3)").
-
-IMPORTANT: The "budget_summary" must reflect the user's actual stated budget level (${budget || 'mid-range'}) and the specific accommodation/activities chosen. Use the currency that matches the traveller's origin city (e.g. Auckland/Wellington/Christchurch → NZD, Sydney/Melbourne/Brisbane → AUD, London/Edinburgh → GBP, US cities → USD, European cities → EUR). total_low and total_high should be realistic ranges in that currency. breakdown figures should sum to roughly (total_low + total_high) / 2. excludes should always include "international flights" unless the budget is explicitly flights-included.
-
-IMPORTANT: The "follow_up_questions" array must contain exactly 2 questions that are specific to THIS itinerary — reference actual day numbers, cities, or durations from the plan. Ask about things the traveller would genuinely want to tweak: pacing on a heavy day, split between two locations, activity focus, etc. Never use generic questions like "does this look good?" or "any changes?".
-
-IMPORTANT: Every highlight must have a "reason" field. Accommodation must have a "reason". Keep every "reason" to 8 words or fewer — punchy, not verbose.
-
-IMPORTANT: Every meal must be a specific named restaurant or stall (never a generic "hotel restaurant" unless it is genuinely world-class). Each meal must include a "dish" field with exactly what to order (include approximate local price where helpful), and a "reason" ≤8 words. For budget travellers: include at least one street food stall per day with neighbourhood context. For luxury travellers: name at least one fine dining venue per trip and add "(reservation recommended)" to the dish field if booking is required. Include transport and estimatedCost for every day. Be specific with real place names. Generate exactly ${duration > 0 ? duration : 7} days.`
-
     const actualDuration = duration > 0 ? duration : 7
-    const maxTokens = Math.min(Math.max(actualDuration * 650 + 1500, 3500), 16000)
+    // Extra tokens needed for markdown + JSON dual output
+    const maxTokens = Math.min(Math.max(actualDuration * 900 + 2500, 6000), 16000)
 
-    const { text } = await generateText({
+    const systemPrompt = `You are a travel planning assistant. Output your response in exactly two parts with nothing between them.
+
+PART 1 — A readable markdown itinerary. Use exactly this format for every day:
+
+# {Destination} — {N} days
+*{one-line tagline}*
+
+## Day 1 — {Title}
+**Highlights**
+- {Specific highlight} *({reason ≤8 words})*
+- {Specific highlight} *({reason ≤8 words})*
+
+**Stay:** {Named hotel or guesthouse} — {reason ≤8 words}
+**Meals:** {Named restaurant} ({exact dish, ~local price}) · {Named restaurant} ({exact dish})
+**Transport:** {practical transport note}
+**Est. cost:** {realistic amount}
+
+[Repeat for ALL ${actualDuration} days — no gaps, no "similar to above"]
+
+PART 2 — Immediately after the last day (no blank line), output EXACTLY this single line — minified JSON, no internal newlines:
+<!--WANDR_DATA:{"destination":"...","duration":"${actualDuration} days","tagline":"...","follow_up_questions":["question referencing specific day/city","question referencing specific day/city"],"locations":[{"day":1,"city":"...","lat":0.0,"lng":0.0,"label":"City (Days 1–N)"}],"budget_summary":{"total_low":0,"total_high":0,"currency":"...","includes":["accommodation","activities","local transport","food"],"excludes":["international flights"],"per_day_avg":0,"breakdown":{"accommodation":0,"food":0,"activities":0,"local_transport":0}},"days":[{"day":1,"title":"...","highlights":[{"text":"...","reason":"..."}],"accommodation":{"name":"...","reason":"..."},"meals":[{"name":"...","dish":"...","reason":"..."}],"transport":"...","estimatedCost":"..."}]}-->
+
+${returningVisitorNote} ${explorationNote}
+
+RULES (apply to both parts):
+- Generate exactly ${actualDuration} days — no skipping, no summarising
+- Every restaurant/café must be a real named place — no generics like "local restaurant"
+- Every reason field: ≤8 words, punchy
+- Locations array: one entry per city/area change; for single-city trips use neighbourhood granularity with accurate lat/lng
+- Budget level: ${budget || 'mid-range'}. Currency matching origin city (NZ cities → NZD, AU cities → AUD, UK cities → GBP, US cities → USD, EU cities → EUR)
+- budget_summary: total_low and total_high are realistic for ${budget || 'mid-range'} level; breakdown should sum to ~(total_low+total_high)/2
+- follow_up_questions must reference actual day numbers or cities in THIS itinerary — never generic
+- For budget travellers: at least one street food stall per day with neighbourhood context
+- For luxury travellers: at least one fine dining venue per trip; add "(reservation recommended)" to dish field if needed
+- The WANDR_DATA line must be on ONE LINE — no internal newlines in the JSON`
+
+    const result = streamText({
       model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
       maxTokens,
     })
 
-    const cleaned = text.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, m =>
-      m.replace(/```json|```/g, '')
-    ).trim()
-
-    try {
-      const itinerary = JSON.parse(cleaned)
-      return Response.json({ itinerary })
-    } catch {
-      const match = cleaned.match(/\{[\s\S]*\}/)
-      if (match) {
-        const itinerary = JSON.parse(match[0])
-        return Response.json({ itinerary })
-      }
-      console.error('JSON parse failed. Raw text:', text.slice(0, 200))
-      return Response.json({ error: 'Failed to generate itinerary. Please try again.' }, { status: 500 })
-    }
+    return result.toTextStreamResponse()
   } catch (err) {
     // Don't leak internal error details (NIST SI-11, OWASP A05)
     console.error('generate-itinerary error:', err)
