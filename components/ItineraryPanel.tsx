@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import type { TripLocation } from './TripMap'
 
