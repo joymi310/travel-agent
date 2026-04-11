@@ -564,12 +564,30 @@ export default function ChatPage() {
         {/* Left — Itinerary panel */}
         {itinerary && (
           <div
-            className={`flex-1 overflow-hidden border-r ${mobileTab !== 'itinerary' ? 'hidden lg:block' : 'block'}`}
+            className={`flex-1 overflow-hidden border-r flex flex-col ${mobileTab !== 'itinerary' ? 'hidden lg:flex' : 'flex'}`}
             style={{ borderColor: `${C.dark}10` }}
             role="complementary"
             aria-label="Itinerary"
           >
-            <ItineraryPanel itinerary={itinerary} />
+            {/* Guest save prompt */}
+            {!user && authChecked && (
+              <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-3"
+                style={{ background: C.terra }}>
+                <p className="text-sm font-medium" style={{ color: C.sand }}>
+                  Sign in to save your itinerary
+                </p>
+                <Link
+                  href="/login?mode=signup"
+                  className="shrink-0 text-xs font-semibold px-4 py-1.5 rounded-full transition-opacity hover:opacity-90"
+                  style={{ background: C.sand, color: C.terra }}
+                >
+                  Sign up free →
+                </Link>
+              </div>
+            )}
+            <div className="flex-1 overflow-hidden">
+              <ItineraryPanel itinerary={itinerary} />
+            </div>
           </div>
         )}
 
