@@ -258,10 +258,10 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {([
-              { step: '01', Icon: Navigation, title: 'Sign in & tell us where', desc: 'Create a free account and share where you dream of going — or ask for ideas.' },
-              { step: '02', Icon: MessageCircle, title: "Chat like it's a friend", desc: 'Talk naturally. Tell Wandr your budget, travel style, and what excites you.' },
-              { step: '03', Icon: Map, title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary built specifically for you.' },
-              { step: '04', Icon: SlidersHorizontal, title: "Tweak until it's perfect", desc: "Adjust anything. Change a day, swap a hotel, add a detour. It's your trip." },
+              { step: '01', Icon: Navigation, title: 'Tell us where you want to go', desc: 'Type a destination, a vibe, or let us inspire you. No account needed — just start.' },
+              { step: '02', Icon: MessageCircle, title: "Chat like it's a friend", desc: 'Tell Wandr your budget, travel style, and what excites you. The more you share, the better the plan.' },
+              { step: '03', Icon: Map, title: 'Get your personalised plan', desc: 'Receive a detailed day-by-day itinerary — accommodation, restaurants, transport, all built around you.' },
+              { step: '04', Icon: SlidersHorizontal, title: 'Sign in for unlimited tweaks', desc: 'Free account = saved itineraries, unlimited chat refinements, and your plan waiting whenever you come back.' },
             ] as const).map((item) => (
               <div key={item.step}
                 className="relative rounded-2xl p-6 cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
