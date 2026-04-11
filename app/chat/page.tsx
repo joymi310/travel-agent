@@ -561,9 +561,21 @@ export default function ChatPage() {
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* Left — Chat */}
+        {/* Left — Itinerary panel */}
+        {itinerary && (
+          <div
+            className={`flex-1 overflow-hidden border-r ${mobileTab !== 'itinerary' ? 'hidden lg:block' : 'block'}`}
+            style={{ borderColor: `${C.dark}10` }}
+            role="complementary"
+            aria-label="Itinerary"
+          >
+            <ItineraryPanel itinerary={itinerary} />
+          </div>
+        )}
+
+        {/* Right — Chat */}
         <div
-          className={`flex flex-col overflow-hidden ${itinerary ? 'lg:w-[40%] lg:border-r' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
+          className={`flex flex-col overflow-hidden ${itinerary ? 'lg:w-[40%]' : 'w-full'} ${itinerary && mobileTab !== 'chat' ? 'hidden lg:flex' : 'flex'}`}
           style={{ borderColor: `${C.dark}10` }}
           role="main"
         >
@@ -662,16 +674,6 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Right — Itinerary panel */}
-        {itinerary && (
-          <div
-            className={`flex-1 overflow-hidden ${mobileTab !== 'itinerary' ? 'hidden lg:block' : 'block'}`}
-            role="complementary"
-            aria-label="Itinerary"
-          >
-            <ItineraryPanel itinerary={itinerary} />
-          </div>
-        )}
 
       </div>
     </div>
