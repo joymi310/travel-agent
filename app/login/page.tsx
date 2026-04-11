@@ -1,8 +1,6 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -15,7 +13,16 @@ const C = {
   dark: '#1A1208',
 }
 
-export default function LoginPage() {
+// Isolated so useSearchParams can be wrapped in Suspense
+function ModeDetector({ onSignup }: { onSignup: () => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get('mode') === 'signup') onSignup()
+  }, [searchParams, onSignup])
+  return null
+}
+
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -23,12 +30,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
-
-  useEffect(() => {
-    if (searchParams.get('mode') === 'signup') setMode('signup')
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,6 +71,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex" style={{ background: C.sand }}>
+      <Suspense fallback={null}>
+        <ModeDetector onSignup={() => setMode('signup')} />
+      </Suspense>
+
       {/* Left panel — decorative */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative overflow-hidden"
         style={{ background: C.dark }}>
@@ -120,11 +126,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               required
               className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
-              style={{
-                background: 'white',
-                border: `1.5px solid ${C.saffron}44`,
-                color: C.dark,
-              }}
+              style={{ background: 'white', border: `1.5px solid ${C.saffron}44`, color: C.dark }}
               onFocus={e => e.target.style.borderColor = C.terra}
               onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
             />
@@ -136,11 +138,7 @@ export default function LoginPage() {
               required
               minLength={6}
               className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
-              style={{
-                background: 'white',
-                border: `1.5px solid ${C.saffron}44`,
-                color: C.dark,
-              }}
+              style={{ background: 'white', border: `1.5px solid ${C.saffron}44`, color: C.dark }}
               onFocus={e => e.target.style.borderColor = C.terra}
               onBlur={e => e.target.style.borderColor = `${C.saffron}44`}
             />
@@ -173,4 +171,8 @@ export default function LoginPage() {
       </div>
     </div>
   )
+}
+
+export default function LoginPage() {
+  return <LoginForm />
 }
