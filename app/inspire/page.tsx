@@ -1,0 +1,496 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+
+const C = {
+  sand: '#F5ECD7',
+  terra: '#C94A2B',
+  saffron: '#E8850A',
+  jade: '#2A7A5B',
+  dark: '#1A1208',
+}
+
+// ─── Quiz data ────────────────────────────────────────────────────────────────
+
+const VIBES = [
+  { id: 'beach & relax', label: 'Beach & relax', emoji: '🏖️' },
+  { id: 'culture & history', label: 'Culture & history', emoji: '🏛️' },
+  { id: 'adventure', label: 'Adventure', emoji: '🧗' },
+  { id: 'food-focused', label: 'Food-focused', emoji: '🍜' },
+  { id: 'city break', label: 'City break', emoji: '🌆' },
+  { id: 'nature & hiking', label: 'Nature & hiking', emoji: '🌿' },
+  { id: 'wellness & retreat', label: 'Wellness & retreat', emoji: '🧘' },
+  { id: 'luxury & indulgence', label: 'Luxury & indulgence', emoji: '✨' },
+]
+
+const DURATIONS = [
+  { id: 'a long weekend (3–4 days)', label: 'Long weekend', sub: '3–4 days' },
+  { id: '1 week', label: '1 week', sub: '7 days' },
+  { id: '2 weeks', label: '2 weeks', sub: '14 days' },
+  { id: '3+ weeks', label: '3+ weeks', sub: 'Extended trip' },
+]
+
+const BUDGETS = [
+  { id: 'budget (hostels, street food, public transport)', label: 'Budget', sub: 'Hostels & street food', emoji: '🎒' },
+  { id: 'mid-range (3-star hotels, local restaurants)', label: 'Mid-range', sub: '3-star hotels, local dining', emoji: '🧳' },
+  { id: 'luxury (5-star, fine dining, private transfers)', label: 'Luxury', sub: '5-star & fine dining', emoji: '💎' },
+]
+
+const WHEN_OPTIONS = [
+  { id: 'next month', label: 'Next month', sub: "I'm ready to book" },
+  { id: 'in 1–3 months', label: '1–3 months away', sub: 'Planning ahead' },
+  { id: 'in 3–6 months', label: '3–6 months away', sub: 'Future dreaming' },
+  { id: 'flexible', label: 'Flexible', sub: 'No fixed date' },
+]
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Destination {
+  city: string
+  country: string
+  tagline: string
+  pitch: string
+  why_you: string
+  best_time: string
+  est_cost: string
+  vibe_tags: string[]
+  emoji: string
+}
+
+// ─── Chip component ───────────────────────────────────────────────────────────
+
+function Chip({
+  label,
+  sub,
+  emoji,
+  selected,
+  onClick,
+}: {
+  label: string
+  sub?: string
+  emoji?: string
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-2xl px-5 py-4 text-left transition-all hover:shadow-md"
+      style={{
+        background: selected ? C.terra : 'white',
+        color: selected ? C.sand : C.dark,
+        border: `2px solid ${selected ? C.terra : `${C.saffron}44`}`,
+        transform: selected ? 'scale(1.02)' : 'scale(1)',
+      }}
+    >
+      {emoji && <div className="text-2xl mb-1">{emoji}</div>}
+      <div className="font-semibold text-sm">{label}</div>
+      {sub && <div className="text-xs mt-0.5 opacity-70">{sub}</div>}
+    </button>
+  )
+}
+
+// ─── Result card ──────────────────────────────────────────────────────────────
+
+function DestinationCard({
+  dest,
+  origin,
+  onPick,
+}: {
+  dest: Destination
+  origin: string
+  onPick: (dest: Destination) => void
+}) {
+  const tagColors: Record<string, string> = {
+    beach: '#0891b2', culture: '#7c3aed', food: '#d97706', adventure: '#dc2626',
+    nature: '#16a34a', city: '#2563eb', luxury: '#9333ea', budget: '#16a34a',
+    history: '#92400e', wellness: '#0f766e',
+  }
+
+  return (
+    <div
+      className="rounded-3xl overflow-hidden flex flex-col"
+      style={{ background: 'white', border: `1px solid ${C.saffron}33` }}
+    >
+      {/* Header */}
+      <div className="px-7 pt-7 pb-5" style={{ background: `${C.dark}` }}>
+        <div className="text-5xl mb-3">{dest.emoji}</div>
+        <h3 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.sand }}>
+          {dest.city}
+        </h3>
+        <p className="text-sm font-medium mt-0.5" style={{ color: `${C.sand}99` }}>{dest.country}</p>
+        <p className="text-base mt-3 leading-snug font-medium italic" style={{ color: C.saffron }}>
+          &ldquo;{dest.tagline}&rdquo;
+        </p>
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col flex-1 px-7 py-5 gap-4">
+        <p className="text-sm leading-relaxed opacity-80">{dest.pitch}</p>
+
+        {/* Why you */}
+        <div className="rounded-xl px-4 py-3 text-sm" style={{ background: `${C.saffron}14`, color: C.dark }}>
+          <span className="font-semibold" style={{ color: C.terra }}>Why this for you: </span>
+          {dest.why_you}
+        </div>
+
+        {/* Meta */}
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="rounded-xl px-3 py-2.5" style={{ background: `${C.sand}` }}>
+            <div className="font-semibold opacity-50 uppercase tracking-wide mb-0.5">Best time</div>
+            <div className="font-medium">{dest.best_time}</div>
+          </div>
+          <div className="rounded-xl px-3 py-2.5" style={{ background: `${C.sand}` }}>
+            <div className="font-semibold opacity-50 uppercase tracking-wide mb-0.5">Est. cost</div>
+            <div className="font-medium">{dest.est_cost}</div>
+          </div>
+        </div>
+
+        {/* Vibe tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {dest.vibe_tags.map(tag => (
+            <span
+              key={tag}
+              className="text-xs px-2.5 py-1 rounded-full font-medium capitalize"
+              style={{ background: `${tagColors[tag] ?? C.jade}18`, color: tagColors[tag] ?? C.jade }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={() => onPick(dest)}
+          className="mt-auto w-full font-semibold py-3.5 rounded-2xl text-sm transition-all hover:opacity-90"
+          style={{ background: C.terra, color: C.sand }}
+        >
+          Plan this trip →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Loading state ────────────────────────────────────────────────────────────
+
+function LoadingCards() {
+  return (
+    <div className="max-w-5xl mx-auto">
+      <div className="text-center mb-10 space-y-3">
+        <div className="flex justify-center gap-1.5">
+          {[0, 1, 2].map(i => (
+            <span key={i} className="w-2.5 h-2.5 rounded-full animate-bounce"
+              style={{ background: C.saffron, animationDelay: `${i * 0.15}s` }} />
+          ))}
+        </div>
+        <h2 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>
+          Finding your perfect destinations…
+        </h2>
+        <p className="text-sm opacity-60">This takes a few seconds</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: 'white', border: `1px solid ${C.saffron}33` }}>
+            <div className="h-40" style={{ background: `${C.dark}` }} />
+            <div className="p-6 space-y-3">
+              <div className="h-3 rounded-full w-3/4" style={{ background: `${C.dark}15` }} />
+              <div className="h-3 rounded-full w-full" style={{ background: `${C.dark}10` }} />
+              <div className="h-3 rounded-full w-5/6" style={{ background: `${C.dark}10` }} />
+              <div className="h-10 rounded-2xl mt-4" style={{ background: `${C.dark}08` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+export default function InspirePage() {
+  const router = useRouter()
+  const [step, setStep] = useState(0) // 0=vibes 1=duration 2=when 3=budget 4=origin
+  const [vibes, setVibes] = useState<string[]>([])
+  const [duration, setDuration] = useState('')
+  const [when, setWhen] = useState('')
+  const [budget, setBudget] = useState('')
+  const [origin, setOrigin] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [results, setResults] = useState<Destination[] | null>(null)
+  const [error, setError] = useState(false)
+
+  const TOTAL_STEPS = 5
+
+  const toggleVibe = (id: string) => {
+    setVibes(prev =>
+      prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
+    )
+  }
+
+  const canNext = () => {
+    if (step === 0) return vibes.length > 0
+    if (step === 1) return !!duration
+    if (step === 2) return !!when
+    if (step === 3) return !!budget
+    if (step === 4) return true // origin is optional
+    return false
+  }
+
+  const next = () => {
+    if (step < TOTAL_STEPS - 1) {
+      setStep(s => s + 1)
+    } else {
+      submit()
+    }
+  }
+
+  const submit = async () => {
+    setLoading(true)
+    setError(false)
+    setResults(null)
+    try {
+      const res = await fetch('/api/inspire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vibes, duration, when, budget, origin }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.destinations) throw new Error('Failed')
+      setResults(data.destinations)
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePick = (dest: Destination) => {
+    const destination = dest.city === dest.country ? dest.city : `${dest.city}, ${dest.country}`
+    router.push(`/?wizard=1&destination=${encodeURIComponent(destination)}`)
+  }
+
+  const progressPct = ((step + 1) / TOTAL_STEPS) * 100
+
+  // ── Results view ──
+  if (loading) {
+    return (
+      <div className="min-h-screen py-24 px-6" style={{ background: C.sand }}>
+        <LoadingCards />
+      </div>
+    )
+  }
+
+  if (results) {
+    return (
+      <div className="min-h-screen py-16 px-6" style={{ background: C.sand }}>
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12 space-y-3">
+            <p className="text-sm font-medium uppercase tracking-widest" style={{ color: C.terra }}>
+              Your perfect destinations
+            </p>
+            <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)' }}>
+              We found 3 trips you&apos;ll love
+            </h2>
+            <p className="text-sm opacity-60">Pick one to start building your itinerary</p>
+          </div>
+
+          {error && (
+            <div className="text-center mb-8">
+              <p className="text-sm mb-3" style={{ color: C.terra }}>Something went wrong. Try again?</p>
+              <button onClick={submit} className="font-semibold px-5 py-2 rounded-full text-sm" style={{ background: C.terra, color: C.sand }}>
+                Retry
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {results.map(dest => (
+              <DestinationCard
+                key={`${dest.city}-${dest.country}`}
+                dest={dest}
+                origin={origin}
+                onPick={handlePick}
+              />
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <button
+              onClick={() => { setResults(null); setStep(0); setVibes([]); setDuration(''); setWhen(''); setBudget(''); setOrigin('') }}
+              className="text-sm font-medium hover:opacity-70 transition-opacity"
+              style={{ color: C.terra }}
+            >
+              ← Start over
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Quiz view ──
+  const steps = [
+    {
+      question: "What kind of trip are you after?",
+      hint: "Pick everything that sounds good — you can choose more than one",
+      content: (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {VIBES.map(v => (
+            <Chip
+              key={v.id}
+              label={v.label}
+              emoji={v.emoji}
+              selected={vibes.includes(v.id)}
+              onClick={() => toggleVibe(v.id)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      question: "How long can you get away for?",
+      hint: null,
+      content: (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {DURATIONS.map(d => (
+            <Chip
+              key={d.id}
+              label={d.label}
+              sub={d.sub}
+              selected={duration === d.id}
+              onClick={() => setDuration(d.id)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      question: "When are you thinking of going?",
+      hint: null,
+      content: (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {WHEN_OPTIONS.map(w => (
+            <Chip
+              key={w.id}
+              label={w.label}
+              sub={w.sub}
+              selected={when === w.id}
+              onClick={() => setWhen(w.id)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      question: "What's your budget?",
+      hint: null,
+      content: (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {BUDGETS.map(b => (
+            <Chip
+              key={b.id}
+              label={b.label}
+              sub={b.sub}
+              emoji={b.emoji}
+              selected={budget === b.id}
+              onClick={() => setBudget(b.id)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      question: "Where are you flying from?",
+      hint: "Helps us get the costs right and find the best routes",
+      content: (
+        <div className="max-w-sm">
+          <input
+            type="text"
+            placeholder="e.g. Auckland, Sydney, London..."
+            value={origin}
+            onChange={e => setOrigin(e.target.value)}
+            autoFocus
+            onKeyDown={e => e.key === 'Enter' && next()}
+            className="w-full rounded-2xl px-5 py-4 text-sm outline-none transition-all"
+            style={{
+              background: 'white',
+              border: `2px solid ${C.saffron}44`,
+              color: C.dark,
+            }}
+            onFocus={e => (e.target.style.borderColor = C.terra)}
+            onBlur={e => (e.target.style.borderColor = `${C.saffron}44`)}
+          />
+          <p className="text-xs mt-2 opacity-50">Optional — skip if you&apos;re not sure yet</p>
+        </div>
+      ),
+    },
+  ]
+
+  const currentStep = steps[step]
+
+  return (
+    <div className="min-h-screen" style={{ background: C.sand }}>
+      {/* Nav */}
+      <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: `1px solid ${C.saffron}22` }}>
+        <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: C.dark }}>
+          <ArrowLeft size={16} />
+          Back
+        </Link>
+        <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+          wandr.
+        </span>
+        <span className="text-sm opacity-40" style={{ color: C.dark }}>{step + 1} of {TOTAL_STEPS}</span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1 w-full" style={{ background: `${C.saffron}22` }}>
+        <div
+          className="h-1 transition-all duration-500"
+          style={{ width: `${progressPct}%`, background: C.terra }}
+        />
+      </div>
+
+      {/* Quiz body */}
+      <div className="max-w-3xl mx-auto px-6 py-16">
+        <div className="space-y-8">
+          {/* Question */}
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+              {currentStep.question}
+            </h1>
+            {currentStep.hint && (
+              <p className="text-sm opacity-55">{currentStep.hint}</p>
+            )}
+          </div>
+
+          {/* Options */}
+          {currentStep.content}
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between pt-4">
+            <button
+              onClick={() => setStep(s => s - 1)}
+              className="text-sm font-medium hover:opacity-70 transition-opacity"
+              style={{ color: C.dark, opacity: step === 0 ? 0 : 1, pointerEvents: step === 0 ? 'none' : 'auto' }}
+            >
+              ← Back
+            </button>
+            <button
+              onClick={next}
+              disabled={!canNext()}
+              className="font-semibold px-8 py-3 rounded-full text-sm transition-all hover:opacity-90 disabled:opacity-30"
+              style={{ background: C.terra, color: C.sand }}
+            >
+              {step === TOTAL_STEPS - 1 ? 'Find my destinations ✦' : 'Next →'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

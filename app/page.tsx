@@ -233,9 +233,9 @@ export default function HomePage() {
                 style={{ background: C.terra, color: C.sand, outlineColor: C.dark }}>
                 Start planning
               </button>
-              <Link href="/cities" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
+              <Link href="/inspire" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
                 style={{ borderColor: C.terra, color: C.terra }}>
-                Explore city guides
+                ✦ Inspire me
               </Link>
             </div>
           </div>
