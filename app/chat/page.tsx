@@ -103,10 +103,7 @@ export default function ChatPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(() => getPendingItinerary())
   const [initialMessages] = useState(() => getPendingInitialMessages())
   const [conversationId, setConversationId] = useState<string | null>(null)
-  const [showChips, setShowChips] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return !!localStorage.getItem('wandr_pending_trip')
-  })
+  const [showChips, setShowChips] = useState(false)
   const { messages, input, setInput, handleSubmit, isLoading, error, setMessages, append } = useChat({
     api: '/api/chat',
     initialMessages,
@@ -288,6 +285,7 @@ export default function ChatPage() {
               })
             }
             localStorage.removeItem('wandr_pending_trip')
+            setShowChips(true)
           } catch (err) { console.error('[wandr] Pending trip save failed:', err) }
         } else {
           // No pending trip — restore most recent conversation
@@ -315,6 +313,8 @@ export default function ChatPage() {
                 role: m.role as 'user' | 'assistant',
                 content: m.content,
               })))
+            } else if (conv.itinerary) {
+              setShowChips(true)
             }
           }
         }
