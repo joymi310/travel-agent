@@ -326,12 +326,12 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         </div>
 
         {/* Scrollable content */}
-        <div className="relative">
+        <div className="flex" style={{ maxHeight: '65vh' }}>
         <style>{`
           .wandr-wizard-scroll::-webkit-scrollbar { display: none; }
           .wandr-wizard-scroll { scrollbar-width: none; }
         `}</style>
-        <div ref={scrollRef} className="wandr-wizard-scroll py-6 space-y-4 overflow-y-auto" style={{ maxHeight: '65vh', paddingLeft: '24px', paddingRight: isScrollable ? '40px' : '24px' }}>
+        <div ref={scrollRef} className="wandr-wizard-scroll flex-1 px-6 py-6 space-y-4 overflow-y-auto">
 
           {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (
@@ -638,21 +638,17 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
         </div>
-        {/* Bottom fade when more content below */}
-        {showScrollHint && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10"
-            style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))' }} />
-        )}
-        {/* Custom scrollbar — always visible when content overflows */}
-        {isScrollable && (
-          <div className="absolute right-2 top-0 bottom-0 w-1.5 pointer-events-none" aria-hidden="true">
-            <div className="absolute inset-y-2 inset-x-0 rounded-full" style={{ background: 'rgba(26,18,8,0.08)' }} />
-            <div
-              className="absolute inset-x-0 rounded-full transition-all duration-75"
-              style={{ background: C.terra, opacity: 0.5, top: thumbTop, height: thumbHeight }}
-            />
-          </div>
-        )}
+        {/* Custom scrollbar — flex sibling, always visible when content overflows */}
+        <div className="w-4 py-3 flex-shrink-0 flex justify-center" aria-hidden="true">
+          {isScrollable && (
+            <div className="relative w-1.5 rounded-full flex-1" style={{ background: 'rgba(26,18,8,0.1)' }}>
+              <div
+                className="absolute left-0 right-0 rounded-full transition-[top] duration-75"
+                style={{ background: C.terra, top: thumbTop, height: thumbHeight }}
+              />
+            </div>
+          )}
+        </div>
         </div>
 
         {/* Footer */}
