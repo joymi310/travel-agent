@@ -744,6 +744,9 @@ export default function ChatPage() {
                       <p className="text-sm" style={{ color: C.dark, opacity: 0.35 }}>
                         Your itinerary will appear on the left.
                       </p>
+                      <p className="text-sm max-w-xs mx-auto" style={{ color: C.dark, opacity: 0.35 }}>
+                        This will take a minute. We&apos;re ensuring we&apos;re getting the best recommendations for you.
+                      </p>
                     </>
                   ) : (
                     <>
