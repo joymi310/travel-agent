@@ -94,8 +94,8 @@ PART 1 — A readable markdown itinerary. Use exactly this format for every day:
 
 [Repeat for ALL ${actualDuration} days — no gaps, no "similar to above"]
 
-PART 2 — Immediately after the last day (no blank line), output EXACTLY this single line — minified JSON, no internal newlines:
-<!--WANDR_DATA:{"destination":"...","duration":"${actualDuration} days","tagline":"...","follow_up_questions":["question referencing specific day/city","question referencing specific day/city"],"locations":[{"day":1,"city":"...","lat":0.0,"lng":0.0,"label":"City (Days 1–N)"}],"budget_summary":{"total_low":0,"total_high":0,"currency":"...","includes":["accommodation","activities","local transport","food"],"excludes":["international flights"],"per_day_avg":0,"breakdown":{"accommodation":0,"food":0,"activities":0,"local_transport":0}},"days":[{"day":1,"title":"...","highlights":[{"text":"...","reason":"..."}],"accommodation":{"name":"...","reason":"..."},"meals":[{"name":"...","dish":"...","reason":"..."}],"transport":"...","estimatedCost":"..."}]}-->
+PART 2 — Immediately after the last day (no blank line), output the structured data in XML tags, minified JSON on one line:
+<wandr_data>{"destination":"...","duration":"${actualDuration} days","tagline":"...","follow_up_questions":["question referencing specific day/city","question referencing specific day/city"],"locations":[{"day":1,"city":"...","lat":0.0,"lng":0.0,"label":"City (Days 1–N)"}],"budget_summary":{"total_low":0,"total_high":0,"currency":"...","includes":["accommodation","activities","local transport","food"],"excludes":["international flights"],"per_day_avg":0,"breakdown":{"accommodation":0,"food":0,"activities":0,"local_transport":0}},"days":[{"day":1,"title":"...","highlights":[{"text":"...","reason":"..."}],"accommodation":{"name":"...","reason":"..."},"meals":[{"name":"...","dish":"...","reason":"..."}],"transport":"...","estimatedCost":"..."}]}</wandr_data>
 
 ${returningVisitorNote} ${explorationNote}
 
@@ -109,7 +109,7 @@ RULES (apply to both parts):
 - follow_up_questions must reference actual day numbers or cities in THIS itinerary — never generic
 - For budget travellers: at least one street food stall per day with neighbourhood context
 - For luxury travellers: at least one fine dining venue per trip; add "(reservation recommended)" to dish field if needed
-- The WANDR_DATA line must be on ONE LINE — no internal newlines in the JSON`
+- The wandr_data block must be on ONE LINE — no internal newlines in the JSON`
 
     const result = streamText({
       model: anthropic('claude-haiku-4-5-20251001'),
@@ -118,7 +118,27 @@ RULES (apply to both parts):
       maxTokens,
     })
 
-    return result.toTextStreamResponse()
+    // Use fullStream so errors are logged rather than silently dropped
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const part of result.fullStream) {
+            if (part.type === 'text-delta') {
+              controller.enqueue(encoder.encode(part.textDelta))
+            } else if (part.type === 'error') {
+              console.error('generate-itinerary stream error:', part.error)
+            }
+          }
+        } catch (err) {
+          console.error('generate-itinerary stream read error:', err)
+        }
+        controller.close()
+      },
+    })
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    })
   } catch (err) {
     // Don't leak internal error details (NIST SI-11, OWASP A05)
     console.error('generate-itinerary error:', err)

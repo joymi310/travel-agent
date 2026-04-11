@@ -77,12 +77,13 @@ export default function HomePage() {
         setStreamedText(accumulated)
       }
 
-      // Extract structured data from the WANDR_DATA block at end of stream
-      const marker = '<!--WANDR_DATA:'
+      // Extract structured data from the <wandr_data> block at end of stream
+      const marker = '<wandr_data>'
+      const closeMarker = '</wandr_data>'
       const markerIdx = accumulated.indexOf(marker)
       if (markerIdx === -1) throw new Error('No itinerary data received')
       const afterMarker = accumulated.slice(markerIdx + marker.length)
-      const closeIdx = afterMarker.indexOf('-->')
+      const closeIdx = afterMarker.indexOf(closeMarker)
       if (closeIdx === -1) throw new Error('Malformed itinerary data')
       const jsonStr = afterMarker.slice(0, closeIdx).replace(/[\r\n]/g, '').trim()
       const itinerary = JSON.parse(jsonStr)
@@ -100,11 +101,11 @@ export default function HomePage() {
   const handleWizardComplete = (answers: WizardAnswers) => generate(answers)
   const retryGenerate = () => pendingAnswers && generate(pendingAnswers)
 
-  // Derived streaming state — markdown portion is everything before the WANDR_DATA block
-  const markdownPart = streamedText.includes('<!--WANDR_DATA:')
-    ? streamedText.split('<!--WANDR_DATA:')[0]
+  // Derived streaming state — markdown portion is everything before the wandr_data block
+  const markdownPart = streamedText.includes('<wandr_data>')
+    ? streamedText.split('<wandr_data>')[0]
     : streamedText
-  const streamComplete = streamedText.includes('<!--WANDR_DATA:')
+  const streamComplete = streamedText.includes('</wandr_data>')
 
   return (
     <>

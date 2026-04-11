@@ -393,11 +393,12 @@ export default function InspirePage() {
         setStreamedText(accumulated)
       }
 
-      const marker = '<!--WANDR_DATA:'
+      const marker = '<wandr_data>'
+      const closeMarker = '</wandr_data>'
       const markerIdx = accumulated.indexOf(marker)
       if (markerIdx === -1) throw new Error('No itinerary data received')
       const afterMarker = accumulated.slice(markerIdx + marker.length)
-      const closeIdx = afterMarker.indexOf('-->')
+      const closeIdx = afterMarker.indexOf(closeMarker)
       if (closeIdx === -1) throw new Error('Malformed itinerary data')
       const jsonStr = afterMarker.slice(0, closeIdx).replace(/[\r\n]/g, '').trim()
       const itinerary = JSON.parse(jsonStr)
@@ -413,10 +414,10 @@ export default function InspirePage() {
   const progressPct = ((step + 1) / TOTAL_STEPS) * 100
 
   // ── Generating itinerary overlay ──
-  const inspireMarkdownPart = streamedText.includes('<!--WANDR_DATA:')
-    ? streamedText.split('<!--WANDR_DATA:')[0]
+  const inspireMarkdownPart = streamedText.includes('<wandr_data>')
+    ? streamedText.split('<wandr_data>')[0]
     : streamedText
-  const inspireStreamComplete = streamedText.includes('<!--WANDR_DATA:')
+  const inspireStreamComplete = streamedText.includes('</wandr_data>')
 
   if (generating) {
     return (
