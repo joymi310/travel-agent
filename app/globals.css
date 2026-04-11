@@ -46,6 +46,13 @@ body {
 .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
 .animate-float-fast { animation: float-fast 3s ease-in-out infinite; }
 
+@keyframes generating {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(150%); }
+  100% { transform: translateX(150%); }
+}
+.animate-generating { animation: generating 1.8s ease-in-out infinite; }
+
 /* Print styles — show only the itinerary panel */
 @media print {
   body > * { display: none !important; }

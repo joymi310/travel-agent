@@ -57,6 +57,8 @@ function formatItineraryAsMarkdown(itinerary: Itinerary): string {
 function getPendingItinerary(): Itinerary | null {
   if (typeof window === 'undefined') return null
   try {
+    // New generation about to start — don't load old trip
+    if (localStorage.getItem('wandr_generating')) return null
     const raw = localStorage.getItem('wandr_pending_trip')
     if (!raw) return null
     const { itinerary } = JSON.parse(raw)
@@ -67,6 +69,8 @@ function getPendingItinerary(): Itinerary | null {
 function getPendingInitialMessages() {
   if (typeof window === 'undefined') return []
   try {
+    // New generation about to start — don't load old messages
+    if (localStorage.getItem('wandr_generating')) return []
     const raw = localStorage.getItem('wandr_pending_trip')
     if (!raw) return []
     const { itinerary } = JSON.parse(raw)
@@ -650,6 +654,16 @@ export default function ChatPage() {
               {tab === 'chat' ? 'Chat' : 'Itinerary'}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Generating progress bar */}
+      {generating && (
+        <div className="shrink-0 h-1 w-full overflow-hidden" style={{ background: `${C.terra}20` }} aria-hidden="true">
+          <div
+            className="h-full animate-generating"
+            style={{ background: C.terra, width: '40%' }}
+          />
         </div>
       )}
 
