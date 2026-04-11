@@ -503,8 +503,14 @@ export default function InspirePage() {
 
   if (results) {
     return (
-      <div className="min-h-screen py-16 px-6" style={{ background: C.sand }}>
-        <div className="max-w-5xl mx-auto">
+      <div className="min-h-screen" style={{ background: C.sand }}>
+        {/* Nav */}
+        <nav className="flex items-center justify-between px-6 py-5" style={{ borderBottom: `1px solid ${C.saffron}22` }}>
+          <Link href="/" className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.terra }}>
+            wayfindr.
+          </Link>
+        </nav>
+        <div className="max-w-5xl mx-auto px-6 py-16">
           {/* Header */}
           <div className="text-center mb-12 space-y-3">
             <p className="text-sm font-medium uppercase tracking-widest" style={{ color: C.terra }}>
