@@ -75,7 +75,6 @@ const PROFILE_QUESTIONS: Record<string, PQ[]> = {
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
   ],
   'Senior traveller': [
-    { label: 'Any mobility or physical considerations to plan around?', type: 'text', placeholder: 'e.g. limited walking, no steep stairs, or none...' },
     { label: 'Comfortable walking per day?', type: 'radio', options: ['Light (1–2km)', 'Moderate (3–5km)', 'Active (6km+)'] },
     { label: 'What\'s the one thing you most want to do or experience?', type: 'text', placeholder: 'e.g. local food, historical sites, coastal scenery...' },
     ACCESSIBILITY_Q,
