@@ -193,7 +193,6 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [showScrollHint, setShowScrollHint] = useState(false)
   const [isScrollable, setIsScrollable] = useState(false)
   const [thumbTop, setThumbTop] = useState(0)
   const [thumbHeight, setThumbHeight] = useState(0)
@@ -205,7 +204,6 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
       const { scrollTop, scrollHeight, clientHeight } = el
       const scrollable = scrollHeight > clientHeight + 4
       setIsScrollable(scrollable)
-      setShowScrollHint(scrollable && scrollTop + clientHeight < scrollHeight - 4)
       if (scrollable) {
         const trackH = clientHeight - 16
         const th = Math.max((clientHeight / scrollHeight) * trackH, 32)
