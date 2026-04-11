@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WandrMap from '@/components/WandrMap'
-import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw } from 'lucide-react'
+import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil } from 'lucide-react'
 
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
@@ -229,8 +229,9 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <button onClick={handleStartPlanning}
-                className="font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="inline-flex items-center gap-2 font-semibold px-7 py-3.5 rounded-full text-base transition-all hover:opacity-90 shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{ background: C.terra, color: C.sand, outlineColor: C.dark }}>
+                <Pencil size={16} />
                 Start planning
               </button>
               <Link href="/inspire" className="font-semibold px-7 py-3.5 rounded-full text-base border-2 transition-all hover:opacity-70"
