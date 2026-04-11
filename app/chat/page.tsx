@@ -76,7 +76,7 @@ function getPendingInitialMessages() {
     return [{
       id: 'pending-itinerary',
       role: 'assistant' as const,
-      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the right.${followUpBlock}`,
+      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the left.${followUpBlock}`,
     }]
   } catch { return [] }
 }
