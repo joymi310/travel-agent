@@ -46,6 +46,14 @@ const WHEN_OPTIONS = [
   { id: 'flexible', label: 'Flexible', sub: 'No fixed date' },
 ]
 
+const GROUPS = [
+  { id: 'just adults', label: 'Just adults', sub: 'No kids on this one', emoji: '🍷' },
+  { id: 'with a baby or toddler (under 5)', label: 'Baby or toddler', sub: 'Under 5', emoji: '🧸' },
+  { id: 'with young kids (ages 5–10)', label: 'Young kids', sub: 'Ages 5–10', emoji: '🎡' },
+  { id: 'with teenagers', label: 'Teenagers', sub: 'Ages 11–17', emoji: '🎮' },
+  { id: 'mixed ages — kids and adults', label: 'Mixed ages', sub: 'Kids and adults', emoji: '👨‍👩‍👧‍👦' },
+]
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Destination {
@@ -213,17 +221,18 @@ function LoadingCards() {
 
 export default function InspirePage() {
   const router = useRouter()
-  const [step, setStep] = useState(0) // 0=vibes 1=duration 2=when 3=budget 4=origin
+  const [step, setStep] = useState(0) // 0=vibes 1=duration 2=when 3=budget 4=group 5=origin
   const [vibes, setVibes] = useState<string[]>([])
   const [duration, setDuration] = useState('')
   const [when, setWhen] = useState('')
   const [budget, setBudget] = useState('')
+  const [group, setGroup] = useState('')
   const [origin, setOrigin] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<Destination[] | null>(null)
   const [error, setError] = useState(false)
 
-  const TOTAL_STEPS = 5
+  const TOTAL_STEPS = 6
 
   const toggleVibe = (id: string) => {
     setVibes(prev =>
@@ -236,7 +245,8 @@ export default function InspirePage() {
     if (step === 1) return !!duration
     if (step === 2) return !!when
     if (step === 3) return !!budget
-    if (step === 4) return true // origin is optional
+    if (step === 4) return !!group
+    if (step === 5) return true // origin is optional
     return false
   }
 
@@ -256,7 +266,7 @@ export default function InspirePage() {
       const res = await fetch('/api/inspire', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vibes, duration, when, budget, origin }),
+        body: JSON.stringify({ vibes, duration, when, budget, group, origin }),
       })
       const data = await res.json()
       if (!res.ok || !data.destinations) throw new Error('Failed')
@@ -321,7 +331,7 @@ export default function InspirePage() {
 
           <div className="text-center mt-10">
             <button
-              onClick={() => { setResults(null); setStep(0); setVibes([]); setDuration(''); setWhen(''); setBudget(''); setOrigin('') }}
+              onClick={() => { setResults(null); setStep(0); setVibes([]); setDuration(''); setWhen(''); setBudget(''); setGroup(''); setOrigin('') }}
               className="text-sm font-medium hover:opacity-70 transition-opacity"
               style={{ color: C.terra }}
             >
@@ -399,6 +409,24 @@ export default function InspirePage() {
               emoji={b.emoji}
               selected={budget === b.id}
               onClick={() => setBudget(b.id)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      question: "Who's coming with you?",
+      hint: null,
+      content: (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {GROUPS.map(g => (
+            <Chip
+              key={g.id}
+              label={g.label}
+              sub={g.sub}
+              emoji={g.emoji}
+              selected={group === g.id}
+              onClick={() => setGroup(g.id)}
             />
           ))}
         </div>
