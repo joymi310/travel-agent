@@ -637,16 +637,15 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
           )}
         </div>
         {/* Custom scrollbar — flex sibling, always visible when content overflows */}
-        <div className="w-4 py-3 flex-shrink-0 flex justify-center" aria-hidden="true">
-          {isScrollable && (
-            <div className="relative w-1.5 rounded-full flex-1" style={{ background: 'rgba(26,18,8,0.1)' }}>
-              <div
-                className="absolute left-0 right-0 rounded-full transition-[top] duration-75"
-                style={{ background: C.terra, top: thumbTop, height: thumbHeight }}
-              />
-            </div>
-          )}
-        </div>
+        {isScrollable && (
+          <div className="w-1 mr-2 py-3 flex-shrink-0 relative" aria-hidden="true">
+            <div className="absolute inset-y-3 inset-x-0 rounded-full" style={{ background: 'rgba(26,18,8,0.08)' }} />
+            <div
+              className="absolute inset-x-0 rounded-full transition-[top] duration-75"
+              style={{ background: C.terra, opacity: 0.4, top: thumbTop, height: thumbHeight }}
+            />
+          </div>
+        )}
         </div>
 
         {/* Footer */}
