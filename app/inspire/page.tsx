@@ -641,6 +641,11 @@ export default function InspirePage() {
         <div className="space-y-8">
           {/* Question */}
           <div className="space-y-2">
+            {step === 0 && (
+              <p className="text-base font-medium" style={{ color: C.terra }}>
+                Need a holiday but not sure where to go? Let me help you.
+              </p>
+            )}
             <h1 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
               {currentStep.question}
             </h1>

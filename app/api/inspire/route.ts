@@ -35,19 +35,21 @@ export async function POST(req: NextRequest) {
       `Flying from: ${origin || 'New Zealand'}.`,
     ].filter(Boolean).join(' ')
 
+    const isLongerTrip = duration.startsWith('2 weeks') || duration.startsWith('3+')
+
     const systemPrompt = `You are a travel inspiration API. Respond ONLY with valid JSON — no markdown, no code fences, no explanation. Use exactly this structure:
 {
   "destinations": [
     {
-      "city": "Kyoto",
+      "city": "Japan",
       "country": "Japan",
-      "tagline": "Ancient temples, cherry blossoms & world-class ramen",
-      "pitch": "Go in spring when the temple gardens are at their most breathtaking. Kyoto moves at a slower pace than Tokyo — pure culture without the crowds.",
-      "why_you": "You want culture and food — Kyoto delivers both in spades",
+      "tagline": "Ancient temples, bullet trains & world-class food",
+      "pitch": "Two weeks lets you move from the neon chaos of Tokyo to the tranquil temples of Kyoto and the deer parks of Nara. Japan rewards slow travel — take the bullet train and let each city surprise you.",
+      "why_you": "You want culture and food — Japan is one of the world's best for both",
       "best_time": "March–May or Oct–Nov",
-      "est_cost": "$2,500–$3,800 NZD for 1 week",
+      "est_cost": "$4,500–$6,500 NZD for 2 weeks",
       "vibe_tags": ["culture", "food", "history"],
-      "emoji": "🏯"
+      "emoji": "🗾"
     }
   ]
 }
@@ -63,7 +65,8 @@ Rules:
 - emoji is a single relevant emoji for the destination (landmark, flag, or nature icon)
 - Respect the maximum flight time strictly — if someone says "up to 3 hours" from Auckland, do NOT suggest Europe or the US. Only suggest destinations reachable within that flight time from their origin city (or from New Zealand if no origin given)
 - Consider who is travelling — if kids are mentioned, suggest genuinely family-friendly destinations with good infrastructure, safe environments, and child-appropriate activities. If "just adults" or no kids, you can suggest more adventurous or remote options freely
-- Consider the timing stated — if someone is going "next month" suggest places that are great at that time of year`
+- Consider the timing stated — if someone is going "next month" suggest places that are great at that time of year
+${isLongerTrip ? `- IMPORTANT: This is a longer trip (${duration}). Suggest COUNTRIES or multi-country routes, not single cities. The "city" field should be the country name (e.g. "Japan") or a multi-country route (e.g. "Vietnam + Cambodia"). The "country" field should be the broader region (e.g. "Southeast Asia"). The pitch should describe the country/route as a whole and mention 2–3 specific places within it.` : `- For shorter trips (1 week or less), "city" should be a specific city and "country" the country it's in.`}`
 
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -85,7 +88,9 @@ Rules:
       await Promise.all(
         data.destinations.map(async (dest: { city: string; country: string; image_url?: string; photographer_name?: string; photographer_url?: string }) => {
           try {
-            const query = encodeURIComponent(`${dest.city} ${dest.country} travel landscape`)
+            // For multi-country routes like "Vietnam + Cambodia", use just the first country for the photo
+            const photoSubject = dest.city.includes('+') ? dest.city.split('+')[0].trim() : dest.city
+            const query = encodeURIComponent(`${photoSubject} ${dest.country} travel landscape`)
             const res = await fetch(
               `https://api.unsplash.com/search/photos?query=${query}&orientation=landscape&per_page=1`,
               { headers: { Authorization: `Client-ID ${unsplashKey}` } }
