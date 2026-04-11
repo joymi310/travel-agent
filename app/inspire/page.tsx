@@ -54,6 +54,7 @@ const FLIGHT_TIMES = [
 ]
 
 const GROUPS = [
+  { id: 'just me', label: 'Just me', sub: 'Solo trip', emoji: '🙋' },
   { id: 'just adults', label: 'Just adults', sub: 'No kids on this one', emoji: '🍷' },
   { id: 'with a baby or toddler (under 5)', label: 'Baby or toddler', sub: 'Under 5', emoji: '🧸' },
   { id: 'with young kids (ages 5–10)', label: 'Young kids', sub: 'Ages 5–10', emoji: '🎡' },
@@ -331,6 +332,7 @@ export default function InspirePage() {
       21
 
     const traveller =
+      group === 'just me' ? 'Solo traveller' :
       group.includes('baby') || group.includes('toddler') ? 'Family with young kids' :
       group.includes('young kids') ? 'Family with older kids' :
       group.includes('teenagers') ? 'Family with teens' :
