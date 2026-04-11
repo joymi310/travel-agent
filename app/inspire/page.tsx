@@ -105,11 +105,9 @@ function Chip({
 
 function DestinationCard({
   dest,
-  origin,
   onPick,
 }: {
   dest: Destination
-  origin: string
   onPick: (dest: Destination) => void
 }) {
   const tagColors: Record<string, string> = {
@@ -323,7 +321,6 @@ export default function InspirePage() {
               <DestinationCard
                 key={`${dest.city}-${dest.country}`}
                 dest={dest}
-                origin={origin}
                 onPick={handlePick}
               />
             ))}
