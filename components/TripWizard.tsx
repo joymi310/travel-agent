@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const C = {
   sand: '#F5ECD7',
@@ -193,6 +193,20 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
   const [profileAnswers, setProfileAnswers] = useState<string[]>([])
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollHint, setShowScrollHint] = useState(false)
+
+  // Show fade/hint when content is scrollable and not yet at the bottom
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const check = () => setShowScrollHint(el.scrollHeight > el.clientHeight + 4 && el.scrollTop + el.clientHeight < el.scrollHeight - 4)
+    check()
+    el.addEventListener('scroll', check)
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => { el.removeEventListener('scroll', check); ro.disconnect() }
+  }, [step]) // re-run when step changes so new content is measured
 
   const days = tripDays(startDate, endDate)
   const TOTAL_STEPS = 6
@@ -305,8 +319,9 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
           .wandr-wizard-scroll::-webkit-scrollbar-track { background: transparent; }
           .wandr-wizard-scroll::-webkit-scrollbar-thumb { background: rgba(201,74,43,0.35); border-radius: 99px; }
           .wandr-wizard-scroll::-webkit-scrollbar-thumb:hover { background: rgba(201,74,43,0.6); }
+          .wandr-wizard-scroll { scrollbar-width: thin; scrollbar-color: rgba(201,74,43,0.35) transparent; }
         `}</style>
-        <div className="wandr-wizard-scroll px-6 py-6 space-y-4 overflow-y-scroll" style={{ maxHeight: '65vh' }}>
+        <div ref={scrollRef} className="wandr-wizard-scroll px-6 py-6 space-y-4 overflow-y-scroll" style={{ maxHeight: '65vh' }}>
 
           {/* STEP 1 — TRAVELLER PROFILE */}
           {step === 1 && (
@@ -613,9 +628,16 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
         </div>
-        {/* Fade hint at bottom to indicate more content */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8"
-          style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.9))' }} />
+        {/* Fade + scroll hint — only when more content exists below */}
+        {showScrollHint && (
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex flex-col items-center pb-2 pt-8"
+            style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.97))' }}>
+            <span className="text-xs font-medium" style={{ color: C.terra, opacity: 0.7 }}>scroll for more</span>
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" style={{ color: C.terra, opacity: 0.5, marginTop: 2 }}>
+              <path d="M1 1l7 7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        )}
         </div>
 
         {/* Footer */}
