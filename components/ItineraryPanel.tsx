@@ -330,21 +330,19 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 <span style={{ color: `${C.dark}70` }}>Final destination</span>
               </div>
             </div>
-            {/* Stop list */}
-            <div className="flex gap-2.5 items-center overflow-x-auto" style={{ minWidth: 0 }}>
+            {/* Stop list — uses label from AI which includes day range e.g. "Mexico City (Days 1–4)" */}
+            <div className="flex gap-2 items-center overflow-x-auto" style={{ minWidth: 0 }}>
               {itinerary.locations!.map((loc, i) => {
                 const isLast = i === itinerary.locations!.length - 1
                 return (
                   <div key={i} className="flex items-center gap-1.5 shrink-0">
                     <div
-                      className="rounded-full px-2 py-0.5 text-xs font-bold shrink-0"
-                      style={{ background: isLast ? C.jade : C.terra, color: C.sand, fontSize: '10px' }}
-                    >
-                      Day {loc.day}
-                    </div>
-                    <span className="text-xs" style={{ color: C.dark }}>{loc.city}</span>
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ background: isLast ? C.jade : C.terra }}
+                    />
+                    <span className="text-xs font-medium" style={{ color: C.dark }}>{loc.label}</span>
                     {i < itinerary.locations!.length - 1 && (
-                      <span className="text-xs" style={{ color: `${C.dark}30` }}>→</span>
+                      <span className="text-xs ml-0.5" style={{ color: `${C.dark}30` }}>→</span>
                     )}
                   </div>
                 )

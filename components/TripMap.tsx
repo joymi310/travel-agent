@@ -95,13 +95,13 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
         </Source>
       )}
 
-      {/* Day pill pins */}
+      {/* City name pins — tooltip shows full label with day range */}
       {locations.map((loc, i) => {
         const isLast = i === locations.length - 1
         return (
           <Marker key={i} latitude={loc.lat} longitude={loc.lng} anchor="center">
             <div
-              title={`Day ${loc.day} — ${loc.city}${isLast ? ' (final stop)' : ' (overnight)'}`}
+              title={`${loc.label}${isLast ? ' — final stop' : ' — overnight'}`}
               style={{
                 background: isLast ? JADE : TERRA,
                 color: SAND,
@@ -116,9 +116,12 @@ export function TripMap({ locations, className = '' }: TripMapProps) {
                 userSelect: 'none',
                 whiteSpace: 'nowrap',
                 lineHeight: 1.2,
+                maxWidth: 140,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
-              Day {loc.day}
+              {loc.city}
             </div>
           </Marker>
         )
