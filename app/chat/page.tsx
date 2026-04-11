@@ -244,10 +244,12 @@ export default function ChatPage() {
           .eq('id', u.id)
           .single()
         const style = profile?.travel_style ?? null
-        if (!style) setShowPicker(true)
 
         // Save pending trip from wizard flow
         const raw = localStorage.getItem('wandr_pending_trip')
+        // Only show profile picker if no travel style AND no pending trip
+        // (users coming from the trip wizard don't need to answer questions again)
+        if (!style && !raw) setShowPicker(true)
         if (raw) {
           try {
             const { wizardAnswers, itinerary: pendingItinerary } = JSON.parse(raw)
@@ -339,7 +341,7 @@ export default function ChatPage() {
         <ProfileWizard
           onSave={() => {
             setShowPicker(false)
-            router.push('/?wizard=1')
+            if (!itinerary) router.push('/?wizard=1')
           }}
           onSkip={() => setShowPicker(false)}
         />
