@@ -314,11 +314,11 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
         {/* Scrollable content */}
         <div className="relative">
         <style>{`
-          .wandr-wizard-scroll::-webkit-scrollbar { width: 6px; }
-          .wandr-wizard-scroll::-webkit-scrollbar-track { background: transparent; }
-          .wandr-wizard-scroll::-webkit-scrollbar-thumb { background: rgba(201,74,43,0.35); border-radius: 99px; }
-          .wandr-wizard-scroll::-webkit-scrollbar-thumb:hover { background: rgba(201,74,43,0.6); }
-          .wandr-wizard-scroll { scrollbar-width: thin; scrollbar-color: rgba(201,74,43,0.35) transparent; }
+          .wandr-wizard-scroll::-webkit-scrollbar { width: 8px; }
+          .wandr-wizard-scroll::-webkit-scrollbar-track { background: rgba(26,18,8,0.06); border-radius: 99px; }
+          .wandr-wizard-scroll::-webkit-scrollbar-thumb { background: rgba(201,74,43,0.55); border-radius: 99px; }
+          .wandr-wizard-scroll::-webkit-scrollbar-thumb:hover { background: rgba(201,74,43,0.8); }
+          .wandr-wizard-scroll { scrollbar-width: auto; scrollbar-color: rgba(201,74,43,0.55) rgba(26,18,8,0.06); }
         `}</style>
         <div ref={scrollRef} className="wandr-wizard-scroll px-6 py-6 space-y-4 overflow-y-scroll" style={{ maxHeight: '65vh' }}>
 
@@ -627,15 +627,10 @@ export function TripWizard({ onComplete, onClose, initialDestination }: TripWiza
             </>
           )}
         </div>
-        {/* Fade + scroll hint — only when more content exists below */}
+        {/* Fade when more content exists below */}
         {showScrollHint && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 flex flex-col items-center pb-2 pt-8"
-            style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.97))' }}>
-            <span className="text-xs font-medium" style={{ color: C.terra, opacity: 0.7 }}>scroll for more</span>
-            <svg width="16" height="10" viewBox="0 0 16 10" fill="none" style={{ color: C.terra, opacity: 0.5, marginTop: 2 }}>
-              <path d="M1 1l7 7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-12"
+            style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))' }} />
         )}
         </div>
 
