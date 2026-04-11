@@ -78,6 +78,35 @@ Rules:
     const cleaned = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
 
     const data = JSON.parse(cleaned)
+
+    // Fetch Unsplash photos for each destination in parallel
+    const unsplashKey = process.env.UNSPLASH_ACCESS_KEY
+    if (unsplashKey && Array.isArray(data.destinations)) {
+      await Promise.all(
+        data.destinations.map(async (dest: { city: string; country: string; image_url?: string; photographer_name?: string; photographer_url?: string }) => {
+          try {
+            const query = encodeURIComponent(`${dest.city} ${dest.country} travel landscape`)
+            const res = await fetch(
+              `https://api.unsplash.com/search/photos?query=${query}&orientation=landscape&per_page=1`,
+              { headers: { Authorization: `Client-ID ${unsplashKey}` } }
+            )
+            if (!res.ok) return
+            const json = await res.json()
+            const photo = json?.results?.[0]
+            if (photo?.urls?.regular) {
+              dest.image_url = photo.urls.regular
+              dest.photographer_name = photo.user?.name ?? undefined
+              dest.photographer_url = photo.user?.links?.html
+                ? `${photo.user.links.html}?utm_source=wandr&utm_medium=referral`
+                : undefined
+            }
+          } catch {
+            // Photo fetch failing silently is fine — card still renders without image
+          }
+        })
+      )
+    }
+
     return NextResponse.json(data)
   } catch (err) {
     console.error('[inspire] Error:', err)

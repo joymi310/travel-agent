@@ -73,6 +73,9 @@ interface Destination {
   est_cost: string
   vibe_tags: string[]
   emoji: string
+  image_url?: string
+  photographer_name?: string
+  photographer_url?: string
 }
 
 // ─── Chip component ───────────────────────────────────────────────────────────
@@ -128,14 +131,43 @@ function DestinationCard({
       className="rounded-3xl overflow-hidden flex flex-col"
       style={{ background: 'white', border: `1px solid ${C.saffron}33` }}
     >
-      {/* Header */}
-      <div className="px-7 pt-7 pb-5" style={{ background: `${C.dark}` }}>
-        <div className="text-5xl mb-3">{dest.emoji}</div>
-        <h3 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.sand }}>
-          {dest.city}
-        </h3>
-        <p className="text-sm font-medium mt-0.5" style={{ color: `${C.sand}99` }}>{dest.country}</p>
-        <p className="text-base mt-3 leading-snug font-medium italic" style={{ color: C.saffron }}>
+      {/* Header — photo or dark fallback */}
+      <div className="relative h-48 overflow-hidden" style={{ background: C.dark }}>
+        {dest.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={dest.image_url}
+            alt={`${dest.city}, ${dest.country}`}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full text-6xl">{dest.emoji}</div>
+        )}
+        {/* Gradient overlay for text legibility */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,18,8,0.85) 40%, rgba(26,18,8,0.2) 100%)' }} />
+        {/* City name over photo */}
+        <div className="absolute bottom-0 left-0 px-6 pb-4">
+          <h3 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.sand }}>
+            {dest.city}
+          </h3>
+          <p className="text-sm font-medium mt-0.5" style={{ color: `${C.sand}bb` }}>{dest.country}</p>
+        </div>
+        {/* Photographer credit */}
+        {dest.photographer_name && dest.photographer_url && (
+          <a
+            href={dest.photographer_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute bottom-1 right-2 text-[10px] hover:opacity-80 transition-opacity"
+            style={{ color: `${C.sand}66` }}
+          >
+            📷 {dest.photographer_name}
+          </a>
+        )}
+      </div>
+      {/* Tagline below header */}
+      <div className="px-6 py-3" style={{ background: C.dark }}>
+        <p className="text-sm leading-snug font-medium italic" style={{ color: C.saffron }}>
           &ldquo;{dest.tagline}&rdquo;
         </p>
       </div>
