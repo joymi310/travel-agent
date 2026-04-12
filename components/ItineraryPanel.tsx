@@ -394,13 +394,15 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 </span>
               </button>
 
-              {isExpanded && (
-                <div
-                  id={panelId}
-                  role="region"
-                  aria-labelledby={headingId}
-                  className="px-4 py-4 space-y-4"
-                >
+              <div
+                id={panelId}
+                role="region"
+                aria-labelledby={headingId}
+                className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
+              >
+                <div className="overflow-hidden">
+                <div className="px-4 py-4 space-y-4">
                   {/* Highlights */}
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: C.saffron }}>
@@ -469,10 +471,17 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                                 Maps ↗
                               </a>
                             </div>
-                            {mealExpanded && (
-                              <div className="mt-1.5 pl-4 space-y-0.5">
-                                {dish && <p className="text-xs" style={{ color: C.dark, opacity: 0.6 }}>Order: {dish}</p>}
-                                {reason && <p className="text-xs italic" style={{ color: '#999' }}>{reason}</p>}
+                            {hasDetail && (
+                              <div
+                                className="grid transition-[grid-template-rows] duration-200 ease-in-out"
+                                style={{ gridTemplateRows: mealExpanded ? '1fr' : '0fr' }}
+                              >
+                                <div className="overflow-hidden">
+                                  <div className="mt-1.5 pl-4 space-y-0.5">
+                                    {dish && <p className="text-xs" style={{ color: C.dark, opacity: 0.6 }}>Order: {dish}</p>}
+                                    {reason && <p className="text-xs italic" style={{ color: '#999' }}>{reason}</p>}
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -486,7 +495,8 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                     <span style={{ color: '#bbb' }}>Getting around —</span> {day.transport}
                   </p>
                 </div>
-              )}
+                </div>
+              </div>
             </div>
           )
         })}
