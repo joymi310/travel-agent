@@ -20,9 +20,32 @@ interface ChatMessagesProps {
 
 export function ChatMessages({ messages, isLoading, loadingMessage }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const isAtBottomRef = useRef(true)
+  const prevLengthRef = useRef(messages.length)
+
+  // Track whether the bottom sentinel is visible so we don't forcibly scroll
+  // a user who has scrolled up to re-read something
+  useEffect(() => {
+    const el = bottomRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { isAtBottomRef.current = entry.isIntersecting },
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const isNewMessage = messages.length !== prevLengthRef.current
+    prevLengthRef.current = messages.length
+
+    // Don't disturb a user who has scrolled up, unless a new message just arrived
+    if (!isAtBottomRef.current && !isNewMessage) return
+
+    // Instant during streaming (avoids conflicting smooth animations on every token),
+    // smooth only when a new message bubble appears
+    bottomRef.current?.scrollIntoView({ behavior: isNewMessage ? 'smooth' : 'instant' })
   }, [messages])
 
   return (
