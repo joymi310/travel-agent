@@ -1,5 +1,3 @@
-:global(html) { scroll-behavior: smooth; }
-
 .wrap {
   --ink: #1a1612;
   --paper: #faf8f4;
