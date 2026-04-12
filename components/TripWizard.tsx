@@ -42,6 +42,7 @@ const TRAVELLER_PROFILES = [
   { id: 'Family with young kids', icon: '🧸', desc: 'Children under 5' },
   { id: 'Family with older kids', icon: '🎮', desc: 'Children aged 6–11' },
   { id: 'Family with teens', icon: '🏄', desc: 'Teenagers in the group' },
+  { id: 'Mixed group', icon: '👥', desc: 'Friends, mixed ages, or varied interests' },
 ]
 
 // ─── Profile-specific questions ───────────────────────────────────────────────
@@ -109,6 +110,13 @@ const PROFILE_QUESTIONS: Record<string, PQ[]> = {
     { label: 'Accommodation style?', type: 'radio', options: ['Budget / hostel', 'Mid-range hotel', 'Apartment / villa', 'Resort', 'A mix — happy to vary it'] },
     ACCESSIBILITY_Q,
     { label: 'Been to this destination before?', type: 'radio', options: ['First time', 'Been before'] },
+  ],
+  'Mixed group': [
+    { label: 'Who\'s in the group?', type: 'text', placeholder: 'e.g. 6 friends in our 30s, a couple + two sets of parents, mixed ages 18–70' },
+    { label: 'What does everyone agree they want from this trip?', type: 'text', placeholder: 'e.g. great food, beach time, adventure — the common ground' },
+    { label: 'Where do interests diverge?', type: 'text', placeholder: 'e.g. some want nightlife, others prefer culture and early nights' },
+    ACCESSIBILITY_Q,
+    { label: 'Been to this destination before?', type: 'radio', options: ['Most are first-timers', 'Mix — some have been, some haven\'t', 'Most have been before'] },
   ],
 }
 
