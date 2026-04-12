@@ -635,8 +635,8 @@ export default function ChatPage() {
         </div>
       </header>
 
-      {/* Mobile tab bar — only shown when an itinerary is present */}
-      {itinerary && (
+      {/* Mobile tab bar — shown when itinerary exists or is generating */}
+      {(itinerary || generating) && (
         <div className="lg:hidden flex border-b shrink-0" style={{ borderColor: `${C.dark}15`, background: C.sand }}
           role="tablist" aria-label="View">
           {(['chat', 'itinerary'] as const).map(tab => (
@@ -673,7 +673,7 @@ export default function ChatPage() {
         {/* Left — Generating skeleton */}
         {generating && !itinerary && (
           <div
-            className="flex-1 overflow-hidden border-r hidden lg:flex flex-col p-8 gap-5"
+            className={`flex-1 overflow-hidden border-r flex-col p-8 gap-5 ${mobileTab !== 'itinerary' ? 'hidden lg:flex' : 'flex'}`}
             style={{ borderColor: `${C.dark}10` }}
             aria-label="Generating itinerary"
             aria-busy="true"
@@ -741,10 +741,11 @@ export default function ChatPage() {
                       <p className="text-2xl" style={{ fontFamily: 'var(--font-playfair)', color: C.dark, opacity: 0.5 }}>
                         Building your trip…
                       </p>
-                      <p className="text-sm" style={{ color: C.dark, opacity: 0.35 }}>
-                        Your itinerary will appear on the left.
+                      <p className="text-sm text-center max-w-xs mx-auto" style={{ color: C.dark, opacity: 0.35 }}>
+                        <span className="hidden lg:inline">Your itinerary will appear on the left.</span>
+                        <span className="lg:hidden">Your itinerary will appear in the <strong>Itinerary</strong> tab above once it&apos;s ready.</span>
                       </p>
-                      <p className="text-sm max-w-xs mx-auto" style={{ color: C.dark, opacity: 0.35 }}>
+                      <p className="text-sm text-center max-w-xs mx-auto" style={{ color: C.dark, opacity: 0.35 }}>
                         This will take a minute. We&apos;re ensuring we&apos;re getting the best recommendations for you.
                       </p>
                     </>
