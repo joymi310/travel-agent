@@ -448,7 +448,7 @@ export default function HomePage() {
           </div>
           <div className="flex gap-6 text-xs opacity-50">
             <a href="#" className="hover:opacity-100 transition-opacity">Privacy</a>
-            <a href="#" className="hover:opacity-100 transition-opacity">Terms</a>
+            <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>
             <a href="#" className="hover:opacity-100 transition-opacity">Contact</a>
           </div>
         </div>
