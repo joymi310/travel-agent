@@ -171,7 +171,7 @@ export default function TermsPage() {
             <p>If you have any questions about these Terms, please contact us:</p>
             <div className={styles.contactBlock}>
               <p><strong style={{ color: 'var(--paper)' }}>Wayfindr</strong></p>
-              <p>Email: <a href="mailto:hello@wayfindrtravel.com">hello@wayfindrtravel.com</a></p>
+              <p>Email: <a href="mailto:joymi310@gmail.com">joymi310@gmail.com</a></p>
               <p>New Zealand</p>
             </div>
           </section>
