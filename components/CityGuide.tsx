@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useCompletion } from 'ai/react'
 import ReactMarkdown from 'react-markdown'
 import { CityQuestionnaire, type QuestionnaireAnswers } from './CityQuestionnaire'
@@ -107,6 +107,24 @@ function SectionCard({ title, emoji, color, content, isStreaming }: {
 export function CityGuide({ city, initialAnswers }: Props) {
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireAnswers | null>(null)
   const [dismissed, setDismissed] = useState(false)
+  const [triggered, setTriggered] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTriggered(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const { completion, complete, isLoading } = useCompletion({
     api: '/api/city-guide',
@@ -133,8 +151,11 @@ export function CityGuide({ city, initialAnswers }: Props) {
 
   return (
     <>
-      {/* Questionnaire modal — shown until answered or dismissed */}
-      {!questionnaire && !dismissed && (
+      {/* Sentinel — questionnaire triggers when this scrolls into view */}
+      <div ref={sentinelRef} />
+
+      {/* Questionnaire modal — shown when user scrolls to this section */}
+      {triggered && !questionnaire && !dismissed && (
         <CityQuestionnaire
           cityName={city.name}
           initialAnswers={initialAnswers}
