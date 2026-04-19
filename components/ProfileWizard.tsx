@@ -74,15 +74,21 @@ export function ProfileWizard({ onSave, onSkip }: ProfileWizardProps) {
 
   const handleSave = async (travelStyle: string, profileData: Record<string, string>) => {
     setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await supabase
-        .from('profiles')
-        .update({ travel_style: travelStyle, profile_data: profileData })
-        .eq('id', user.id)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ travel_style: travelStyle, profile_data: profileData })
+          .eq('id', user.id)
+      }
+      onSave(travelStyle, profileData)
+    } catch (err) {
+      console.error('[wayfindr] Profile save failed:', err)
+      onSave(travelStyle, profileData)
+    } finally {
+      setSaving(false)
     }
-    onSave(travelStyle, profileData)
-    setSaving(false)
   }
 
   const handleBack = () => {

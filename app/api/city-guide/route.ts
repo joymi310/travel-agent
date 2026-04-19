@@ -72,7 +72,33 @@ Getting around: ${city.getting_around}
 }
 
 export async function POST(req: Request) {
-  const { city, questionnaire } = await req.json()
+  const body = await req.json()
+
+  const city: CityData = body.city
+  const questionnaire: Questionnaire = body.questionnaire
+
+  if (
+    !city || typeof city.name !== 'string' || !city.name.trim() ||
+    typeof city.country !== 'string' ||
+    !questionnaire || typeof questionnaire.companions !== 'string' ||
+    typeof questionnaire.budget !== 'string' ||
+    !Array.isArray(questionnaire.interests) ||
+    typeof questionnaire.duration !== 'string'
+  ) {
+    return new Response(JSON.stringify({ error: 'Invalid request' }), { status: 400 })
+  }
+
+  // Sanitise string fields
+  city.name = city.name.slice(0, 100).trim()
+  city.country = city.country.slice(0, 100).trim()
+  city.overview = typeof city.overview === 'string' ? city.overview.slice(0, 2000).trim() : ''
+  city.best_time = typeof city.best_time === 'string' ? city.best_time.slice(0, 500).trim() : ''
+  city.getting_around = typeof city.getting_around === 'string' ? city.getting_around.slice(0, 500).trim() : ''
+  city.neighbourhoods = Array.isArray(city.neighbourhoods) ? city.neighbourhoods.slice(0, 10) : []
+  questionnaire.companions = questionnaire.companions.slice(0, 50).trim()
+  questionnaire.budget = questionnaire.budget.slice(0, 50).trim()
+  questionnaire.interests = questionnaire.interests.slice(0, 10).map((i: unknown) => String(i).slice(0, 50))
+  questionnaire.duration = questionnaire.duration.slice(0, 50).trim()
 
   const result = await streamText({
     model: anthropic('claude-sonnet-4-20250514'),

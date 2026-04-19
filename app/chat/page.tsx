@@ -263,8 +263,10 @@ export default function ChatPage() {
   const renameConversation = async (convId: string, newTitle: string) => {
     const trimmed = newTitle.trim()
     if (!trimmed) return
-    await supabase.from('conversations').update({ title: trimmed }).eq('id', convId)
-    setSavedConversations(prev => prev.map(c => c.id === convId ? { ...c, title: trimmed } : c))
+    const { error } = await supabase.from('conversations').update({ title: trimmed }).eq('id', convId)
+    if (!error) {
+      setSavedConversations(prev => prev.map(c => c.id === convId ? { ...c, title: trimmed } : c))
+    }
     setEditingId(null)
   }
 
