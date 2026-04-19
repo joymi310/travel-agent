@@ -233,11 +233,6 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
               style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
               {itinerary.destination}
             </h2>
-            {itinerary.tagline && (
-              <p className="text-sm mt-0.5" style={{ color: '#555', fontStyle: 'italic' }}>
-                {itinerary.tagline}
-              </p>
-            )}
           </div>
 
           {/* Actions menu */}
