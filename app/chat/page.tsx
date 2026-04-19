@@ -74,15 +74,22 @@ function getPendingInitialMessages() {
     const raw = localStorage.getItem('wandr_pending_trip')
     if (!raw) return []
     const { itinerary } = JSON.parse(raw)
-    const questions: string[] = itinerary.follow_up_questions ?? []
-    const followUpBlock = questions.length > 0
-      ? `\n\n${questions.map((q: string) => `- ${q}`).join('\n')}`
-      : ''
     return [{
       id: 'pending-itinerary',
       role: 'assistant' as const,
-      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the left.${followUpBlock}`,
+      content: `Here's your **${itinerary.duration}** itinerary for **${itinerary.destination}**! It's shown on the left.`,
     }]
+  } catch { return [] }
+}
+
+function getPendingFollowUpChips(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    if (localStorage.getItem('wandr_generating')) return []
+    const raw = localStorage.getItem('wandr_pending_trip')
+    if (!raw) return []
+    const { itinerary } = JSON.parse(raw)
+    return itinerary.follow_up_questions ?? []
   } catch { return [] }
 }
 
@@ -109,6 +116,7 @@ export default function ChatPage() {
   const [initialMessages] = useState(() => getPendingInitialMessages())
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [showChips, setShowChips] = useState(false)
+  const [followUpChips, setFollowUpChips] = useState<string[]>(() => getPendingFollowUpChips())
   const { messages, input, setInput, handleSubmit, isLoading, error, setMessages, append } = useChat({
     api: '/api/chat',
     initialMessages,
@@ -376,15 +384,12 @@ export default function ChatPage() {
       const match = accumulated.match(/<wandr_data>([\s\S]*?)<\/wandr_data>/)
       if (!match) throw new Error('No itinerary data found in response')
       const parsed: Itinerary = JSON.parse(match[1].trim())
-      const questions: string[] = parsed.follow_up_questions ?? []
-      const followUpBlock = questions.length > 0
-        ? `\n\n${questions.map((q: string) => `- ${q}`).join('\n')}`
-        : ''
       setItinerary(parsed)
+      setFollowUpChips(parsed.follow_up_questions ?? [])
       setMessages([{
         id: 'pending-itinerary',
         role: 'assistant' as const,
-        content: `Here's your **${parsed.duration}** itinerary for **${parsed.destination}**! It's shown on the left.${followUpBlock}`,
+        content: `Here's your **${parsed.duration}** itinerary for **${parsed.destination}**! It's shown on the left.`,
       }])
       setShowChips(true)
       localStorage.setItem('wandr_pending_trip', JSON.stringify({ wizardAnswers: answers, itinerary: parsed }))
@@ -787,7 +792,7 @@ export default function ChatPage() {
                   className="flex gap-2 overflow-x-auto pb-1"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  {STATIC_CHIPS.map(chip => (
+                  {[...followUpChips, ...STATIC_CHIPS].map(chip => (
                     <button
                       key={chip}
                       onClick={() => handleChipClick(chip)}
