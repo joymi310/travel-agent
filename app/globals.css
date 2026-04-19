@@ -55,19 +55,51 @@ body {
 }
 .animate-generating { animation: generating 1.8s ease-in-out infinite; }
 
+/* Print-only elements: hidden on screen, shown when printing */
+.wayfindr-print-header,
+.wayfindr-print-footer { display: none; }
+
 /* Print styles — show only the itinerary panel */
 @media print {
   body > * { display: none !important; }
+
   .wayfindr-itinerary-panel {
     display: block !important;
     height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
     background: white !important;
   }
-  .wayfindr-itinerary-panel [role="toolbar"] { display: none !important; }
-  .wayfindr-itinerary-panel [role="region"],
-  .wayfindr-itinerary-panel [id^="day-panel-"] { display: block !important; }
 
-  /* Force all day panels open when printing */
-  .wayfindr-itinerary-panel .rounded-2xl > div { display: block !important; }
+  /* Show branded header + footer */
+  .wayfindr-print-header,
+  .wayfindr-print-footer { display: block !important; }
+
+  /* Hide interactive chrome */
+  .wayfindr-itinerary-panel [role="toolbar"],
+  .wayfindr-itinerary-panel [aria-label="Itinerary actions"],
+  .wayfindr-itinerary-panel [aria-label="View"] { display: none !important; }
+
+  /* Unlock overflow/height on all containers */
+  .wayfindr-itinerary-panel > div,
+  .wayfindr-itinerary-panel > div > div {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Force all accordion day panels open (grid-template-rows animation) */
+  .wayfindr-itinerary-panel [id^="day-panel-"] {
+    display: grid !important;
+    grid-template-rows: 1fr !important;
+  }
+  .wayfindr-itinerary-panel [id^="day-panel-"] > div {
+    overflow: visible !important;
+  }
+
+  /* Keep each day card together across pages */
+  .wayfindr-itinerary-panel .rounded-2xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }
