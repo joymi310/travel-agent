@@ -623,6 +623,12 @@ export default function ChatPage() {
                 )}
               </div>
 
+              <Link href="/reset-password"
+                className="hidden sm:inline transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded"
+                style={{ color: C.sand, opacity: 0.6, outlineColor: C.saffron }}>
+                Change password
+              </Link>
+
               <button onClick={handleSignOut}
                 className="transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded"
                 aria-label="Sign out"

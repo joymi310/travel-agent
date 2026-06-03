@@ -157,6 +157,15 @@ function LoginForm() {
             </button>
           </form>
 
+          {mode === 'signin' && (
+            <p className="text-center text-sm -mt-4">
+              <Link href="/forgot-password" className="font-medium hover:opacity-70 transition-opacity"
+                style={{ color: C.terra }}>
+                Forgot password?
+              </Link>
+            </p>
+          )}
+
           <p className="text-center text-sm" style={{ color: C.dark }}>
             <span className="opacity-60">{mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}</span>
             <button
