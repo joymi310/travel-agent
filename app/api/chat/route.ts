@@ -97,7 +97,7 @@ If the user is only asking a question and NOT modifying the itinerary, do NOT in
 
   const anthropicStream = anthropicClient.messages.stream(
     {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 8096,
       system: systemBlocks as Anthropic.TextBlockParam[],
       tools: [{ type: 'web_search_20250305', name: 'web_search' }] as unknown as Anthropic.Tool[],

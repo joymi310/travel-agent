@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 Include 3-5 neighbourhoods. Make all content specific and useful — real names, real advice. price_range must be exactly "Budget", "Mid-range" or "Luxury".`
 
     const { text } = await generateText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: anthropic('claude-sonnet-5'),
       system: systemPrompt,
       messages: [{ role: 'user', content: `Generate a complete city guide for ${cityName}.` }],
       maxTokens: 4000,

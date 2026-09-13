@@ -14,12 +14,14 @@ Wayfindr — an AI travel planning app. Users describe a trip, get a structured 
 
 | Endpoint | Model | Why |
 |----------|-------|-----|
-| `/api/chat` | `claude-sonnet-4-20250514` | Main chat — quality matters |
-| `/api/city-guide` | `claude-sonnet-4-20250514` | Detailed structured guide |
+| `/api/chat` | `claude-sonnet-5` | Main chat — quality matters |
+| `/api/city-guide` | `claude-sonnet-5` | Detailed structured guide |
 | `/api/city-chat` | `claude-haiku-4-5-20251001` | Speed/cost, concise answers |
-| `/api/generate-itinerary` | `claude-haiku-4-5-20251001` | Structured JSON output |
-| `/api/admin/generate-city` | `claude-sonnet-4-6` | Admin-only, one-off |
+| `/api/generate-itinerary` | `claude-sonnet-5` | Structured JSON output |
+| `/api/admin/generate-city` | `claude-sonnet-5` | Admin-only, one-off |
 | Title generation (in chat) | `claude-haiku-4-5-20251001` | Short, cheap |
+
+**Note:** dated snapshot model IDs (e.g. `claude-sonnet-4-20250514`) get retired by Anthropic over time and start returning `404 not_found_error`. `/api/generate-itinerary`'s error handling swallowed this silently (logged server-side, returned an empty `200` stream), so the UI just showed a generic "Couldn't build your itinerary" with no indication it was a bad model ID. If itinerary/chat/city-guide generation goes down again, check Vercel function logs first (`vercel logs <deployment-url>`) for `AI_APICallError` before assuming a billing/quota problem.
 
 ## Key Files
 

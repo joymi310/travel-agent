@@ -101,7 +101,7 @@ export async function POST(req: Request) {
   questionnaire.duration = questionnaire.duration.slice(0, 50).trim()
 
   const result = await streamText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-sonnet-5'),
     messages: [
       {
         role: 'system' as const,

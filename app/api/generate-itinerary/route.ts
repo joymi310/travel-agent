@@ -112,7 +112,7 @@ RULES (apply to both parts):
 - The wandr_data block must be on ONE LINE — no internal newlines in the JSON`
 
     const result = streamText({
-      model: anthropic('claude-sonnet-4-20250514'),
+      model: anthropic('claude-sonnet-5'),
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
       maxTokens,
