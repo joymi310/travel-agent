@@ -1,7 +1,8 @@
-import { anthropic } from '@ai-sdk/anthropic'
-import { streamText } from 'ai'
+import Anthropic from '@anthropic-ai/sdk'
 
 export const maxDuration = 120
+
+const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 interface Neighbourhood {
   name: string
@@ -100,23 +101,42 @@ export async function POST(req: Request) {
   questionnaire.interests = questionnaire.interests.slice(0, 10).map((i: unknown) => String(i).slice(0, 50))
   questionnaire.duration = questionnaire.duration.slice(0, 50).trim()
 
-  const result = await streamText({
-    model: anthropic('claude-sonnet-5'),
-    messages: [
-      {
-        role: 'system' as const,
-        content: GUIDE_INSTRUCTIONS,
-        providerOptions: {
-          anthropic: { cacheControl: { type: 'ephemeral' } },
-        },
-      },
-      {
-        role: 'system' as const,
-        content: buildCityContext(city, questionnaire),
-      },
-      { role: 'user', content: `Generate my personalised ${city.name} guide.` },
+  const anthropicStream = anthropicClient.messages.stream({
+    model: 'claude-sonnet-5',
+    max_tokens: 4096,
+    system: [
+      { type: 'text', text: GUIDE_INSTRUCTIONS, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: buildCityContext(city, questionnaire) },
     ],
+    messages: [{ role: 'user', content: `Generate my personalised ${city.name} guide.` }],
   })
 
-  return result.toDataStreamResponse()
+  // Manually emit the AI SDK data-stream wire format (`0:"<chunk>"\n`) so the
+  // existing `useCompletion` client keeps working without the ai/streamText wrapper.
+  const encoder = new TextEncoder()
+  const readable = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const event of anthropicStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            'delta' in event &&
+            event.delta.type === 'text_delta'
+          ) {
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(event.delta.text)}\n`))
+          }
+        }
+      } catch (err) {
+        console.error('city-guide stream error:', err)
+      }
+      controller.close()
+    },
+  })
+
+  return new Response(readable, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Vercel-AI-Data-Stream': 'v1',
+    },
+  })
 }

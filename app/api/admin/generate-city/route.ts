@@ -1,9 +1,10 @@
-import { anthropic } from '@ai-sdk/anthropic'
-import { generateText } from 'ai'
+import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export const maxDuration = 120
+
+const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req: Request) {
   try {
@@ -48,12 +49,13 @@ export async function POST(req: Request) {
 }
 Include 3-5 neighbourhoods. Make all content specific and useful — real names, real advice. price_range must be exactly "Budget", "Mid-range" or "Luxury".`
 
-    const { text } = await generateText({
-      model: anthropic('claude-sonnet-5'),
+    const message = await anthropicClient.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: 'user', content: `Generate a complete city guide for ${cityName}.` }],
-      maxTokens: 4000,
     })
+    const text = message.content.map(block => (block.type === 'text' ? block.text : '')).join('')
 
     const cleaned = text.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, m =>
       m.replace(/```json|```/g, '')

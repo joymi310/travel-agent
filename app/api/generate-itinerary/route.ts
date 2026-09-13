@@ -1,8 +1,9 @@
-import { anthropic } from '@ai-sdk/anthropic'
-import { streamText } from 'ai'
+import Anthropic from '@anthropic-ai/sdk'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 export const maxDuration = 120
+
+const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const MAX_STR = 300
 
@@ -111,27 +112,29 @@ RULES (apply to both parts):
 - For luxury travellers: at least one fine dining venue per trip; add "(reservation recommended)" to dish field if needed
 - The wandr_data block must be on ONE LINE — no internal newlines in the JSON`
 
-    const result = streamText({
-      model: anthropic('claude-sonnet-5'),
+    const anthropicStream = anthropicClient.messages.stream({
+      model: 'claude-sonnet-5',
+      max_tokens: maxTokens,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
-      maxTokens,
     })
 
-    // Use fullStream so errors are logged rather than silently dropped
+    // Iterate raw events so errors are logged rather than silently dropped
     const encoder = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          for await (const part of result.fullStream) {
-            if (part.type === 'text-delta') {
-              controller.enqueue(encoder.encode(part.textDelta))
-            } else if (part.type === 'error') {
-              console.error('generate-itinerary stream error:', part.error)
+          for await (const event of anthropicStream) {
+            if (
+              event.type === 'content_block_delta' &&
+              'delta' in event &&
+              event.delta.type === 'text_delta'
+            ) {
+              controller.enqueue(encoder.encode(event.delta.text))
             }
           }
         } catch (err) {
-          console.error('generate-itinerary stream read error:', err)
+          console.error('generate-itinerary stream error:', err)
         }
         controller.close()
       },
