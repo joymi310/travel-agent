@@ -73,8 +73,10 @@ export async function POST(req: Request) {
       : 'EXPLORATION STYLE — MIXED: Balance 1–2 headline sights per city with neighbourhood exploration and local spots. This is the default balanced approach.'
 
     const actualDuration = duration > 0 ? duration : 7
-    // Extra tokens needed for markdown + JSON dual output
-    const maxTokens = Math.min(Math.max(actualDuration * 900 + 2500, 6000), 16000)
+    // Extra tokens needed for markdown + JSON dual output. The old margin (900/day)
+    // was too tight — verbose styles (e.g. off_beaten_track) could hit the cap before
+    // the closing </wandr_data> tag, truncating the JSON and breaking client parsing.
+    const maxTokens = Math.min(Math.max(actualDuration * 1500 + 3000, 6000), 16000)
 
     const systemPrompt = `You are a travel planning assistant. Output your response in exactly two parts with nothing between them.
 
@@ -135,6 +137,14 @@ RULES (apply to both parts):
           }
         } catch (err) {
           console.error('generate-itinerary stream error:', err)
+        }
+        try {
+          const finalMessage = await anthropicStream.finalMessage()
+          if (finalMessage.stop_reason === 'max_tokens') {
+            console.error(`generate-itinerary hit max_tokens (${maxTokens}) — response likely truncated before </wandr_data>`)
+          }
+        } catch {
+          // finalMessage() throws if the stream already errored above — already logged
         }
         controller.close()
       },
