@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WayfindrMap from '@/components/WayfindrMap'
@@ -19,7 +19,44 @@ export default function HomePage() {
   const [showWizard, setShowWizard] = useState(false)
   const [wizardInitialDest, setWizardInitialDest] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null)
   const router = useRouter()
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+    mobileMenuButtonRef.current?.focus()
+  }
+
+  // WF-05: trap focus in the mobile nav panel and close on Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const panel = mobileMenuRef.current
+    if (!panel) return
+    const focusables = panel.querySelectorAll<HTMLElement>('a[href]')
+    focusables[0]?.focus()
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        closeMobileMenu()
+        return
+      }
+      if (e.key === 'Tab' && focusables.length > 0) {
+        const first = focusables[0]
+        const last = focusables[focusables.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileMenuOpen])
 
   // Auto-open wizard if ?destination= or ?wizard=1 param is present
   useEffect(() => {
@@ -95,10 +132,12 @@ export default function HomePage() {
             Get started free
           </Link>
           <button
+            ref={mobileMenuButtonRef}
             type="button"
             className="md:hidden p-2 -mr-2 rounded-full transition-opacity hover:opacity-70"
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
             onClick={() => setMobileMenuOpen(o => !o)}
             style={{ color: C.dark }}>
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -109,11 +148,13 @@ export default function HomePage() {
       {/* ── MOBILE NAV MENU ── */}
       {mobileMenuOpen && (
         <div
+          id="mobile-nav-menu"
+          ref={mobileMenuRef}
           className="md:hidden fixed top-16 left-0 right-0 z-40 flex flex-col gap-4 px-6 py-5 text-sm font-medium"
           style={{ background: C.sand, borderBottom: `1px solid ${C.saffron}22`, color: C.dark }}>
-          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">How it works</a>
-          <Link href="/cities" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">City Guides</Link>
-          <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">Sign in</Link>
+          <a href="#how-it-works" onClick={closeMobileMenu} className="hover:opacity-70 transition-opacity">How it works</a>
+          <Link href="/cities" onClick={closeMobileMenu} className="hover:opacity-70 transition-opacity">City Guides</Link>
+          <Link href="/login" onClick={closeMobileMenu} className="hover:opacity-70 transition-opacity">Sign in</Link>
         </div>
       )}
 
@@ -202,7 +243,7 @@ export default function HomePage() {
               Just talk.<br />Wayfindr figures out the rest.
             </h2>
             <p className="text-base leading-relaxed opacity-70 max-w-sm">
-              No forms. No dropdowns. Tell Wayfindr what kind of trip you want — in your own words — and it builds the plan around you.
+              A few quick taps to set the scene, then just talk. Tell Wayfindr what you want in your own words and it builds the plan around you.
             </p>
             <button onClick={handleStartPlanning}
               className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-full text-sm transition-all hover:opacity-90"
@@ -468,9 +509,9 @@ export default function HomePage() {
             <p className="text-xs opacity-30 text-center">Powered by Claude · Anthropic</p>
           </div>
           <div className="flex gap-6 text-xs opacity-50">
-            <a href="#" className="hover:opacity-100 transition-opacity">Privacy</a>
+            <Link href="/privacy" className="hover:opacity-100 transition-opacity">Privacy</Link>
             <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>
-            <a href="#" className="hover:opacity-100 transition-opacity">Contact</a>
+            <a href="mailto:hello@wayfindrtravel.com" className="hover:opacity-100 transition-opacity">Contact</a>
           </div>
         </div>
       </footer>

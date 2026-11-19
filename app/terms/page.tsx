@@ -133,7 +133,7 @@ export default function TermsPage() {
               <span className={styles.sectionNum}>07</span>
               <h2 className={styles.sectionH2}>Privacy</h2>
             </div>
-            <p>Your use of Wayfindr is also governed by our Privacy Policy, which is incorporated into these Terms by reference. We handle your personal information in accordance with the Privacy Act 2020 (New Zealand).</p>
+            <p>Your use of Wayfindr is also governed by our <Link href="/privacy">Privacy Policy</Link>, which is incorporated into these Terms by reference. We handle your personal information in accordance with the Privacy Act 2020 (New Zealand).</p>
             <p>By using the Service, you consent to the collection and use of your information as described in our Privacy Policy.</p>
           </section>
 
@@ -171,7 +171,7 @@ export default function TermsPage() {
             <p>If you have any questions about these Terms, please contact us:</p>
             <div className={styles.contactBlock}>
               <p><strong style={{ color: 'var(--paper)' }}>Wayfindr</strong></p>
-              <p>Email: <a href="mailto:joymi310@gmail.com">joymi310@gmail.com</a></p>
+              <p>Email: <a href="mailto:hello@wayfindrtravel.com">hello@wayfindrtravel.com</a></p>
               <p>New Zealand</p>
             </div>
           </section>
