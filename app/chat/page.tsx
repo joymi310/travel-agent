@@ -142,6 +142,7 @@ export default function ChatPage() {
     } catch { return null }
   })
   const [generating, setGenerating] = useState(false)
+  const [generatingSlow, setGeneratingSlow] = useState(false)
   const [genError, setGenError] = useState(false)
   const [pendingTripToSave, setPendingTripToSave] = useState<{ wizardAnswers: WizardAnswers; itinerary: Itinerary } | null>(null)
   const myTripsRef = useRef<HTMLDivElement>(null)
@@ -367,7 +368,13 @@ export default function ChatPage() {
 
   const startGeneration = async (answers: WizardAnswers) => {
     setGenerating(true)
+    setGeneratingSlow(false)
     setGenError(false)
+    // Generation time varies a lot request-to-request (more detail = more tokens
+    // = longer), and the client has no progress signal until the full response
+    // arrives — so past ~30s, swap in reassuring copy instead of leaving the
+    // same "this will take a minute" message up indefinitely.
+    const slowTimer = setTimeout(() => setGeneratingSlow(true), 30000)
     try {
       const res = await fetch('/api/generate-itinerary', {
         method: 'POST',
@@ -400,7 +407,9 @@ export default function ChatPage() {
       console.error('[wayfindr] Generation failed:', err)
       setGenError(true)
     } finally {
+      clearTimeout(slowTimer)
       setGenerating(false)
+      setGeneratingSlow(false)
     }
   }
 
@@ -704,7 +713,7 @@ export default function ChatPage() {
               </div>
             ))}
             <p className="text-sm mt-auto text-center" style={{ color: `${C.dark}40` }}>
-              Building your itinerary…
+              {generatingSlow ? 'Still working — some trips take a little longer…' : 'Building your itinerary…'}
             </p>
           </div>
         )}
@@ -759,7 +768,9 @@ export default function ChatPage() {
                         <span className="lg:hidden">Your itinerary will appear in the <strong>Itinerary</strong> tab above once it&apos;s ready.</span>
                       </p>
                       <p className="text-sm text-center max-w-xs mx-auto" style={{ color: C.dark, opacity: 0.35 }}>
-                        This will take a minute. We&apos;re ensuring we&apos;re getting the best recommendations for you.
+                        {generatingSlow
+                          ? "Still working — this one's taking a bit longer than usual, hang tight."
+                          : "This will take a minute. We're ensuring we're getting the best recommendations for you."}
                       </p>
                     </>
                   ) : (
