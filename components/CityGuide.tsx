@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useCompletion } from 'ai/react'
 import ReactMarkdown from 'react-markdown'
 import { CityQuestionnaire, type QuestionnaireAnswers } from './CityQuestionnaire'
@@ -105,6 +106,10 @@ function SectionCard({ title, emoji, color, content, isStreaming }: {
 }
 
 export function CityGuide({ city, initialAnswers }: Props) {
+  const searchParams = useSearchParams()
+  // WF-07: arriving via the visa callout should land straight in the chat,
+  // not get interrupted by the personalisation popup
+  const skipQuestionnaire = searchParams.get('ask') === 'visa'
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireAnswers | null>(null)
   const [dismissed, setDismissed] = useState(false)
   const [triggered, setTriggered] = useState(false)
@@ -155,7 +160,7 @@ export function CityGuide({ city, initialAnswers }: Props) {
       <div ref={sentinelRef} />
 
       {/* Questionnaire modal — shown when user scrolls to this section */}
-      {triggered && !questionnaire && !dismissed && (
+      {triggered && !questionnaire && !dismissed && !skipQuestionnaire && (
         <CityQuestionnaire
           cityName={city.name}
           initialAnswers={initialAnswers}
