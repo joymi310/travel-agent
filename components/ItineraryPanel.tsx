@@ -179,6 +179,12 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
   const [budgetOpen, setBudgetOpen] = useState(false)
   const [view, setView] = useState<'list' | 'map'>('list')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [expertOpen, setExpertOpen] = useState(false)
+  const [expertNote, setExpertNote] = useState('')
+  const [expertEmail, setExpertEmail] = useState('')
+  const [expertSubmitting, setExpertSubmitting] = useState(false)
+  const [expertDone, setExpertDone] = useState(false)
+  const [expertError, setExpertError] = useState('')
 
   const toggleMeal = (key: string) => {
     setExpandedMeals(prev => {
@@ -229,11 +235,48 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
     setTimeout(() => setShareLabel('Share'), 2000)
   }
 
+  const submitExpertRequest = async () => {
+    if (!expertEmail.trim()) return
+    setExpertSubmitting(true)
+    setExpertError('')
+    try {
+      const res = await fetch('/api/request-expert-review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination: itinerary.destination,
+          duration: itinerary.duration,
+          itinerary,
+          note: expertNote,
+          email: expertEmail,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      setExpertDone(true)
+    } catch (err) {
+      setExpertError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setExpertSubmitting(false)
+    }
+  }
+
+  const closeExpertModal = () => {
+    setExpertOpen(false)
+    setTimeout(() => {
+      setExpertNote('')
+      setExpertEmail('')
+      setExpertDone(false)
+      setExpertError('')
+    }, 300)
+  }
+
   const actions = [
     { label: 'Print / PDF', icon: '🖨️', onClick: handlePrint },
     { label: 'Spreadsheet', icon: '📊', onClick: handleCsv },
     { label: 'Word doc',    icon: '📄', onClick: handleWordDoc },
     { label: shareLabel,   icon: '🔗', onClick: handleShare },
+    { label: 'Ask a human to review', icon: '🧭', onClick: () => setExpertOpen(true) },
   ]
 
   return (
@@ -575,6 +618,110 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
           </div>
         )
       })()}
+
+      {/* Expert review request modal */}
+      {expertOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(26,18,8,0.5)' }}
+          onClick={e => e.target === e.currentTarget && closeExpertModal()}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl"
+            style={{ background: C.sand }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="expert-review-title"
+          >
+            {expertDone ? (
+              <div className="text-center space-y-3 py-4">
+                <div className="text-3xl">🧭</div>
+                <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                  Sent!
+                </h2>
+                <p className="text-sm" style={{ color: C.dark, opacity: 0.6 }}>
+                  We&apos;ll email feedback to <strong>{expertEmail}</strong> within a few days.
+                </p>
+                <button
+                  onClick={closeExpertModal}
+                  className="mt-2 text-sm font-medium px-5 py-2 rounded-full transition-opacity hover:opacity-80"
+                  style={{ background: C.terra, color: C.sand }}
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-start justify-between">
+                  <h2 id="expert-review-title" className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
+                    Get a human&rsquo;s take
+                  </h2>
+                  <button onClick={closeExpertModal} aria-label="Close" className="text-xl leading-none transition-opacity hover:opacity-50" style={{ color: C.dark }}>×</button>
+                </div>
+                <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
+                  A real person from the Wayfindr team will look over your itinerary and reply by email.
+                  Free during beta — replies usually take a few days, no guaranteed turnaround.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: C.dark, opacity: 0.5 }}>
+                      Email <span style={{ color: C.terra }}>*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={expertEmail}
+                      onChange={e => setExpertEmail(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && !expertSubmitting && submitExpertRequest()}
+                      placeholder="you@example.com"
+                      className="w-full rounded-xl px-4 py-2.5 text-sm outline-none"
+                      style={{ background: 'white', border: `1.5px solid ${C.saffron}44`, color: C.dark }}
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: C.dark, opacity: 0.5 }}>
+                      Anything specific you&apos;d like checked? <span style={{ color: C.dark, opacity: 0.3 }}>(optional)</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={expertNote}
+                      onChange={e => setExpertNote(e.target.value)}
+                      placeholder="e.g. Is 3 days enough for Tokyo? Is this pace too packed?"
+                      className="w-full rounded-xl px-4 py-2.5 text-sm outline-none resize-none"
+                      style={{ background: 'white', border: `1.5px solid ${C.saffron}44`, color: C.dark }}
+                    />
+                  </div>
+                </div>
+
+                {expertError && (
+                  <p className="text-xs px-3 py-2 rounded-lg" style={{ background: `${C.terra}15`, color: C.terra }}>
+                    {expertError}
+                  </p>
+                )}
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={submitExpertRequest}
+                    disabled={expertSubmitting || !expertEmail.trim()}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+                    style={{ background: C.terra, color: C.sand }}
+                  >
+                    {expertSubmitting ? 'Sending…' : 'Send for review'}
+                  </button>
+                  <button
+                    onClick={closeExpertModal}
+                    className="px-4 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-70"
+                    style={{ color: C.dark, opacity: 0.5 }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
