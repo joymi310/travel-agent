@@ -470,6 +470,9 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+          <p className="text-center text-sm mt-8" style={{ color: C.dark, opacity: 0.6 }}>
+            Want a second opinion? Once your plan is built, ask a real person on the Wayfindr team to look it over — free during beta.
+          </p>
         </div>
       </section>
 
