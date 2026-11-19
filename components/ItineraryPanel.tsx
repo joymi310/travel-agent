@@ -660,7 +660,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                 </div>
                 <p className="text-sm" style={{ color: C.dark, opacity: 0.55 }}>
                   A real person from the Wayfindr team will look over your itinerary and reply by email.
-                  Free during beta — replies usually take a few days, no guaranteed turnaround.
+                  Free during beta — replies usually take a few days.
                 </p>
 
                 <div className="space-y-3">
