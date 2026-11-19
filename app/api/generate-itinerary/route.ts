@@ -73,37 +73,18 @@ export async function POST(req: Request) {
       : 'EXPLORATION STYLE — MIXED: Balance 1–2 headline sights per city with neighbourhood exploration and local spots. This is the default balanced approach.'
 
     const actualDuration = duration > 0 ? duration : 7
-    // Extra tokens needed for markdown + JSON dual output. The old margin (900/day)
-    // was too tight — verbose styles (e.g. off_beaten_track) could hit the cap before
-    // the closing </wandr_data> tag, truncating the JSON and breaking client parsing.
+    // Ceiling only — the prompt now asks for JSON alone (no duplicate markdown
+    // rendition), so actual output is well under this; kept generous to avoid
+    // ever truncating a verbose style (e.g. off_beaten_track) before </wandr_data>.
     const maxTokens = Math.min(Math.max(actualDuration * 1500 + 3000, 6000), 16000)
 
-    const systemPrompt = `You are a travel planning assistant. Output your response in exactly two parts with nothing between them.
-
-PART 1 — A readable markdown itinerary. Use exactly this format for every day:
-
-# {Destination} — {N} days
-*{one-line tagline}*
-
-## Day 1 — {Title}
-**Highlights**
-- {Specific highlight} *({reason ≤8 words})*
-- {Specific highlight} *({reason ≤8 words})*
-
-**Stay:** {Named hotel or guesthouse} — {reason ≤8 words}
-**Meals:** {Named restaurant} ({exact dish, ~local price}) · {Named restaurant} ({exact dish})
-**Transport:** {practical transport note}
-**Est. cost:** {realistic amount}
-
-[Repeat for ALL ${actualDuration} days — no gaps, no "similar to above"]
-
-PART 2 — Immediately after the last day (no blank line), output the structured data in XML tags, minified JSON on one line:
+    const systemPrompt = `You are a travel planning assistant. Output ONLY the structured itinerary data below — no markdown, no prose, no preamble, nothing before or after it. Output the JSON wrapped in XML tags, minified on one line:
 <wandr_data>{"destination":"...","duration":"${actualDuration} days","tagline":"...","follow_up_questions":["question referencing specific day/city","question referencing specific day/city"],"locations":[{"day":1,"city":"...","lat":0.0,"lng":0.0,"label":"City (Days 1–N)"}],"budget_summary":{"total_low":0,"total_high":0,"currency":"...","includes":["accommodation","activities","local transport","food"],"excludes":["international flights"],"per_day_avg":0,"breakdown":{"accommodation":0,"food":0,"activities":0,"local_transport":0}},"days":[{"day":1,"title":"...","highlights":[{"text":"...","reason":"..."}],"accommodation":{"name":"...","reason":"..."},"meals":[{"name":"...","dish":"...","reason":"..."}],"transport":"...","estimatedCost":"..."}]}</wandr_data>
 
 ${returningVisitorNote} ${explorationNote}
 
-RULES (apply to both parts):
-- Generate exactly ${actualDuration} days — no skipping, no summarising
+RULES:
+- Generate exactly ${actualDuration} days in the "days" array — no skipping, no summarising
 - Every restaurant/bar must be a real establishment that verifiably exists at the destination. NEVER use a name from another city or country, and NEVER fabricate a name. If you are not confident a specific named venue exists at this location, use a vivid description instead (e.g. "a decades-old pho stall on Hang Buom St in the Old Quarter") — a concrete description beats an invented name
 - Every reason field: ≤8 words, punchy
 - Locations array: one entry per city/area change; for single-city trips use neighbourhood granularity with accurate lat/lng
