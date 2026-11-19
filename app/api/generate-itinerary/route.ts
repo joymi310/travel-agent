@@ -13,6 +13,10 @@ function sanitize(value: unknown, max = MAX_STR): string {
 }
 
 export async function POST(req: Request) {
+  // Lightweight timing breadcrumbs — this route has a history of slow/failed
+  // generations that are hard to diagnose without knowing which phase is
+  // actually slow (rate-limit check vs. Anthropic time-to-first-byte vs.
+  // streaming). Check Vercel function logs for "[timing]" lines first.
   const t0 = Date.now()
   try {
     const body = await req.json()
