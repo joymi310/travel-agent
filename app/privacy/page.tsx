@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <ol className={styles.tocList}>
             <li><a href="#collect">Information We Collect</a></li>
             <li><a href="#use">How We Use It</a></li>
-            <li><a href="#storage">Where It's Stored</a></li>
+            <li><a href="#storage">Where It&apos;s Stored</a></li>
             <li><a href="#ai">AI Processing</a></li>
             <li><a href="#retention">Data Retention</a></li>
             <li><a href="#rights">Your Rights</a></li>
