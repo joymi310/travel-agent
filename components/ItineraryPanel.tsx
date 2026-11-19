@@ -68,6 +68,20 @@ function accommodationReason(a: string | Accommodation): string | undefined {
   return typeof a === 'string' ? undefined : a.reason
 }
 
+// Resolve the city a given day actually takes place in (day trips, e.g. Sintra,
+// differ from the trip's overall destination), stripping any neighbourhood
+// suffix like "Lisbon (Baixa-Chiado)" down to "Lisbon".
+function dayCity(dayNumber: number, itinerary: Itinerary): string {
+  const city = itinerary.locations?.find(l => l.day === dayNumber)?.city || itinerary.destination
+  return city.split(' (')[0].trim()
+}
+
+function mealMapsUrl(name: string, dayNumber: number, itinerary: Itinerary): string {
+  const city = dayCity(dayNumber, itinerary)
+  const query = city && !name.toLowerCase().includes(city.toLowerCase()) ? `${name} ${city}` : name
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+}
+
 export interface BudgetSummary {
   total_low: number
   total_high: number
@@ -439,7 +453,7 @@ export function ItineraryPanel({ itinerary }: { itinerary: Itinerary }) {
                         const mealKey = `${i}-${j}`
                         const mealExpanded = expandedMeals.has(mealKey)
                         const hasDetail = !!(dish || reason)
-                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + itinerary.destination)}`
+                        const mapsUrl = mealMapsUrl(name, day.day, itinerary)
                         return (
                           <div key={j} className="rounded-xl px-3 py-2"
                             style={{ background: `${C.saffron}08`, border: `1px solid ${C.saffron}18` }}>

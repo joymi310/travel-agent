@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TripWizard, type WizardAnswers } from '@/components/TripWizard'
 import WayfindrMap from '@/components/WayfindrMap'
-import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil } from 'lucide-react'
+import { Navigation, MessageCircle, Map, SlidersHorizontal, Sparkles, DollarSign, CalendarDays, RefreshCw, Pencil, Menu, X } from 'lucide-react'
 // ─── Colours ────────────────────────────────────────────────────────────────
 const C = {
   sand: '#F5ECD7',
@@ -18,6 +18,7 @@ const C = {
 export default function HomePage() {
   const [showWizard, setShowWizard] = useState(false)
   const [wizardInitialDest, setWizardInitialDest] = useState('')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
 
   // Auto-open wizard if ?destination= or ?wizard=1 param is present
@@ -85,7 +86,7 @@ export default function HomePage() {
           <Link href="/cities" className="hover:opacity-70 transition-opacity">City Guides</Link>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/login" className="hidden sm:block text-sm font-medium px-4 py-2 rounded-full border transition-all hover:opacity-80"
+          <Link href="/login" className="hidden md:block text-sm font-medium px-4 py-2 rounded-full border transition-all hover:opacity-80"
             style={{ borderColor: C.terra, color: C.terra }}>
             Sign in
           </Link>
@@ -93,8 +94,28 @@ export default function HomePage() {
             style={{ background: C.terra, color: C.sand }}>
             Get started free
           </Link>
+          <button
+            type="button"
+            className="md:hidden p-2 -mr-2 rounded-full transition-opacity hover:opacity-70"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(o => !o)}
+            style={{ color: C.dark }}>
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </nav>
+
+      {/* ── MOBILE NAV MENU ── */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden fixed top-16 left-0 right-0 z-40 flex flex-col gap-4 px-6 py-5 text-sm font-medium"
+          style={{ background: C.sand, borderBottom: `1px solid ${C.saffron}22`, color: C.dark }}>
+          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">How it works</a>
+          <Link href="/cities" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">City Guides</Link>
+          <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="hover:opacity-70 transition-opacity">Sign in</Link>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <main id="main-content">
