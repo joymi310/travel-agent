@@ -13,6 +13,7 @@ function sanitize(value: unknown, max = MAX_STR): string {
 }
 
 export async function POST(req: Request) {
+  const t0 = Date.now()
   try {
     const body = await req.json()
 
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
       ?? req.headers.get('x-real-ip')
       ?? 'anonymous'
     const { allowed } = await checkRateLimit(`generate:${ip}`, false)
+    console.error(`[timing] rate-limit check done at +${Date.now() - t0}ms`)
     if (!allowed) {
       return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
     }
@@ -95,6 +97,7 @@ RULES:
 - For luxury travellers: at least one fine dining venue per trip; add "(reservation recommended)" to dish field if needed
 - The wandr_data block must be on ONE LINE — no internal newlines in the JSON`
 
+    console.error(`[timing] calling anthropic.stream() at +${Date.now() - t0}ms`)
     const anthropicStream = anthropicClient.messages.stream({
       model: 'claude-sonnet-5',
       max_tokens: maxTokens,
@@ -106,8 +109,13 @@ RULES:
     const encoder = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
+        let eventCount = 0
         try {
           for await (const event of anthropicStream) {
+            eventCount++
+            if (eventCount <= 5) {
+              console.error(`[timing] event #${eventCount} type=${event.type} at +${Date.now() - t0}ms`)
+            }
             if (
               event.type === 'content_block_delta' &&
               'delta' in event &&
@@ -116,6 +124,7 @@ RULES:
               controller.enqueue(encoder.encode(event.delta.text))
             }
           }
+          console.error(`[timing] stream loop done, ${eventCount} events, at +${Date.now() - t0}ms`)
         } catch (err) {
           console.error('generate-itinerary stream error:', err)
         }
