@@ -41,13 +41,15 @@ export function CityChat({ city, country, suggestedQuestions }: CityChatProps) {
   }, [])
 
   // WF-07: arriving via the visa callout pre-fills a visa question instead
-  // of opening the general trip-planning wizard
+  // of opening the general trip-planning wizard. Depends on the param value
+  // itself (not just mount) since clicking the link while already on this
+  // page is a same-route client-side navigation that doesn't remount it.
+  const askParam = searchParams.get('ask')
   useEffect(() => {
-    if (searchParams.get('ask') === 'visa') {
+    if (askParam === 'visa') {
       setInput(`What are the entry requirements for ${city}? My passport is from…`)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [askParam, city, setInput])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
