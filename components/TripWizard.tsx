@@ -39,7 +39,7 @@ const TRAVELLER_PROFILES = [
   { id: 'Solo female traveller', icon: '👩', desc: 'Solo, safety-aware planning' },
   { id: 'Senior traveller', icon: '🌿', desc: 'Comfort-focused, relaxed pace' },
   { id: 'Couple', icon: '❤️', desc: 'Two adults' },
-  { id: 'Family with young kids', icon: '🧸', desc: 'Children under 5' },
+  { id: 'Family with young kids', icon: '🧸', desc: 'Children under 6' },
   { id: 'Family with older kids', icon: '🎮', desc: 'Children aged 6–11' },
   { id: 'Family with teens', icon: '🏄', desc: 'Teenagers in the group' },
   { id: 'Mixed group', icon: '👥', desc: 'Friends, mixed ages, or varied interests' },

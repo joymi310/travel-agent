@@ -17,7 +17,7 @@ const PROFILE_BEHAVIOURS: Record<string, string> = {
 - Suggest a slower pace with built-in rest time
 - Flag any medical/insurance considerations worth thinking about for the destination`,
 
-  family_young_kids: `## THIS USER'S PROFILE: Family with young kids (under 5)
+  family_young_kids: `## THIS USER'S PROFILE: Family with young kids (under 6)
 - Build the itinerary around nap times and kid energy levels — mornings for big activities, afternoons lighter
 - Recommend apartment/villa accommodation with kitchen access where possible (saves money, easier for fussy eaters)
 - Flag stroller accessibility — cobblestones, stairs, terrain

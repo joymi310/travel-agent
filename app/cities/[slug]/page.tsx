@@ -241,10 +241,10 @@ export default async function CityPage({ params }: { params: { slug: string } })
             <div>
               <p className="text-xs font-semibold mb-0.5" style={{ color: '#9A5800' }}>Visa & entry requirements</p>
               <p className="text-sm leading-relaxed mb-2" style={{ color: C.dark, opacity: 0.8 }}>
-                Entry requirements change — ETIAS, eVisa schemes, and travel advisories are updated regularly.
-                Ask Wayfindr for a current answer based on your passport.
+                Entry rules depend on your passport and change often. Ask Wayfindr for a current answer,
+                and always confirm with official government sources before you travel.
               </p>
-              <Link href={`/?destination=${city.slug}`}
+              <Link href="?ask=visa#city-chat"
                 className="text-xs font-semibold transition-opacity hover:opacity-70"
                 style={{ color: '#9A5800' }}>
                 Ask Wayfindr about visas for {city.name} →

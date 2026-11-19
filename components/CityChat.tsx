@@ -2,6 +2,7 @@
 
 import { useChat } from 'ai/react'
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -27,6 +28,8 @@ export function CityChat({ city, country, suggestedQuestions }: CityChatProps) {
   const [guestCount, setGuestCount] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
 
+  const searchParams = useSearchParams()
+
   const { messages, input, setInput, handleSubmit, isLoading } = useChat({
     api: '/api/city-chat',
     body: { city, country },
@@ -35,6 +38,15 @@ export function CityChat({ city, country, suggestedQuestions }: CityChatProps) {
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => setIsAuthenticated(!!data.user))
+  }, [])
+
+  // WF-07: arriving via the visa callout pre-fills a visa question instead
+  // of opening the general trip-planning wizard
+  useEffect(() => {
+    if (searchParams.get('ask') === 'visa') {
+      setInput(`What are the entry requirements for ${city}? My passport is from…`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -59,7 +71,7 @@ export function CityChat({ city, country, suggestedQuestions }: CityChatProps) {
   }
 
   return (
-    <section className="py-16 px-4">
+    <section id="city-chat" className="py-16 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: 'var(--font-playfair)', color: C.dark }}>
